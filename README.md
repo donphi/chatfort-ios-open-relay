@@ -1,6 +1,6 @@
 # Open Relay
 
-> **ℹ️ Previously known as "Open UI"** — The app was renamed to **Open Relay** starting with v2.0.0. The GitHub repository (`Open-UI`) and Xcode project files retain the original name for continuity, but the app on the App Store and all display names are now **Open Relay**.
+> **ℹ️ Previously known as "Open UI"** — The app was renamed to **Open Relay** starting with v2.0.0. The Xcode project files still use the original "Open UI" name internally, but the GitHub repo, App Store listing, and all display names are now **Open Relay**.
 
 **A beautiful, native iOS & iPadOS client for [Open WebUI](https://openwebui.com).**
 
@@ -32,7 +32,7 @@ Open Relay connects to your Open WebUI server and lets you have conversations wi
 
 **@ Model Mentions** — Type `@` in the chat input to instantly switch which model handles your message. Pick from a fluent popup, and a persistent chip appears in the composer showing the active override. Switch models mid-conversation without changing the chat's default.
 
-**$ Skills** — Type `$` in the chat input to browse and apply your Open WebUI skills directly from the composer.
+**\$ Skills** — Type `$` in the chat input to browse and apply your Open WebUI skills directly from the composer.
 
 **/ Prompt Library** — Type `/` in the chat input to browse and search your Open WebUI prompt library with slash commands.
 
@@ -108,8 +108,8 @@ Open Relay connects to your Open WebUI server and lets you have conversations wi
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ichigo3766/Open-UI.git
-cd Open-UI
+git clone https://github.com/ichigo3766/Open-Relay.git
+cd Open-Relay
 ```
 
 ### 2. Open in Xcode
