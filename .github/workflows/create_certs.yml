@@ -1,0 +1,80 @@
+name: 3. Create Certificates
+run-name: Create Certificates (${{ github.ref_name }})
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  GH_PAT: ${{ secrets.GH_PAT }}
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: macos-15
+    steps:
+      - name: Select Xcode version
+        run: "sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer"
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install Project Dependencies
+        run: bundle install
+
+      - name: Fastlane Validate Secrets
+        run: bundle exec fastlane validate_secrets
+        env:
+          TEAMID: ${{ secrets.TEAMID }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+      - name: Fastlane Check and Renew Certificates
+        run: bundle exec fastlane check_and_renew_certificates
+        env:
+          TEAMID: ${{ secrets.TEAMID }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+      - name: Check if certificate renewal is needed
+        id: check-renewal
+        run: |
+          if [ -f new_certificate_needed.txt ]; then
+            NEEDS_RENEWAL=$(cat new_certificate_needed.txt)
+            echo "needs_renewal=$NEEDS_RENEWAL" >> $GITHUB_OUTPUT
+          else
+            echo "needs_renewal=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Nuke and recreate certificates
+        if: |
+          steps.check-renewal.outputs.needs_renewal == 'true' &&
+          vars.ENABLE_NUKE_CERTS == 'true'
+        run: |
+          bundle exec fastlane nuke_certs
+          bundle exec fastlane certs
+        env:
+          TEAMID: ${{ secrets.TEAMID }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+      - name: Create certificates (first time)
+        if: |
+          steps.check-renewal.outputs.needs_renewal == 'true' &&
+          vars.ENABLE_NUKE_CERTS != 'true'
+        run: bundle exec fastlane certs
+        env:
+          TEAMID: ${{ secrets.TEAMID }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}

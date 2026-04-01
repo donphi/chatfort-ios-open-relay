@@ -1,0 +1,28 @@
+name: 1. Add Identifiers
+run-name: Add Identifiers (${{ github.ref_name }})
+on:
+  workflow_dispatch:
+
+jobs:
+  identifiers:
+    name: Add Identifiers
+    runs-on: macos-15
+    steps:
+      - name: Select Xcode version
+        run: "sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer"
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install Project Dependencies
+        run: bundle install
+
+      - name: Add Identifiers
+        run: bundle exec fastlane identifiers
+        env:
+          TEAMID: ${{ secrets.TEAMID }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
