@@ -49,12 +49,12 @@ struct AboutView: View {
                     linkRow(
                         icon: "curlybraces",
                         title: "Source Code",
-                        url: "https://github.com/Ichigo3766/Open-Relay"
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay"
                     )
                     linkRow(
                         icon: "hand.raised",
                         title: "Privacy Policy",
-                        url: "https://github.com/Ichigo3766/Open-Relay/blob/main/PRIVACY.md",
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/blob/main/PRIVACY.md",
                         showDivider: false
                     )
                 }
@@ -66,41 +66,41 @@ struct AboutView: View {
                         iconColor: .red,
                         title: "Report a Bug",
                         subtitle: "Something broken? Let us know.",
-                        url: "https://github.com/Ichigo3766/Open-Relay/issues/new?template=bug_report.yml"
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml"
                     )
                     linkRow(
                         icon: "sparkles",
                         iconColor: .purple,
                         title: "Request a Feature",
                         subtitle: "Got an idea? We'd love to hear it.",
-                        url: "https://github.com/Ichigo3766/Open-Relay/issues/new?template=feature_request.yml"
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=branding.yml"
                     )
                     linkRow(
                         icon: "paintbrush",
                         iconColor: .orange,
                         title: "UI/UX Improvement",
                         subtitle: "Design or layout feedback.",
-                        url: "https://github.com/Ichigo3766/Open-Relay/issues/new?template=ui_ux.yml"
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=branding.yml"
                     )
                     linkRow(
                         icon: "bolt",
                         iconColor: .yellow,
                         title: "Performance Issue",
                         subtitle: "Slow, laggy, or draining battery?",
-                        url: "https://github.com/Ichigo3766/Open-Relay/issues/new?template=performance.yml"
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml"
                     )
                     linkRow(
                         icon: "questionmark.circle",
                         title: "Ask a Question",
                         subtitle: "Need help with setup or a feature?",
-                        url: "https://github.com/Ichigo3766/Open-Relay/issues/new?template=question.yml",
+                        url: "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml",
                         showDivider: false
                     )
                 }
 
                 // Credits
                 VStack(spacing: Spacing.sm) {
-                    Text("Made with ❤️ for Open WebUI")
+                    Text("Designed by donphi")
                         .scaledFont(size: 12, weight: .medium)
                         .foregroundStyle(theme.textTertiary)
                 }
@@ -119,7 +119,7 @@ struct AboutView: View {
                 .frame(width: 88, height: 88)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
-            Text("Open Relay")
+            Text("ChatFort")
                 .scaledFont(size: 28, weight: .bold)
                 .foregroundStyle(theme.textPrimary)
 

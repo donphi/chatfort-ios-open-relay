@@ -29,7 +29,7 @@ struct OpenUIWidgetsControl: ControlWidget {
 
 struct OpenNewChatControlIntent: AppIntent {
     static var title: LocalizedStringResource = "New Chat"
-    static var description = IntentDescription("Open a new chat in Open Relay.")
+    static var description = IntentDescription("Open a new chat in ChatFort.")
     static var openAppWhenRun: Bool = true
 
     func perform() async throws -> some IntentResult & OpensIntent {

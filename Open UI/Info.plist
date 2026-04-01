@@ -109,7 +109,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Open Relay Chat Item</string>
+			<string>ChatFort Chat Item</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.openui.chat-item</string>
 		</dict>

@@ -220,7 +220,7 @@ struct SettingsView: View {
                     SettingsSection(header: "About") {
                         SettingsCell(
                             icon: "info.circle",
-                            title: "About Open Relay",
+                            title: "About ChatFort",
                             showDivider: false,
                             accessory: .chevron
                         ) {
@@ -1935,7 +1935,7 @@ struct NotificationSettingsView: View {
                 if systemPermissionGranted {
                     Text("Notifications are authorized. You can manage notification style in iOS Settings.")
                 } else {
-                    Text("Notifications require system permission. Tap \"Request Permission\" or enable them in iOS Settings → Open Relay → Notifications.")
+                    Text("Notifications require system permission. Tap \"Request Permission\" or enable them in iOS Settings → ChatFort → Notifications.")
                 }
             }
         }

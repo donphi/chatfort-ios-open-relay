@@ -101,7 +101,7 @@ struct FileChatIntent: AppIntent {
 /// Mirrors the widget channel button and the home-screen "New Channel" quick action.
 struct NewChannelIntent: AppIntent {
     static var title: LocalizedStringResource = "New Channel"
-    static var description = IntentDescription("Open the create-channel sheet in Open Relay.")
+    static var description = IntentDescription("Open the create-channel sheet in ChatFort.")
     static var openAppWhenRun: Bool = true
 
     func perform() async throws -> some IntentResult {
