@@ -1,0 +1,272 @@
+{
+  "brand": {
+    "app_name": "ChatFort",
+    "old_app_name": "Open Relay",
+    "old_app_name_legacy": "Open UI",
+    "author": "donphi",
+    "tagline": "A native iOS client for Open WebUI",
+    "github_org": "donphi",
+    "github_repo": "chatfort-ios-chat-relay",
+    "github_base_url": "https://github.com/donphi/chatfort-ios-chat-relay",
+    "about_links": {
+      "bug_report": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml",
+      "branding": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=branding.yml"
+    },
+    "widget_ask_text": "Ask ChatFort",
+    "credits_text": "Designed by donphi"
+  },
+
+  "string_replacements": [
+    {
+      "file": "Open UI.xcodeproj/project.pbxproj",
+      "replacements": [
+        {
+          "find": "INFOPLIST_KEY_CFBundleDisplayName = \"Open Relay\"",
+          "replace": "INFOPLIST_KEY_CFBundleDisplayName = \"ChatFort\""
+        },
+        {
+          "find": "Open Relay needs camera access to capture photos and documents for chat attachments.",
+          "replace": "ChatFort needs camera access to capture photos and documents for chat attachments."
+        },
+        {
+          "find": "Open Relay uses Face ID to protect your account and conversations.",
+          "replace": "ChatFort uses Face ID to protect your account and conversations."
+        },
+        {
+          "find": "Open Relay needs microphone access for voice input and voice calls.",
+          "replace": "ChatFort needs microphone access for voice input and voice calls."
+        },
+        {
+          "find": "Open Relay needs permission to save images generated in conversations to your photo library.",
+          "replace": "ChatFort needs permission to save images generated in conversations to your photo library."
+        },
+        {
+          "find": "Open Relay needs photo library access to attach images to your conversations.",
+          "replace": "ChatFort needs photo library access to attach images to your conversations."
+        },
+        {
+          "find": "Open Relay uses speech recognition to convert your voice input to text.",
+          "replace": "ChatFort uses speech recognition to convert your voice input to text."
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Settings/Views/AboutView.swift",
+      "replacements": [
+        {
+          "find": "Text(\"Open Relay\")",
+          "replace": "Text(\"ChatFort\")"
+        },
+        {
+          "find": "Text(\"Made with ❤️ for Open WebUI\")",
+          "replace": "Text(\"Designed by donphi\")"
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/blob/main/PRIVACY.md\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/blob/main/PRIVACY.md\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/issues/new?template=bug_report.yml\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/issues/new?template=feature_request.yml\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=branding.yml\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/issues/new?template=ui_ux.yml\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=branding.yml\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/issues/new?template=performance.yml\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml\""
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-Relay/issues/new?template=question.yml\"",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay/issues/new?template=bug_report.yml\""
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Settings/Views/SettingsView.swift",
+      "replacements": [
+        {
+          "find": "title: \"About Open Relay\"",
+          "replace": "title: \"About ChatFort\""
+        },
+        {
+          "find": "iOS Settings → Open Relay → Notifications.",
+          "replace": "iOS Settings → ChatFort → Notifications."
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Settings/Views/AppearanceSettingsView.swift",
+      "replacements": [
+        {
+          "find": "Choose how Open Relay looks.",
+          "replace": "Choose how ChatFort looks."
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+      "replacements": [
+        {
+          "find": "Text(\"Open UI\")",
+          "replace": "Text(\"ChatFort\")"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Core/Services/AppIntentsService.swift",
+      "replacements": [
+        {
+          "find": "Open the create-channel sheet in Open Relay.",
+          "replace": "Open the create-channel sheet in ChatFort."
+        }
+      ]
+    },
+    {
+      "file": "OpenUIWidgets/OpenUIWidgets.swift",
+      "replacements": [
+        {
+          "find": ".configurationDisplayName(\"Open Relay\")",
+          "replace": ".configurationDisplayName(\"ChatFort\")"
+        },
+        {
+          "find": "Quick access to Open Relay from your lock screen.",
+          "replace": "Quick access to ChatFort from your lock screen."
+        },
+        {
+          "find": "Text(\"Ask Open Relay\")",
+          "replace": "Text(\"Ask ChatFort\")"
+        },
+        {
+          "find": "Text(\"Open Relay\")",
+          "replace": "Text(\"ChatFort\")"
+        },
+        {
+          "find": "Label(\"Ask Open Relay\"",
+          "replace": "Label(\"Ask ChatFort\""
+        }
+      ]
+    },
+    {
+      "file": "OpenUIWidgets/OpenUIWidgetsControl.swift",
+      "replacements": [
+        {
+          "find": "Open a new chat in Open Relay.",
+          "replace": "Open a new chat in ChatFort."
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Info.plist",
+      "replacements": [
+        {
+          "find": "<string>Open Relay Chat Item</string>",
+          "replace": "<string>ChatFort Chat Item</string>"
+        }
+      ]
+    },
+    {
+      "file": "PRIVACY.md",
+      "replacements": [
+        {
+          "find": "# Open UI Privacy Policy",
+          "replace": "# ChatFort Privacy Policy"
+        },
+        {
+          "find": "Open UI is an open‑source mobile client for Open WebUI.",
+          "replace": "ChatFort is an open‑source mobile client for Open WebUI."
+        },
+        {
+          "find": "Depending on how you use Open UI,",
+          "replace": "Depending on how you use ChatFort,"
+        },
+        {
+          "find": "Open UI is not directed to children",
+          "replace": "ChatFort is not directed to children"
+        },
+        {
+          "find": "https://github.com/Ichigo3766/Open-UI",
+          "replace": "https://github.com/donphi/chatfort-ios-chat-relay"
+        }
+      ]
+    }
+  ],
+
+  "icon_files": [
+    {
+      "source": "Assets/AppIcon-light.png",
+      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png"
+    },
+    {
+      "source": "Assets/AppIcon-light.png",
+      "target": "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+    },
+    {
+      "source": "Assets/AppIcon-light.png",
+      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png"
+    },
+    {
+      "source": "Assets/AppIcon-light.png",
+      "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+    },
+    {
+      "source": "Assets/AppIcon-dark.png",
+      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png"
+    },
+    {
+      "source": "Assets/AppIcon-dark.png",
+      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png"
+    },
+    {
+      "source": "Assets/AppIcon-tinted.png",
+      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png"
+    },
+    {
+      "source": "Assets/AppIcon-tinted.png",
+      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png"
+    }
+  ],
+
+  "icon_contents_json": [
+    {
+      "target_dir": "Open UI/Assets.xcassets/AppIcon.appiconset",
+      "light_filename": "IMG_0816.png",
+      "dark_filename": "AppIcon-dark.png",
+      "tinted_filename": "AppIcon-tinted.png"
+    },
+    {
+      "target_dir": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset",
+      "light_filename": "IMG_0816.png",
+      "dark_filename": "AppIcon-dark.png",
+      "tinted_filename": "AppIcon-tinted.png"
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI.xcodeproj/project.pbxproj",
+    "Open UI/Features/Settings/Views/AboutView.swift",
+    "Open UI/Features/Settings/Views/SettingsView.swift",
+    "Open UI/Features/Settings/Views/AppearanceSettingsView.swift",
+    "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+    "Open UI/Core/Services/AppIntentsService.swift",
+    "OpenUIWidgets/OpenUIWidgets.swift",
+    "OpenUIWidgets/OpenUIWidgetsControl.swift",
+    "Open UI/Info.plist",
+    "PRIVACY.md",
+    "Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png",
+    "Open UI/Assets.xcassets/AppIcon.appiconset/Contents.json",
+    "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png",
+    "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png",
+    "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/Contents.json",
+    "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+  ]
+}
