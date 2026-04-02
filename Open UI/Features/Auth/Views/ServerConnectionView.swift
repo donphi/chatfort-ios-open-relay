@@ -22,7 +22,7 @@ private struct FloatingOrb: View {
                     offset = CGSize(width: randomX, height: randomY)
                 }
                 withAnimation(.easeInOut(duration: 2)) {
-                    opacity = Double.random(in: 0.15...0.35)
+                    opacity = Double.random(in: 0.05...0.15)
                 }
             }
     }
@@ -206,27 +206,27 @@ struct ServerConnectionView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: Spacing.xl) {
-                    Spacer(minLength: 60)
+                    Spacer(minLength: 50)
 
                     // App branding with animated entrance
                     VStack(spacing: Spacing.md) {
                         // Animated logo
                         ZStack {
                             Circle()
-                                .fill(theme.brandPrimary.opacity(0.1))
+                                .fill(Color.clear)
                                 .frame(width: 100, height: 100)
                                 .scaleEffect(logoScale * 1.3)
 
                             Circle()
-                                .fill(theme.brandPrimary.opacity(0.05))
+                                .fill(Color.clear)
                                 .frame(width: 130, height: 130)
                                 .scaleEffect(logoScale * 1.1)
 
                             Image("AppIconImage")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 72, height: 72)
-                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .frame(width: 100, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                                 .scaleEffect(logoScale)
                         }
                         .opacity(logoOpacity)

@@ -127,6 +127,30 @@
         {
           "find": "Text(\"Open UI\")",
           "replace": "Text(\"ChatFort\")"
+        },
+        {
+          "find": ".fill(theme.brandPrimary.opacity(0.1))",
+          "replace": ".fill(Color.clear)"
+        },
+        {
+          "find": ".fill(theme.brandPrimary.opacity(0.05))",
+          "replace": ".fill(Color.clear)"
+        },
+        {
+          "find": ".frame(width: 72, height: 72)",
+          "replace": ".frame(width: 100, height: 100)"
+        },
+        {
+          "find": ".clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))",
+          "replace": ".clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))"
+        },
+        {
+          "find": "Spacer(minLength: 60)",
+          "replace": "Spacer(minLength: 50)"
+        },
+        {
+          "find": "opacity = Double.random(in: 0.15...0.35)",
+          "replace": "opacity = Double.random(in: 0.05...0.15)"
         }
       ]
     },
