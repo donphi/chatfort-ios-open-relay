@@ -142,7 +142,7 @@ file. It is a proprietary Apple format (old-style plist) that defines:
 | Setting | Current Value | Purpose |
 |---------|---------------|---------|
 | `INFOPLIST_KEY_CFBundleDisplayName` | `"Open Relay"` (app), `OpenUIWidget` (widget) | Name shown on home screen |
-| `PRODUCT_BUNDLE_IDENTIFIER` | `com.openui.openui` (app), `com.openui.openui.OpenUIWidget` (widget) | Unique app identifier |
+| `PRODUCT_BUNDLE_IDENTIFIER` | `com.openui.openui` (app), `com.openui.openui.OpenUIWidget` (widget) — overridden to `com.chatfort.chatfort` / `com.chatfort.chatfort.OpenUIWidget` by `brand_config.json` | Unique app identifier |
 | `ASSETCATALOG_COMPILER_APPICON_NAME` | `AppIcon` | Which asset catalog icon set to use |
 | `ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME` | `AccentColor` | Which asset catalog color to use as accent |
 | `MARKETING_VERSION` | `2.4` | Version shown to users |
@@ -265,9 +265,9 @@ These contain "openui" but are internal and must NOT be changed:
 
 | Identifier | Why |
 |------------|-----|
-| `com.openui.openui` (bundle ID) | Changing creates a different app; existing installs won't update |
+| `com.openui.openui` (bundle ID) | **Now overridden** to `com.chatfort.chatfort` by `brand_config.json` (required for a different Apple Developer team) |
 | `openui://` (URL scheme) | Widgets and shortcuts depend on this |
-| `group.com.openui.openui` (app group) | Shared data between app and widget |
+| `group.com.openui.openui` (app group) | **Now overridden** to `group.com.chatfort.chatfort` by `brand_config.json` |
 | `.openUINewChatWithFocus` etc. (Notification.Name) | Internal Swift notifications |
 | `com.openui` (Logger subsystem) | Internal logging |
 | `com.openui.auth` (Keychain service) | Changing loses stored credentials |
@@ -596,8 +596,12 @@ The app uses these entitlements:
 - `com.apple.developer.kernel.increased-memory-limit` (on-device ML)
 - `com.apple.developer.background-tasks.continued-processing.gpu` (iOS 26+)
 
-If you change the bundle ID, you must also update the app group identifier in BOTH
-entitlement files and in the code that references `group.com.openui.openui`.
+The bundle ID and app group have been changed to `com.chatfort.chatfort` and
+`group.com.chatfort.chatfort` respectively. These overrides are applied automatically
+by `brand_config.json` via the override script. The entitlements, `SharedDataService.swift`,
+`Fastfile`, `Info.plist`, `Open_UIApp.swift`, and `OpenUIWidgetsControl.swift` are all
+covered. All three GitHub Actions workflows run the override script before any fastlane
+or build commands.
 
 ### Localizable.xcstrings
 

@@ -158,8 +158,11 @@ the app for your device.
 
 The default Bundle Identifier (`com.openui.openui`) and App Group
 (`group.com.openui.openui`) are registered to the upstream developer's Apple
-account. **You must change them to something unique to your own account**,
-otherwise Xcode cannot create provisioning profiles and you will see errors like
+account. **If you are building via GitHub Actions, the override script handles
+this automatically** (changing to `com.chatfort.chatfort` and
+`group.com.chatfort.chatfort`). **For local Xcode builds, you must change them
+manually** to something unique to your own account, otherwise Xcode cannot
+create provisioning profiles and you will see errors like
 "Communication with Apple failed" or "No profiles found."
 
 1. In the left sidebar (Project Navigator), click on **Open UI** at the very top

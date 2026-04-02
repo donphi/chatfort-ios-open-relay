@@ -192,6 +192,27 @@ These are PNG files, not text. The override script copies your ChatFort icon ove
 
 ---
 
+## NOW Overridden (Bundle ID and App Group)
+
+These identifiers were previously left alone but are **now overridden** by the
+`brand_config.json` override system. This is required because the upstream
+`com.openui.openui` bundle ID is registered to a different Apple Developer team
+and cannot be used by this fork.
+
+| Item | Upstream Value | Overridden Value |
+|------|---------------|-----------------|
+| Bundle ID (main app) | `com.openui.openui` | `com.chatfort.chatfort` |
+| Bundle ID (widget) | `com.openui.openui.OpenUIWidget` | `com.chatfort.chatfort.OpenUIWidget` |
+| App group | `group.com.openui.openui` | `group.com.chatfort.chatfort` |
+| Shortcut types | `com.openui.openui.new-chat` etc. | `com.chatfort.chatfort.new-chat` etc. |
+| Widget control kind | `com.openui.openui.OpenUINewChatControl` | `com.chatfort.chatfort.OpenUINewChatControl` |
+| Fastlane bundle IDs | `MAIN_BUNDLE_ID = "com.openui.openui"` | `MAIN_BUNDLE_ID = "com.chatfort.chatfort"` |
+
+These overrides are applied automatically by all GitHub Actions workflows
+(via `python3 tools/BrandOverride/scripts/override.py --apply`).
+
+---
+
 ## NOT Changed (Intentionally Left Alone)
 
 These contain "openui" or "Open UI" but are **internal identifiers** that should NOT be
@@ -199,9 +220,7 @@ changed to avoid breaking functionality:
 
 | Item | Why it stays |
 |------|-------------|
-| Bundle ID `com.openui.openui` | Changing this creates a different app on the device; existing installs would not update |
 | URL scheme `openui://` | Widgets and shortcuts use this scheme; changing it breaks deep links |
-| App group `group.com.openui.openui` | Shared data between app and widget; must match |
 | Notification names `.openUINewChatWithFocus` etc. | Internal Swift notification names; not user-visible |
 | Logger subsystem `com.openui` | Internal logging; not user-visible |
 | Keychain service `com.openui.auth` | Changing this loses stored credentials |

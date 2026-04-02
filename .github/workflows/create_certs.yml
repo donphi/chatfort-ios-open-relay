@@ -18,6 +18,9 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Apply Brand Overrides
+        run: python3 tools/BrandOverride/scripts/override.py --apply
+
       - name: Install Project Dependencies
         run: bundle install
 

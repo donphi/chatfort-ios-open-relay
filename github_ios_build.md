@@ -256,8 +256,9 @@ automatically. You only need to run this once.
 7. Wait for it to complete (usually 1-2 minutes)
 
 **What this does behind the scenes:**
-- Creates the App ID `com.openui.openui` with Push Notifications and App Groups capabilities
-- Creates the App ID `com.openui.openui.OpenUIWidget` with App Groups capability
+- Applies ChatFort brand overrides (bundle IDs, display names, etc.)
+- Creates the App ID `com.chatfort.chatfort` with Push Notifications and App Groups capabilities
+- Creates the App ID `com.chatfort.chatfort.OpenUIWidget` with App Groups capability
 - These appear in your Apple Developer account under Certificates, Identifiers & Profiles → Identifiers
 
 > If this fails, check that your `TEAMID`, `FASTLANE_KEY_ID`, `FASTLANE_ISSUER_ID`,
@@ -280,13 +281,13 @@ app record that TestFlight will use.
 | **Platforms** | Check **iOS** |
 | **Name** | `ChatFort` |
 | **Primary Language** | English (U.S.) — or your preferred language |
-| **Bundle ID** | Select `com.openui.openui` from the dropdown (created in Step 7) |
+| **Bundle ID** | Select `com.chatfort.chatfort` from the dropdown (created in Step 7) |
 | **SKU** | `chatfort` (any unique string — this is internal, not shown to users) |
 | **User Access** | **Full Access** |
 
 4. Click **Create**
 
-> **If you do not see `com.openui.openui` in the Bundle ID dropdown:**
+> **If you do not see `com.chatfort.chatfort` in the Bundle ID dropdown:**
 > - Go back and make sure the "Add Identifiers" workflow completed successfully
 > - It can take a few minutes for new identifiers to appear
 > - Try refreshing the page
@@ -323,6 +324,7 @@ on the running workflow.
 | Check status | Validates secrets, checks for upstream updates | ~1 min |
 | Check certificates | Validates/creates signing certificates via Fastlane Match | ~2 min |
 | Select Xcode | Picks the right Xcode version on the macOS runner | ~5 sec |
+| Apply Brand Overrides | Runs `override.py --apply` to set ChatFort bundle IDs, display names, icons | ~2 sec |
 | Install dependencies | Installs Fastlane via Bundler | ~1 min |
 | Build & Archive | Compiles the app, signs it, creates the IPA | 10-20 min |
 | Upload to TestFlight | Sends the signed IPA to App Store Connect | 2-5 min |
@@ -537,8 +539,8 @@ Match-Secrets: https://github.com/_______________/Match-Secrets (PRIVATE)
 
 ## BUNDLE IDS (for reference, do not change):
 
-Main app: com.openui.openui
-Widget:   com.openui.openui.OpenUIWidget
+Main app: com.chatfort.chatfort
+Widget:   com.chatfort.chatfort.OpenUIWidget
 ```
 
 ---
@@ -577,7 +579,7 @@ access it.
 ### Build succeeds but TestFlight upload fails
 
 - Verify you created the app record in App Store Connect (Step 8)
-- Verify the Bundle ID is `com.openui.openui`
+- Verify the Bundle ID is `com.chatfort.chatfort`
 - Verify the API key has **Admin** access
 
 ### Build succeeds but app does not appear in TestFlight
