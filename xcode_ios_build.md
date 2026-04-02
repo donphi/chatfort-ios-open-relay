@@ -472,22 +472,26 @@ If it is consistently slow:
 3. Go to **Xcode → Settings → Platforms** and check that the iOS platform is installed
 4. If needed, click the **+** button to download the iOS 18 platform
 
-### "Multiple commands produce" errors for Info.plist or PRIVACY.md
+### "Multiple commands produce" errors for Info.plist, PRIVACY.md, or Swift files
 
-The `BrandOverride/` folder inside `Open UI/` contains backup copies of files
-like `Info.plist` and `PRIVACY.md`. Xcode's file-syncing picks them up and tries
-to copy them into the app bundle, causing conflicts.
+The `BrandOverride/` folder inside `Open UI/` contains backup copies of Swift
+files, plists, and docs. Xcode's file-syncing picks them up and tries to compile
+or bundle them alongside the real files, causing "Multiple commands produce"
+errors.
 
-**Fix:** The project must have `EXCLUDED_SOURCE_FILE_NAMES = BrandOverride` set
-in the Open UI target's build settings (both Debug and Release). This is already
-set in the repo. If you see this error after a restore or upstream pull:
+**Fix:** The project must have `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES`
+set to `BrandOverride` in the Open UI target's build settings (both Debug and
+Release). This tells Xcode to skip the entire `BrandOverride` directory tree.
+It is already set in the repo. If you see this error after a restore or upstream
+pull:
 
 1. Click on the **Open UI** project in the left sidebar
 2. Select the **Open UI** target
-3. Go to **Build Settings** and search for `EXCLUDED_SOURCE_FILE_NAMES`
+3. Go to **Build Settings** and search for `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES`
 4. Verify it is set to `BrandOverride` for both Debug and Release
 5. If missing, add it: click **+** → **Add User-Defined Setting** →
-   name it `EXCLUDED_SOURCE_FILE_NAMES` → set the value to `BrandOverride`
+   name it `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES` → set the value to
+   `BrandOverride`
 6. **Product → Clean Build Folder** (Shift + Cmd + K), then build again
 
 ### The app still shows "Open Relay" somewhere

@@ -212,13 +212,14 @@ changed to avoid breaking functionality:
 
 ---
 
-## Build Setting: EXCLUDED_SOURCE_FILE_NAMES
+## Build Setting: EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES
 
-The Open UI target has `EXCLUDED_SOURCE_FILE_NAMES = BrandOverride` set in both
-Debug and Release build configurations. This prevents Xcode from including the
-`BrandOverride/` folder (backups, scripts, assets, configs) in the app bundle.
-Without it, duplicate `Info.plist` and `PRIVACY.md` files from `backups/` cause
-"Multiple commands produce" build errors.
+The Open UI target has `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES =
+BrandOverride` set in both Debug and Release build configurations. This prevents
+Xcode from compiling or bundling anything inside the `BrandOverride/` directory
+tree (backups, scripts, assets, configs). Without it, duplicate Swift files,
+`Info.plist`, and `PRIVACY.md` from `backups/` cause "Multiple commands produce"
+build errors.
 
 **This setting is NOT managed by the override/restore scripts.** If a restore
 from upstream wipes it, it must be re-added manually in Xcode Build Settings or
