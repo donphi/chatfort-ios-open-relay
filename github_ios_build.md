@@ -23,7 +23,7 @@ building insulin delivery apps from forks.
 12. [Step 10: Install on Your iPhone via TestFlight](#12-step-10-install-on-your-iphone-via-testflight)
 13. [Ad Hoc Builds (UDID-Based, No 90-Day Expiry)](#13-ad-hoc-builds-udid-based-no-90-day-expiry)
 14. [The Update Loop (When Upstream Changes)](#14-the-update-loop-when-upstream-changes)
-15. [Automatic Builds and Sync](#15-automatic-builds-and-sync)
+15. [Automatic Builds](#15-automatic-builds)
 16. [Secrets Reference Template](#16-secrets-reference-template)
 17. [Troubleshooting](#17-troubleshooting)
 
@@ -321,7 +321,6 @@ on the running workflow.
 
 | Step | What It Does | Time |
 |---|---|---|
-| Check status | Validates secrets, checks for upstream updates | ~1 min |
 | Check certificates | Validates/creates signing certificates via Fastlane Match | ~2 min |
 | Select Xcode | Picks the right Xcode version on the macOS runner | ~5 sec |
 | Apply Brand Overrides | Runs `override.py --apply` to set ChatFort bundle IDs, display names, icons | ~2 sec |
@@ -453,32 +452,26 @@ git push origin main
 8. Wait for the build to complete (~15-30 min)
 9. Open TestFlight on your iPhone — the update appears automatically
 
-> **Or let the automation handle it:** The workflow checks for upstream changes
-> every Sunday. If it finds new commits, it syncs and builds automatically. See
-> the next section.
-
 ---
 
-## 15. Automatic Builds and Sync
+## 15. Automatic Builds
 
-The workflow is configured to run automatically:
+The workflow runs on a weekly schedule to keep your TestFlight build fresh:
 
 | Schedule | What Happens |
 |---|---|
-| **Every Sunday at 07:33 UTC** | Checks if the upstream repo has new commits. If yes, syncs your fork and triggers a build. |
-| **2nd Sunday of each month** | Builds regardless of whether there are new commits. This keeps your TestFlight build fresh (prevents the 90-day expiry). |
+| **Every Sunday at 07:33 UTC** | Rebuilds the app from the current branch and uploads to TestFlight. This prevents the 90-day TestFlight expiry. |
+
+Upstream sync is **manual** — see [Section 14](#14-the-update-loop-when-upstream-changes)
+for how to pull upstream changes locally and push them to your fork. The CI
+workflow then applies brand overrides at build time automatically.
 
 **To disable automatic builds:** Add a repository variable `SCHEDULED_BUILD` with
-value `false`.
-
-**To disable automatic sync:** Add a repository variable `SCHEDULED_SYNC` with
-value `false`.
-
-**To re-enable:** Delete the variable or set it to `true`.
+value `false`. Delete the variable or set it to `true` to re-enable.
 
 > **Important:** GitHub disables scheduled workflows on repositories with no
 > activity for 60 days. If this happens, go to the Actions tab and re-enable
-> the workflow. The monthly build keeps the repo active enough to prevent this
+> the workflow. The weekly rebuild keeps the repo active enough to prevent this
 > in most cases.
 
 ---
@@ -618,7 +611,7 @@ access it.
 
 - GitHub disables workflows on repos with no activity for 60 days
 - Go to the **Actions** tab and click the banner to re-enable
-- Push any commit to reset the inactivity timer
+- Push any commit (or run a manual build) to reset the inactivity timer
 
 ---
 

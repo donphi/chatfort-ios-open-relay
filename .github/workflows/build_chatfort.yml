@@ -12,154 +12,25 @@ on:
           - testflight
           - adhoc
   schedule:
-    # Check for updates every Sunday at 07:33 UTC
+    # Rebuild every 2nd Sunday of the month to keep TestFlight fresh (90-day expiry)
     - cron: "33 7 * * 0"
 
 env:
   GH_PAT: ${{ secrets.GH_PAT }}
-  UPSTREAM_REPO: Ichigo3766/Open-Relay
-  UPSTREAM_BRANCH: ${{ github.ref_name }}
-  TARGET_BRANCH: ${{ github.ref_name }}
 
 jobs:
-  check_status:
-    runs-on: ubuntu-latest
-    name: Check status to decide whether to build
-    permissions:
-      contents: write
-    outputs:
-      NEW_COMMITS: ${{ steps.sync.outputs.has_new_commits }}
-      IS_SECOND_IN_MONTH: ${{ steps.date-check.outputs.is_second_instance }}
-
-    steps:
-      - name: Validate Access Token
-        id: workflow-permission
-        run: |
-          set -o pipefail
-
-          GH_PAT_CLASSIC_PATTERN='^ghp_[a-zA-Z0-9]{36}$'
-          GH_PAT_FINE_GRAINED_PATTERN='^github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}$'
-
-          if [ -z "$GH_PAT" ]; then
-            failed=true
-            echo "::error::The GH_PAT secret is unset or empty. Set it and try again."
-          else
-            if [[ $GH_PAT =~ $GH_PAT_CLASSIC_PATTERN ]]; then
-              provides_scopes=true
-              echo "The GH_PAT secret is a structurally valid classic token."
-            elif [[ $GH_PAT =~ $GH_PAT_FINE_GRAINED_PATTERN ]]; then
-              echo "The GH_PAT secret is a structurally valid fine-grained token."
-            else
-              unknown_format=true
-              echo "The GH_PAT secret does not have a known token format."
-            fi
-
-            if ! scopes=$(curl -sS -f -I -H "Authorization: token $GH_PAT" https://api.github.com | { grep -i '^x-oauth-scopes:' || true; } | cut -d ' ' -f2- | tr -d '\r'); then
-              failed=true
-              if [ $unknown_format ]; then
-                echo "::error::Unable to connect to GitHub using the GH_PAT secret. Verify that it is set correctly and try again."
-              else
-                echo "::error::Unable to connect to GitHub using the GH_PAT secret. Verify that the token exists and has not expired at https://github.com/settings/tokens."
-              fi
-            elif [[ $scopes =~ workflow ]]; then
-              echo "The GH_PAT secret has repo and workflow permissions."
-              echo "has_permission=true" >> $GITHUB_OUTPUT
-            elif [[ $scopes =~ repo ]]; then
-              echo "The GH_PAT secret has repo (but not workflow) permissions."
-            elif [ $provides_scopes ]; then
-              failed=true
-              if [ -z "$scopes" ]; then
-                echo "The GH_PAT secret does not provide any permission scopes."
-              else
-                echo "The GH_PAT secret only provides: $scopes"
-              fi
-              echo "::error::The GH_PAT secret is lacking the 'repo' permission scope. Update the token at https://github.com/settings/tokens."
-            else
-              echo "The GH_PAT secret does not provide inspectable scopes. Assuming permissions are present."
-              echo "has_permission=true" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-          if [ $failed ]; then
-            exit 2
-          fi
-
-      - name: Checkout target repo
-        if: |
-          steps.workflow-permission.outputs.has_permission == 'true' &&
-          (vars.SCHEDULED_BUILD != 'false' || vars.SCHEDULED_SYNC != 'false')
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Sync upstream changes
-        if: |
-          steps.workflow-permission.outputs.has_permission == 'true' &&
-          vars.SCHEDULED_SYNC != 'false' && github.repository_owner != 'Ichigo3766'
-        id: sync
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
-        with:
-          target_sync_branch: ${{ env.TARGET_BRANCH }}
-          shallow_since: 6 months ago
-          target_repo_token: ${{ secrets.GH_PAT }}
-          upstream_sync_branch: ${{ env.UPSTREAM_BRANCH }}
-          upstream_sync_repo: ${{ env.UPSTREAM_REPO }}
-
-      - name: New commits found
-        if: |
-          steps.workflow-permission.outputs.has_permission == 'true' &&
-          vars.SCHEDULED_SYNC != 'false' && steps.sync.outputs.has_new_commits == 'true'
-        run: echo "New commits were found to sync."
-
-      - name: No new commits
-        if: |
-          steps.workflow-permission.outputs.has_permission == 'true' &&
-          vars.SCHEDULED_SYNC != 'false' && steps.sync.outputs.has_new_commits == 'false'
-        run: echo "There were no new commits."
-
-      - name: Show value of has_new_commits
-        if: steps.workflow-permission.outputs.has_permission == 'true' && vars.SCHEDULED_SYNC != 'false'
-        run: |
-          echo ${{ steps.sync.outputs.has_new_commits }}
-          echo "NEW_COMMITS=${{ steps.sync.outputs.has_new_commits }}" >> $GITHUB_OUTPUT
-
-      - name: Show scheduled build configuration message
-        if: steps.workflow-permission.outputs.has_permission != 'true'
-        run: |
-          echo "### :calendar: Scheduled Sync and Build Disabled :mobile_phone_off:" >> $GITHUB_STEP_SUMMARY
-          echo "You have not yet configured the scheduled sync and build." >> $GITHUB_STEP_SUMMARY
-          echo "Add the required secrets (GH_PAT, TEAMID, FASTLANE_KEY_ID, FASTLANE_ISSUER_ID, FASTLANE_KEY, MATCH_PASSWORD) to enable automatic builds." >> $GITHUB_STEP_SUMMARY
-
-      - name: Check if this is the second time this day-of-week happens this month
-        id: date-check
-        run: |
-          WEEK_OF_MONTH=$(( ($(date +%-d) - 1) / 7 + 1 ))
-          if [[ $WEEK_OF_MONTH -eq 2 ]]; then
-            echo "is_second_instance=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_second_instance=false" >> "$GITHUB_OUTPUT"
-          fi
-
   check_certs:
-    needs: [check_status]
     name: Check certificates
-    uses: ./.github/workflows/create_certs.yml
-    secrets: inherit
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (vars.SCHEDULED_BUILD != 'false' && needs.check_status.outputs.IS_SECOND_IN_MONTH == 'true') ||
-      (vars.SCHEDULED_SYNC != 'false' && needs.check_status.outputs.NEW_COMMITS == 'true')
+      vars.SCHEDULED_BUILD != 'false'
+    uses: ./.github/workflows/create_certs.yml
+    secrets: inherit
 
   build:
     name: Build
-    needs: [check_certs, check_status]
+    needs: [check_certs]
     runs-on: macos-15
-    permissions:
-      contents: write
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (vars.SCHEDULED_BUILD != 'false' && needs.check_status.outputs.IS_SECOND_IN_MONTH == 'true') ||
-      (vars.SCHEDULED_SYNC != 'false' && needs.check_status.outputs.NEW_COMMITS == 'true')
     steps:
       - name: Select Xcode version
         run: "sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer"
@@ -169,7 +40,6 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
-          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Apply patches
         run: |
