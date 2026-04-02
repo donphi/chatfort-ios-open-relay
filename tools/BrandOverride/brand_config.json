@@ -47,6 +47,14 @@
         {
           "find": "Open Relay uses speech recognition to convert your voice input to text.",
           "replace": "ChatFort uses speech recognition to convert your voice input to text."
+        },
+        {
+          "find": "PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui.OpenUIWidget;",
+          "replace": "PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort.OpenUIWidget;"
+        },
+        {
+          "find": "PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui;",
+          "replace": "PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort;"
         }
       ]
     },
@@ -194,6 +202,10 @@
         {
           "find": "Open a new chat in Open Relay.",
           "replace": "Open a new chat in ChatFort."
+        },
+        {
+          "find": "\"com.openui.openui.OpenUINewChatControl\"",
+          "replace": "\"com.chatfort.chatfort.OpenUINewChatControl\""
         }
       ]
     },
@@ -203,6 +215,26 @@
         {
           "find": "<string>Open Relay Chat Item</string>",
           "replace": "<string>ChatFort Chat Item</string>"
+        },
+        {
+          "find": "<string>com.openui.openui</string>",
+          "replace": "<string>com.chatfort.chatfort</string>"
+        },
+        {
+          "find": "<string>com.openui.openui.new-chat</string>",
+          "replace": "<string>com.chatfort.chatfort.new-chat</string>"
+        },
+        {
+          "find": "<string>com.openui.openui.voice-call</string>",
+          "replace": "<string>com.chatfort.chatfort.voice-call</string>"
+        },
+        {
+          "find": "<string>com.openui.openui.camera-chat</string>",
+          "replace": "<string>com.chatfort.chatfort.camera-chat</string>"
+        },
+        {
+          "find": "<string>com.openui.openui.new-channel</string>",
+          "replace": "<string>com.chatfort.chatfort.new-channel</string>"
         }
       ]
     },
@@ -241,6 +273,67 @@
         {
           "find": "case \"conversationalFR\": return MarvisTTSModel.Voice.conversationalFR",
           "replace": "// case \"conversationalFR\": (voice not yet in mlx-audio-swift)"
+        }
+      ]
+    },
+    {
+      "file": "fastlane/Fastfile",
+      "replacements": [
+        {
+          "find": "MAIN_BUNDLE_ID = \"com.openui.openui\"",
+          "replace": "MAIN_BUNDLE_ID = \"com.chatfort.chatfort\""
+        },
+        {
+          "find": "WIDGET_BUNDLE_ID = \"com.openui.openui.OpenUIWidget\"",
+          "replace": "WIDGET_BUNDLE_ID = \"com.chatfort.chatfort.OpenUIWidget\""
+        }
+      ]
+    },
+    {
+      "file": "Open UI/App/Open_UIApp.swift",
+      "replacements": [
+        {
+          "find": "case \"com.openui.openui.new-chat\":",
+          "replace": "case \"com.chatfort.chatfort.new-chat\":"
+        },
+        {
+          "find": "case \"com.openui.openui.voice-call\":",
+          "replace": "case \"com.chatfort.chatfort.voice-call\":"
+        },
+        {
+          "find": "case \"com.openui.openui.camera-chat\":",
+          "replace": "case \"com.chatfort.chatfort.camera-chat\":"
+        },
+        {
+          "find": "case \"com.openui.openui.new-channel\":",
+          "replace": "case \"com.chatfort.chatfort.new-channel\":"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Open UI.entitlements",
+      "replacements": [
+        {
+          "find": "<string>group.com.openui.openui</string>",
+          "replace": "<string>group.com.chatfort.chatfort</string>"
+        }
+      ]
+    },
+    {
+      "file": "OpenUIWidgets/OpenUIWidgets.entitlements",
+      "replacements": [
+        {
+          "find": "<string>group.com.openui.openui</string>",
+          "replace": "<string>group.com.chatfort.chatfort</string>"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Core/Services/SharedDataService.swift",
+      "replacements": [
+        {
+          "find": "\"group.com.openui.openui\"",
+          "replace": "\"group.com.chatfort.chatfort\""
         }
       ]
     }
@@ -304,10 +397,15 @@
     "Open UI/Features/Auth/Views/ServerConnectionView.swift",
     "Open UI/Core/Services/AppIntentsService.swift",
     "Open UI/Core/Services/MLXTextToSpeechService.swift",
+    "Open UI/Core/Services/SharedDataService.swift",
+    "Open UI/App/Open_UIApp.swift",
+    "Open UI/Open UI.entitlements",
     "OpenUIWidgets/OpenUIWidgets.swift",
     "OpenUIWidgets/OpenUIWidgetsControl.swift",
+    "OpenUIWidgets/OpenUIWidgets.entitlements",
     "Open UI/Info.plist",
     "PRIVACY.md",
+    "fastlane/Fastfile",
     "Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png",
     "Open UI/Assets.xcassets/AppIcon.appiconset/Contents.json",
     "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png",
