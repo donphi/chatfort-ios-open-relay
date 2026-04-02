@@ -475,24 +475,30 @@ If it is consistently slow:
 ### "Multiple commands produce" errors for Info.plist, PRIVACY.md, or Swift files
 
 The `BrandOverride/` folder inside `Open UI/` contains backup copies of Swift
-files, plists, and docs. Xcode's file-syncing picks them up and tries to compile
-or bundle them alongside the real files, causing "Multiple commands produce"
-errors.
+files, plists, and docs. Xcode 16 uses synchronized folder groups that
+automatically include every file in the directory. Without an exclusion, Xcode
+tries to compile or bundle the backup copies alongside the real files, causing
+"Multiple commands produce" errors.
 
-**Fix:** The project must have `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES`
-set to `BrandOverride` in the Open UI target's build settings (both Debug and
-Release). This tells Xcode to skip the entire `BrandOverride` directory tree.
-It is already set in the repo. If you see this error after a restore or upstream
-pull:
+**Fix:** The `BrandOverride` folder is excluded via the `membershipExceptions`
+array in the `PBXFileSystemSynchronizedBuildFileExceptionSet` for the "Open UI"
+target inside `project.pbxproj`. This is already set in the repo. If you see
+this error after a restore or upstream pull, check that `project.pbxproj`
+contains `BrandOverride` in the exceptions block (around line 86):
 
-1. Click on the **Open UI** project in the left sidebar
-2. Select the **Open UI** target
-3. Go to **Build Settings** and search for `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES`
-4. Verify it is set to `BrandOverride` for both Debug and Release
-5. If missing, add it: click **+** → **Add User-Defined Setting** →
-   name it `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES` → set the value to
-   `BrandOverride`
-6. **Product → Clean Build Folder** (Shift + Cmd + K), then build again
+```
+membershipExceptions = (
+    BrandOverride,
+    Info.plist,
+);
+```
+
+If it is missing, the easiest way to re-add it is in Xcode:
+
+1. In the Project Navigator, find the **BrandOverride** folder under **Open UI**
+2. Select it, then open the **File Inspector** (right panel)
+3. Under **Target Membership**, uncheck the **Open UI** target
+4. **Product → Clean Build Folder** (Shift + Cmd + K), then build again
 
 ### The app still shows "Open Relay" somewhere
 

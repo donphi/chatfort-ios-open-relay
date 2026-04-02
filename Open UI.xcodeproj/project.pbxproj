@@ -84,6 +84,7 @@
 		38EB66802F39CE5B00AED774 /* Exceptions for "Open UI" folder in "Open UI" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				BrandOverride,
 				Info.plist,
 			);
 			target = 38EB667C2F39CE5A00AED774 /* Open UI */;
@@ -612,7 +613,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 929RS5BE59;
 				ENABLE_PREVIEWS = YES;
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = BrandOverride;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ChatFort;
@@ -657,7 +657,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 929RS5BE59;
 				ENABLE_PREVIEWS = YES;
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = BrandOverride;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = ChatFort;

@@ -212,15 +212,25 @@ changed to avoid breaking functionality:
 
 ---
 
-## Build Setting: EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES
+## Build Exclusion: BrandOverride in membershipExceptions
 
-The Open UI target has `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES =
-BrandOverride` set in both Debug and Release build configurations. This prevents
-Xcode from compiling or bundling anything inside the `BrandOverride/` directory
-tree (backups, scripts, assets, configs). Without it, duplicate Swift files,
-`Info.plist`, and `PRIVACY.md` from `backups/` cause "Multiple commands produce"
-build errors.
+The `BrandOverride` folder is excluded from the Xcode build via the
+`membershipExceptions` array in the `PBXFileSystemSynchronizedBuildFileExceptionSet`
+for the "Open UI" target (around line 86 of `project.pbxproj`):
 
-**This setting is NOT managed by the override/restore scripts.** If a restore
-from upstream wipes it, it must be re-added manually in Xcode Build Settings or
-in `project.pbxproj`.
+```
+membershipExceptions = (
+    BrandOverride,
+    Info.plist,
+);
+```
+
+This prevents Xcode from compiling or bundling anything inside the
+`BrandOverride/` directory tree (backups, scripts, assets, configs). Without it,
+duplicate Swift files, `Info.plist`, and `PRIVACY.md` from `backups/` cause
+"Multiple commands produce" build errors.
+
+**This exclusion is NOT managed by the override/restore scripts.** If a restore
+from upstream wipes it, re-add it in Xcode by selecting the `BrandOverride`
+folder, opening the File Inspector, and unchecking **Open UI** under Target
+Membership.

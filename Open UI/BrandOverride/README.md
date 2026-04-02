@@ -304,25 +304,33 @@ Add a new entry to the appropriate file's `"replacements"` array:
 
 ---
 
-## Important: EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES Build Setting
+## Important: BrandOverride Is Excluded from the Xcode Build
 
-The `BrandOverride/` folder lives inside the `Open UI/` source directory, which
-Xcode automatically syncs into the build. Without an exclusion, Xcode finds
+The `BrandOverride/` folder lives inside the `Open UI/` source directory. Xcode
+16 uses synchronized folder groups that automatically include every file in the
+directory for compilation and bundling. Without an exclusion, Xcode finds
 duplicate Swift files, `Info.plist`, and `PRIVACY.md` in the `backups/`
 subdirectory and fails with "Multiple commands produce" errors.
 
-The project has `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = BrandOverride`
-set on the Open UI target (both Debug and Release configs). **This setting must
-be preserved.** If it is ever lost (e.g., after a restore from upstream),
-re-add it:
+The project excludes `BrandOverride` via the `membershipExceptions` array in the
+`PBXFileSystemSynchronizedBuildFileExceptionSet` section of `project.pbxproj`.
+**This exclusion must be preserved.** If it is ever lost (e.g., after a restore
+from upstream), re-add it either:
 
-1. Select the **Open UI** target → **Build Settings**
-2. Search for `EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES`
-3. Set it to `BrandOverride` for both Debug and Release
+**In Xcode (easiest):**
+1. In the Project Navigator, find the **BrandOverride** folder under **Open UI**
+2. Select it, open the **File Inspector** (right panel)
+3. Under **Target Membership**, uncheck the **Open UI** target
 
-This is a standard Xcode build setting — it tells the build system to skip the
-entire `BrandOverride` directory tree (all subdirectories and files). It does not
-affect the override scripts.
+**Or in `project.pbxproj` directly** — find the `membershipExceptions` block for
+the "Open UI" target and make sure `BrandOverride` is listed:
+
+```
+membershipExceptions = (
+    BrandOverride,
+    Info.plist,
+);
+```
 
 ---
 
