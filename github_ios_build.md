@@ -37,8 +37,8 @@ You only need 6 secrets. Fastlane handles everything else automatically.
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                                  │
 │   Apple Developer Account ──► 4 secrets (TEAMID, API key info)   │
-│   GitHub Account ──────────► 1 secret  (GH_PAT)                 │
-│   You make one up ─────────► 1 secret  (MATCH_PASSWORD)         │
+│   GitHub Account ──────────► 1 secret  (GH_PAT)                  │
+│   You make one up ─────────► 1 secret  (MATCH_PASSWORD)          │
 │                                                                  │
 │   Add them to GitHub ──► Run workflow ──► App on TestFlight      │
 │                                                                  │
