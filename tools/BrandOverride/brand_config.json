@@ -101,6 +101,14 @@
         {
           "find": "iOS Settings → Open Relay → Notifications.",
           "replace": "iOS Settings → ChatFort → Notifications."
+        },
+        {
+          "find": "Text(\"Conversational DE 🇩🇪\").tag(\"conversationalDE\")",
+          "replace": "// Text(\"Conversational DE\").tag(\"conversationalDE\") // not yet in mlx-audio-swift"
+        },
+        {
+          "find": "Text(\"Conversational FR 🇫🇷\").tag(\"conversationalFR\")",
+          "replace": "// Text(\"Conversational FR\").tag(\"conversationalFR\") // not yet in mlx-audio-swift"
         }
       ]
     },
@@ -198,6 +206,19 @@
           "replace": "https://github.com/donphi/chatfort-ios-chat-relay"
         }
       ]
+    },
+    {
+      "file": "Open UI/Core/Services/MLXTextToSpeechService.swift",
+      "replacements": [
+        {
+          "find": "case \"conversationalDE\": return MarvisTTSModel.Voice.conversationalDE",
+          "replace": "// case \"conversationalDE\": (voice not yet in mlx-audio-swift)"
+        },
+        {
+          "find": "case \"conversationalFR\": return MarvisTTSModel.Voice.conversationalFR",
+          "replace": "// case \"conversationalFR\": (voice not yet in mlx-audio-swift)"
+        }
+      ]
     }
   ],
 
@@ -258,6 +279,7 @@
     "Open UI/Features/Settings/Views/AppearanceSettingsView.swift",
     "Open UI/Features/Auth/Views/ServerConnectionView.swift",
     "Open UI/Core/Services/AppIntentsService.swift",
+    "Open UI/Core/Services/MLXTextToSpeechService.swift",
     "OpenUIWidgets/OpenUIWidgets.swift",
     "OpenUIWidgets/OpenUIWidgetsControl.swift",
     "Open UI/Info.plist",
