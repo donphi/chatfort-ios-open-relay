@@ -25,6 +25,8 @@ jobs:
         run: bundle install
 
       - name: Fastlane Validate Secrets
+        id: validate
+        continue-on-error: true
         run: bundle exec fastlane validate_secrets
         env:
           TEAMID: ${{ secrets.TEAMID }}
@@ -47,7 +49,10 @@ jobs:
       - name: Check if certificate renewal is needed
         id: check-renewal
         run: |
-          if [ -f new_certificate_needed.txt ]; then
+          if [ "${{ steps.validate.outcome }}" == "failure" ]; then
+            echo "Validation failed (likely empty Match repo) — forcing certificate creation."
+            echo "needs_renewal=true" >> $GITHUB_OUTPUT
+          elif [ -f new_certificate_needed.txt ]; then
             NEEDS_RENEWAL=$(cat new_certificate_needed.txt)
             echo "needs_renewal=$NEEDS_RENEWAL" >> $GITHUB_OUTPUT
           else
