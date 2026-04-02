@@ -173,7 +173,7 @@ def main():
         source_exists = source_path.exists()
 
         if not target_path.exists() and not source_exists:
-            warnings.append(f"Icon source missing: {source_rel} — place your ChatFort icon at BrandOverride/{source_rel}")
+            warnings.append(f"Icon source missing: {source_rel} — place your ChatFort icon at tools/BrandOverride/{source_rel}")
             continue
 
         if target_path.exists():
@@ -191,7 +191,7 @@ def main():
         else:
             warnings.append(
                 f"Icon source missing: {source_rel} — place your ChatFort icon at "
-                f"BrandOverride/{source_rel}"
+                f"tools/BrandOverride/{source_rel}"
             )
 
     # --- Icon Contents.json updates (dark/tinted variants) ---

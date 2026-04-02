@@ -29,7 +29,7 @@ https://github.com/donphi/chatfort-ios-chat-relay
 ```
 
 The fork is kept in sync with upstream. Brand customizations are managed by Python scripts
-in the `Open UI/BrandOverride/` directory, not by manual file edits.
+in the `tools/BrandOverride/` directory, not by manual file edits.
 
 ---
 
@@ -93,7 +93,6 @@ All paths are relative to the repository root.
 │   ├── Shared/
 │   │   ├── Components/                   Reusable SwiftUI components
 │   │   └── Theme/                        ColorTokens, AppTheme, DesignTokens, Typography, etc.
-│   ├── BrandOverride/                    THIS FOLDER (brand customization system)
 │   ├── Info.plist                        App configuration (URL schemes, shortcuts, etc.)
 │   ├── Localizable.xcstrings             All localized strings (JSON format)
 │   ├── Open UI.entitlements              App capabilities (app groups, memory, GPU)
@@ -108,6 +107,16 @@ All paths are relative to the repository root.
 │   ├── AppIntent.swift                   Widget intents
 │   ├── Info.plist                        Widget extension config
 │   └── OpenUIWidgets.entitlements        Widget capabilities
+│
+├── tools/
+│   └── BrandOverride/                    THIS FOLDER (brand customization system)
+│       ├── Assets/                       Brand icon sources and docs
+│       ├── backups/                      Versioned pristine/override snapshots
+│       ├── scripts/                      backup, restore, and override tooling
+│       ├── brand_config.json             Brand source of truth
+│       ├── README.md                     Human-friendly guide
+│       ├── CANNOT_OVERRIDE.md            Branding inventory and caveats
+│       └── MANIFEST.md                   Technical reference for automation
 │
 ├── PRIVACY.md                            Privacy policy document
 ├── README.md                             Project README
@@ -364,7 +373,7 @@ slots have no filename (empty), so iOS uses the light icon for all appearances.
 
 **To change the icon:** Replace `IMG_0816.png` with a new 1024x1024 PNG. Do NOT rename
 the file or change `Contents.json`. The override script handles this by copying from
-`BrandOverride/Assets/AppIcon.png` to `IMG_0816.png`.
+`tools/BrandOverride/Assets/AppIcon-light.png` to `IMG_0816.png`, plus optional dark/tinted variants when provided.
 
 ### AppIconImage.imageset/Contents.json
 
@@ -410,7 +419,7 @@ it looks up that exact key in the catalog and returns the translation for the cu
 
 ### brand_config.json
 
-Location: `Open UI/BrandOverride/brand_config.json`
+Location: `tools/BrandOverride/brand_config.json`
 
 This JSON file is the single source of truth for all brand values. It contains:
 
@@ -445,7 +454,7 @@ This JSON file is the single source of truth for all brand values. It contains:
    - Apply all find/replace pairs
    - Collect change details (line number, before/after)
 3. For each entry in `icon_files`:
-   - Check if source exists in `BrandOverride/Assets/`
+   - Check if source exists in `tools/BrandOverride/Assets/`
    - If `--apply`, copy source to target
 4. Print colored diff of all changes
 5. If `--apply`, write modified files to disk
@@ -471,7 +480,7 @@ No external Python packages are required. Everything uses the standard library.
 
 ```bash
 # Step 1: Revert all brand changes
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/restore.sh
 
 # Step 2: Pull upstream
@@ -482,7 +491,7 @@ git pull upstream main
 # (conflicts should be rare since restore.sh reverted our changes)
 
 # Step 4: Create a new backup of the updated files
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/backup.sh
 
 # Step 5: Preview what the override will do
@@ -622,22 +631,22 @@ All commands assume you are in the repo root directory.
 
 ```bash
 # Create backup
-cd "Open UI/BrandOverride" && ./scripts/backup.sh
+cd "tools/BrandOverride" && ./scripts/backup.sh
 
 # Restore to upstream
-cd "Open UI/BrandOverride" && ./scripts/restore.sh
+cd "tools/BrandOverride" && ./scripts/restore.sh
 
 # Preview brand changes
-cd "Open UI/BrandOverride" && ./scripts/override.sh --dry-run
+cd "tools/BrandOverride" && ./scripts/override.sh --dry-run
 
 # Apply brand changes
-cd "Open UI/BrandOverride" && ./scripts/override.sh --apply
+cd "tools/BrandOverride" && ./scripts/override.sh --apply
 
 # Restore a specific backup version
-cd "Open UI/BrandOverride" && ./scripts/restore.sh --version v2.4_build1_2026-04-01_f49448d
+cd "tools/BrandOverride" && ./scripts/restore.sh --version v2.4_build1_2026-04-01_f49448d
 
 # Backup with a custom label
-cd "Open UI/BrandOverride" && ./scripts/backup.sh --tag before-v2.5-merge
+cd "tools/BrandOverride" && ./scripts/backup.sh --tag before-v2.5-merge
 ```
 
 ---
@@ -646,7 +655,7 @@ cd "Open UI/BrandOverride" && ./scripts/backup.sh --tag before-v2.5-merge
 
 Before modifying any file in this repo:
 
-1. **Is the file in `BrandOverride/`?** If yes, edit freely.
+1. **Is the file in `tools/BrandOverride/`?** If yes, edit freely.
 2. **Is the file an upstream file?** If yes, do NOT edit it directly. Instead:
    a. Add the change to `brand_config.json` in the `string_replacements` section
    b. Add the file to `files_to_backup` if not already there

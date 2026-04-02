@@ -212,25 +212,13 @@ changed to avoid breaking functionality:
 
 ---
 
-## Build Exclusion: BrandOverride in membershipExceptions
+## Tooling Location: `tools/BrandOverride`
 
-The `BrandOverride` folder is excluded from the Xcode build via the
-`membershipExceptions` array in the `PBXFileSystemSynchronizedBuildFileExceptionSet`
-for the "Open UI" target (around line 86 of `project.pbxproj`):
+The brand tooling now lives at `tools/BrandOverride/`, outside the synchronized
+`Open UI/` source tree. That keeps the `backups/`, `scripts/`, assets, and config
+files out of the app target and avoids the old "Multiple commands produce" issue
+without relying on any special Xcode exclusion in `project.pbxproj`.
 
-```
-membershipExceptions = (
-    BrandOverride,
-    Info.plist,
-);
-```
-
-This prevents Xcode from compiling or bundling anything inside the
-`BrandOverride/` directory tree (backups, scripts, assets, configs). Without it,
-duplicate Swift files, `Info.plist`, and `PRIVACY.md` from `backups/` cause
-"Multiple commands produce" build errors.
-
-**This exclusion is NOT managed by the override/restore scripts.** If a restore
-from upstream wipes it, re-add it in Xcode by selecting the `BrandOverride`
-folder, opening the File Inspector, and unchecking **Open UI** under Target
-Membership.
+If you see old commands or docs pointing to the previous in-tree location, treat them as
+stale. The supported workflow is to run `backup.sh`, `restore.sh`, and
+`override.sh` from `tools/BrandOverride/`.

@@ -22,7 +22,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 BRAND_DIR = SCRIPT_DIR.parent
-REPO_ROOT = BRAND_DIR.parent.parent  # Open UI/BrandOverride -> Open UI -> repo root
+REPO_ROOT = BRAND_DIR.parent.parent  # tools/BrandOverride -> tools -> repo root
 CONFIG_PATH = BRAND_DIR / "brand_config.json"
 BACKUPS_DIR = BRAND_DIR / "backups"
 

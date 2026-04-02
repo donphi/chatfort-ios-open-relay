@@ -13,32 +13,34 @@ back when you need to pull updates from the original repo.
 The Python scripts in `scripts/` do all the editing for you. They can also undo everything
 so you can safely pull updates from the original GitHub repo without conflicts.
 
-This `BrandOverride/` folder is the only place you work directly.
+This `tools/BrandOverride/` folder is the only place you work directly.
 
 ---
 
 ## Quick Start (5 Minutes)
 
-### Step 1: Place Your Icon
+### Step 1: Place Your Icons
 
-Put your ChatFort app icon in the `Assets/` folder:
+Put your ChatFort icon files in the `Assets/` folder:
 
 ```
-Open UI/BrandOverride/Assets/AppIcon.png
+tools/BrandOverride/Assets/AppIcon-light.png
+tools/BrandOverride/Assets/AppIcon-dark.png      # optional
+tools/BrandOverride/Assets/AppIcon-tinted.png    # optional
 ```
 
 Requirements:
 - **Size:** 1024 x 1024 pixels
 - **Format:** PNG
 - **Shape:** Square (iOS rounds the corners automatically)
-- **No transparency** (iOS does not allow transparent app icons)
+- **No transparency** for the light and dark variants
 
 ### Step 2: Create a Backup
 
 Open Terminal, navigate to the repo, and run:
 
 ```bash
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/backup.sh
 ```
 
@@ -121,7 +123,7 @@ column tells you whether the override script changes it automatically.
 | Element | What You See | File | Line | File Type | Current Value | ChatFort Value | Handled by Scripts? |
 |---------|-------------|------|------|-----------|---------------|----------------|-------------------|
 | Home screen name | The name under the app icon | `project.pbxproj` | 543, 587 | Xcode project | `Open Relay` | `ChatFort` | Yes |
-| App icon | The icon on the home screen | `AppIcon.appiconset/IMG_0816.png` | — | PNG image | Open Relay icon | Your icon | Yes (if you place `Assets/AppIcon.png`) |
+| App icon | The icon on the home screen | `AppIcon.appiconset/IMG_0816.png` | — | PNG image | Open Relay icon | Your icon | Yes (if you place `Assets/AppIcon-light.png`) |
 | In-app icon | Icon shown on About, Login, Onboarding screens | `AppIconImage.imageset/IMG_0816.png` | — | PNG image | Open Relay icon | Your icon | Yes (same source file) |
 | Widget icon | Icon in widget gallery and widgets | `OpenUIWidgets/.../IMG_0816.png` | — | PNG image | Open Relay icon | Your icon | Yes (same source file) |
 
@@ -288,8 +290,8 @@ old text) and `"replace"` (the new text).
 
 ### Changing the Icon
 
-Just replace the file at `Assets/AppIcon.png`. The scripts handle copying it to all four
-locations in the app.
+Replace `Assets/AppIcon-light.png` for the default icon. You can also add
+`Assets/AppIcon-dark.png` and `Assets/AppIcon-tinted.png` for iOS 18 appearance variants.
 
 ### Adding a New Replacement
 
@@ -304,33 +306,17 @@ Add a new entry to the appropriate file's `"replacements"` array:
 
 ---
 
-## Important: BrandOverride Is Excluded from the Xcode Build
+## Important: BrandOverride Lives Outside the Xcode Build
 
-The `BrandOverride/` folder lives inside the `Open UI/` source directory. Xcode
-16 uses synchronized folder groups that automatically include every file in the
-directory for compilation and bundling. Without an exclusion, Xcode finds
-duplicate Swift files, `Info.plist`, and `PRIVACY.md` in the `backups/`
-subdirectory and fails with "Multiple commands produce" errors.
+The supported layout keeps `BrandOverride` at `tools/BrandOverride/`, outside the
+`Open UI/` source tree that Xcode synchronizes into the app target. That means the
+`backups/`, `scripts/`, assets, and config files are no longer candidates for
+compilation or bundling, so the old "Multiple commands produce" issue is avoided by
+folder layout instead of a target-membership exclusion.
 
-The project excludes `BrandOverride` via the `membershipExceptions` array in the
-`PBXFileSystemSynchronizedBuildFileExceptionSet` section of `project.pbxproj`.
-**This exclusion must be preserved.** If it is ever lost (e.g., after a restore
-from upstream), re-add it either:
-
-**In Xcode (easiest):**
-1. In the Project Navigator, find the **BrandOverride** folder under **Open UI**
-2. Select it, open the **File Inspector** (right panel)
-3. Under **Target Membership**, uncheck the **Open UI** target
-
-**Or in `project.pbxproj` directly** — find the `membershipExceptions` block for
-the "Open UI" target and make sure `BrandOverride` is listed:
-
-```
-membershipExceptions = (
-    BrandOverride,
-    Info.plist,
-);
-```
+If you still have an old in-tree copy from a previous setup, remove
+or move it before building. The only supported tooling location is
+`tools/BrandOverride/`.
 
 ---
 
@@ -340,7 +326,7 @@ membershipExceptions = (
 
 You have not placed your icon yet. Put a 1024x1024 PNG at:
 ```
-Open UI/BrandOverride/Assets/AppIcon.png
+tools/BrandOverride/Assets/AppIcon-light.png
 ```
 
 ### "File not found" warning

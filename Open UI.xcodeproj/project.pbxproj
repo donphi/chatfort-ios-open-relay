@@ -84,7 +84,6 @@
 		38EB66802F39CE5B00AED774 /* Exceptions for "Open UI" folder in "Open UI" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				BrandOverride,
 				Info.plist,
 			);
 			target = 38EB667C2F39CE5A00AED774 /* Open UI */;
@@ -339,6 +338,14 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = EE593D352F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593C472F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D3B2F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593BED2F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
 					ProductGroup = EE593D332F7ED3C100589ECA /* Products */;
 					ProjectRef = EE593C1A2F7ED3C100589ECA /* Open UI.xcodeproj */;
 				},
@@ -353,14 +360,6 @@
 				{
 					ProductGroup = EE593D372F7ED3C100589ECA /* Products */;
 					ProjectRef = EE593BD72F7ED3C100589ECA /* Open UI.xcodeproj */;
-				},
-				{
-					ProductGroup = EE593D352F7ED3C100589ECA /* Products */;
-					ProjectRef = EE593C472F7ED3C100589ECA /* Open UI.xcodeproj */;
-				},
-				{
-					ProductGroup = EE593D3B2F7ED3C100589ECA /* Products */;
-					ProjectRef = EE593BED2F7ED3C100589ECA /* Open UI.xcodeproj */;
 				},
 			);
 			projectRoot = "";

@@ -421,7 +421,7 @@ When the original Open Relay repo has updates you want:
 cd /path/to/chatfort-ios-open-relay
 
 # 1. Restore original branding (undo ChatFort changes)
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/restore.sh
 cd ../..
 
@@ -429,7 +429,7 @@ cd ../..
 git pull upstream main
 
 # 3. Create a fresh backup of the new upstream files
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/backup.sh
 
 # 4. Preview the branding changes
@@ -609,7 +609,7 @@ access it.
 
 ### The app still shows "Open Relay" somewhere
 
-- Check `Open UI/BrandOverride/CANNOT_OVERRIDE.md` for items the scripts skip
+- Check `tools/BrandOverride/CANNOT_OVERRIDE.md` for items the scripts skip
 - The `Localizable.xcstrings` file (translations) is not modified to avoid merge conflicts
 
 ### Scheduled builds stopped running

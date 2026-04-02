@@ -372,7 +372,7 @@ When the original Open Relay repo has updates you want to pull in:
 cd /path/to/chatfort-ios-open-relay
 
 # 1. Restore original branding
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/restore.sh
 cd ../..
 
@@ -380,7 +380,7 @@ cd ../..
 git pull upstream main
 
 # 3. Create a fresh backup
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/backup.sh
 
 # 4. Preview changes
@@ -474,38 +474,24 @@ If it is consistently slow:
 
 ### "Multiple commands produce" errors for Info.plist, PRIVACY.md, or Swift files
 
-The `BrandOverride/` folder inside `Open UI/` contains backup copies of Swift
-files, plists, and docs. Xcode 16 uses synchronized folder groups that
-automatically include every file in the directory. Without an exclusion, Xcode
-tries to compile or bundle the backup copies alongside the real files, causing
-"Multiple commands produce" errors.
+The supported layout keeps `BrandOverride` at `tools/BrandOverride/`, outside the
+synchronized `Open UI/` source tree. That prevents Xcode 16 from discovering the
+backup copies of Swift files, plists, and docs during the app build.
 
-**Fix:** The `BrandOverride` folder is excluded via the `membershipExceptions`
-array in the `PBXFileSystemSynchronizedBuildFileExceptionSet` for the "Open UI"
-target inside `project.pbxproj`. This is already set in the repo. If you see
-this error after a restore or upstream pull, check that `project.pbxproj`
-contains `BrandOverride` in the exceptions block (around line 86):
+If you still see this error, you probably have an old in-tree BrandOverride copy
+or stale build artifacts. Fix it with:
 
-```
-membershipExceptions = (
-    BrandOverride,
-    Info.plist,
-);
-```
-
-If it is missing, the easiest way to re-add it is in Xcode:
-
-1. In the Project Navigator, find the **BrandOverride** folder under **Open UI**
-2. Select it, then open the **File Inspector** (right panel)
-3. Under **Target Membership**, uncheck the **Open UI** target
-4. **Product → Clean Build Folder** (Shift + Cmd + K), then build again
+1. Make sure the only supported tooling folder is `tools/BrandOverride/`
+2. Remove any leftover in-tree BrandOverride copy from the source tree
+3. In Xcode, run **Product → Clean Build Folder** (Shift + Cmd + K)
+4. If needed, delete DerivedData for this project and build again
 
 ### The app still shows "Open Relay" somewhere
 
 The brand override scripts may not have been applied. Run:
 
 ```bash
-cd "Open UI/BrandOverride"
+cd "tools/BrandOverride"
 ./scripts/override.sh --dry-run   # preview
 ./scripts/override.sh --apply     # apply
 ```
