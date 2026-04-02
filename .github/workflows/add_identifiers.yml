@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Select Xcode version
-        run: "sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer"
+        run: "sudo xcode-select --switch /Applications/Xcode_26.0.1.app/Contents/Developer"
 
       - name: Checkout Repo
         uses: actions/checkout@v4
