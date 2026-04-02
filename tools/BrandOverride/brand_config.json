@@ -154,7 +154,7 @@
         },
         {
           "find": "Spacer(minLength: 60)",
-          "replace": "Spacer(minLength: 50)"
+          "replace": "Spacer(minLength: 30)"
         },
         {
           "find": "opacity = Double.random(in: 0.15...0.35)",
