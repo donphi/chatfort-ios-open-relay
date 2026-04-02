@@ -65,6 +65,12 @@
 		3852C70E2F71110800283682 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		3852C7102F71110800283682 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		38EB667D2F39CE5A00AED774 /* Open UI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Open UI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE593BD72F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
+		EE593BED2F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
+		EE593C042F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
+		EE593C1A2F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
+		EE593C312F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
+		EE593C472F7ED3C100589ECA /* Open UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Open UI.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -171,6 +177,48 @@
 			children = (
 				38EB667D2F39CE5A00AED774 /* Open UI.app */,
 				3852C70C2F71110800283682 /* OpenUIWidgetsExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D332F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D352F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D372F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D392F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D3B2F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE593D3D2F7ED3C100589ECA /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,6 +336,32 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 38EB667E2F39CE5A00AED774 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = EE593D332F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593C1A2F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D392F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593C042F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D3D2F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593C312F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D372F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593BD72F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D352F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593C472F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+				{
+					ProductGroup = EE593D3B2F7ED3C100589ECA /* Products */;
+					ProjectRef = EE593BED2F7ED3C100589ECA /* Open UI.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				38EB667C2F39CE5A00AED774 /* Open UI */,
@@ -347,7 +421,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenUIWidgets/OpenUIWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6ARX8PF3MT;
+				DEVELOPMENT_TEAM = 929RS5BE59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenUIWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = OpenUIWidget;
@@ -359,7 +433,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui.OpenUIWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort.OpenUIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -379,7 +453,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenUIWidgets/OpenUIWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6ARX8PF3MT;
+				DEVELOPMENT_TEAM = 929RS5BE59;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenUIWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = OpenUIWidget;
@@ -391,7 +465,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui.OpenUIWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort.OpenUIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -536,11 +610,12 @@
 				CODE_SIGN_ENTITLEMENTS = "Open UI/Open UI.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6ARX8PF3MT;
+				DEVELOPMENT_TEAM = 929RS5BE59;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = BrandOverride;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ChatFort";
+				INFOPLIST_KEY_CFBundleDisplayName = ChatFort;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChatFort needs camera access to capture photos and documents for chat attachments.";
@@ -560,7 +635,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -580,11 +655,12 @@
 				CODE_SIGN_ENTITLEMENTS = "Open UI/Open UI.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6ARX8PF3MT;
+				DEVELOPMENT_TEAM = 929RS5BE59;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = BrandOverride;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ChatFort";
+				INFOPLIST_KEY_CFBundleDisplayName = ChatFort;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChatFort needs camera access to capture photos and documents for chat attachments.";
@@ -604,7 +680,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.4;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

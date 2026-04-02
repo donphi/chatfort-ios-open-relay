@@ -209,3 +209,17 @@ changed to avoid breaking functionality:
 | UTType identifier `com.openui.chat-item` | Registered type; description is changed but ID stays |
 | Target name "Open UI" in Xcode | Renaming the Xcode target causes massive pbxproj changes |
 | `Localizable.xcstrings` | ~168 lines with "Open Relay"/"Open UI" across all locales — these are localization keys and translated values. Changing them is possible but high-risk for merge conflicts. The override script does not touch this file. |
+
+---
+
+## Build Setting: EXCLUDED_SOURCE_FILE_NAMES
+
+The Open UI target has `EXCLUDED_SOURCE_FILE_NAMES = BrandOverride` set in both
+Debug and Release build configurations. This prevents Xcode from including the
+`BrandOverride/` folder (backups, scripts, assets, configs) in the app bundle.
+Without it, duplicate `Info.plist` and `PRIVACY.md` files from `backups/` cause
+"Multiple commands produce" build errors.
+
+**This setting is NOT managed by the override/restore scripts.** If a restore
+from upstream wipes it, it must be re-added manually in Xcode Build Settings or
+in `project.pbxproj`.

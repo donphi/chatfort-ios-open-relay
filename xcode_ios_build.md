@@ -154,7 +154,13 @@ the app for your device.
 5. Sign in with the Apple ID linked to your paid Developer account
 6. Close the Settings window
 
-### 6b. Select Your Team for the Main App
+### 6b. Select Your Team and Change the Bundle Identifier for the Main App
+
+The default Bundle Identifier (`com.openui.openui`) and App Group
+(`group.com.openui.openui`) are registered to the upstream developer's Apple
+account. **You must change them to something unique to your own account**,
+otherwise Xcode cannot create provisioning profiles and you will see errors like
+"Communication with Apple failed" or "No profiles found."
 
 1. In the left sidebar (Project Navigator), click on **Open UI** at the very top
    (the blue project icon, not a folder)
@@ -162,24 +168,56 @@ the app for your device.
    (the first target — this is the main app)
 3. Click the **Signing & Capabilities** tab
 4. Make sure **Automatically manage signing** is checked (it should be by default)
-5. Click the **Team** dropdown and select your team name (e.g., "Donald Philp")
-6. The **Bundle Identifier** field should show `com.openui.openui` — leave it as-is
+5. Click the **Team** dropdown and select your team name (e.g., "John Smith")
+6. **Change the Bundle Identifier** from `com.openui.openui` to something unique
+   to you, for example `com.yourname.chatfort` (replace `yourname` with your own
+   name or domain — it just needs to be globally unique)
+7. **Update the App Group:**
+   - Under **Signing & Capabilities**, find the **App Groups** section
+   - Click the existing group `group.com.openui.openui`
+   - Click the **−** (minus) button to remove it
+   - Click the **+** (plus) button to add a new App Group
+   - Enter a matching identifier, e.g., `group.com.yourname.chatfort`
+   - Click **OK** — Xcode will register it with your Apple Developer account
 
-### 6c. Select Your Team for the Widget Extension
+### 6c. Select Your Team and Change the Bundle Identifier for the Widget Extension
 
 1. Still in the project editor, click on the **OpenUIWidgetsExtension** target
    (the second target in the list)
 2. Click the **Signing & Capabilities** tab
 3. Select the same **Team** you chose for the main app
-4. The Bundle Identifier should show `com.openui.openui.OpenUIWidget` — leave it as-is
+4. **Change the Bundle Identifier** from `com.openui.openui.OpenUIWidget` to
+   match your main app's identifier with `.OpenUIWidget` appended, e.g.,
+   `com.yourname.chatfort.OpenUIWidget`
+5. **Update the App Group** to the same value you used in 6b (e.g.,
+   `group.com.yourname.chatfort`) — follow the same remove/add steps
+
+### 6d. Update the App Group in Source Code
+
+The App Group identifier is also hardcoded in one Swift file. It must match the
+value you chose above or the widget will not be able to share data with the main
+app.
+
+1. In the left sidebar, navigate to **Open UI → Core → Services →
+   SharedDataService.swift**
+2. Find the line:
+   ```swift
+   static let appGroupId = "group.com.openui.openui"
+   ```
+3. Change it to match your App Group, e.g.:
+   ```swift
+   static let appGroupId = "group.com.yourname.chatfort"
+   ```
+4. Save the file (**Cmd + S**)
 
 ### What "Signing" Means
 
 Every iOS app must be digitally signed to run on a real device. This proves the
 app came from a known developer and has not been tampered with. When you select
-your Team, Xcode automatically:
+your Team and set a unique Bundle Identifier, Xcode automatically:
 - Creates a signing certificate for you
 - Creates a provisioning profile that ties your certificate to the app and your device
+- Registers your App Group with Apple
 - Signs the app when you build it
 
 You do not need to do any of this manually. Xcode handles it all.
@@ -282,11 +320,13 @@ Find the UDID of the device you want to install on:
 1. Go to [developer.apple.com/account/resources/profiles/list](https://developer.apple.com/account/resources/profiles/list)
 2. Click the **+** button
 3. Under **Distribution**, select **Ad Hoc** → click **Continue**
-4. Select **`com.openui.openui`** → click **Continue**
+4. Select your app's Bundle Identifier (the one you set in Step 6b, e.g.,
+   `com.yourname.chatfort`) → click **Continue**
 5. Select your distribution certificate → click **Continue**
 6. Select all the devices you want to install on → click **Continue**
 7. Name it `ChatFort Ad Hoc` → click **Generate** → **Download**
-8. Repeat for the widget: create another Ad Hoc profile for `com.openui.openui.OpenUIWidget`
+8. Repeat for the widget: create another Ad Hoc profile for your widget's Bundle
+   Identifier (e.g., `com.yourname.chatfort.OpenUIWidget`)
 
 #### Step 3: Archive and Export the IPA from Xcode
 
@@ -380,14 +420,20 @@ SPM dependencies did not download properly.
 3. Wait for all packages to download
 4. Try building again (Cmd + R)
 
-### "Signing requires a development team" error
+### "Signing requires a development team" or "No profiles found" or "Communication with Apple failed"
 
-You did not select a Team in Step 6.
+You either did not select a Team, or the Bundle Identifier / App Group still
+uses the upstream defaults that belong to a different Apple Developer account.
 
 1. Click on the **Open UI** project in the left sidebar
 2. Select the target that has the error
 3. Go to **Signing & Capabilities**
 4. Select your Team from the dropdown
+5. Make sure the **Bundle Identifier** is unique to your account (not
+   `com.openui.openui` — see Step 6b)
+6. Make sure the **App Group** matches what you set in Step 6b (not
+   `group.com.openui.openui`)
+7. If you changed the App Group, also update `SharedDataService.swift` (Step 6d)
 
 ### "Could not launch — device not available" or "device is busy"
 
@@ -425,6 +471,24 @@ If it is consistently slow:
 2. Make sure your Xcode version is 16.0 or later
 3. Go to **Xcode → Settings → Platforms** and check that the iOS platform is installed
 4. If needed, click the **+** button to download the iOS 18 platform
+
+### "Multiple commands produce" errors for Info.plist or PRIVACY.md
+
+The `BrandOverride/` folder inside `Open UI/` contains backup copies of files
+like `Info.plist` and `PRIVACY.md`. Xcode's file-syncing picks them up and tries
+to copy them into the app bundle, causing conflicts.
+
+**Fix:** The project must have `EXCLUDED_SOURCE_FILE_NAMES = BrandOverride` set
+in the Open UI target's build settings (both Debug and Release). This is already
+set in the repo. If you see this error after a restore or upstream pull:
+
+1. Click on the **Open UI** project in the left sidebar
+2. Select the **Open UI** target
+3. Go to **Build Settings** and search for `EXCLUDED_SOURCE_FILE_NAMES`
+4. Verify it is set to `BrandOverride` for both Debug and Release
+5. If missing, add it: click **+** → **Add User-Defined Setting** →
+   name it `EXCLUDED_SOURCE_FILE_NAMES` → set the value to `BrandOverride`
+6. **Product → Clean Build Folder** (Shift + Cmd + K), then build again
 
 ### The app still shows "Open Relay" somewhere
 

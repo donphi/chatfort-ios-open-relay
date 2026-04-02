@@ -304,6 +304,26 @@ Add a new entry to the appropriate file's `"replacements"` array:
 
 ---
 
+## Important: EXCLUDED_SOURCE_FILE_NAMES Build Setting
+
+The `BrandOverride/` folder lives inside the `Open UI/` source directory, which
+Xcode automatically syncs into the build. Without an exclusion, Xcode finds
+duplicate `Info.plist` and `PRIVACY.md` files in the `backups/` subdirectory and
+fails with "Multiple commands produce" errors.
+
+The project has `EXCLUDED_SOURCE_FILE_NAMES = BrandOverride` set on the Open UI
+target (both Debug and Release configs). **This setting must be preserved.** If
+it is ever lost (e.g., after a restore from upstream), re-add it:
+
+1. Select the **Open UI** target → **Build Settings**
+2. Search for `EXCLUDED_SOURCE_FILE_NAMES`
+3. Set it to `BrandOverride` for both Debug and Release
+
+This is a standard Xcode build setting — it tells the build system to skip any
+files/folders matching that name. It does not affect the override scripts.
+
+---
+
 ## Troubleshooting
 
 ### "Icon source missing" warning
