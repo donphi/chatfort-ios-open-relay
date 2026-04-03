@@ -1,77 +1,100 @@
 # ChatFort Brand Assets
 
-Place your brand image files in this folder. The override script will copy them
-to the correct locations in the app and update the asset catalog JSON automatically.
+Place your brand assets in this folder. The override script copies them to the
+correct locations in the app automatically.
 
-## App Icon — Three Variants
+---
 
-iOS 18+ supports three icon appearances: light (default), dark, and tinted.
-Export all three from Icon Composer and place them here.
+## App Icon — Icon Composer (`.icon` Bundle)
 
-### Required Files
+The app icon uses Apple's **Icon Composer** format (`.icon`), which supports
+Liquid Glass effects, layered depth, and automatic generation of all icon
+variants (light, dark, mono/tinted) from a single source file.
 
-| Filename | Appearance | What iOS Uses It For |
-|----------|------------|---------------------|
-| `AppIcon-light.png` | Light (default) | Home screen on light wallpapers, App Store, in-app display |
-| `AppIcon-dark.png` | Dark | Home screen on dark wallpapers (iOS 18+) |
-| `AppIcon-tinted.png` | Tinted | Monochrome tinted icon colored by user's tint (iOS 18+) |
+### Required File
 
-### Specifications (All Three)
+| Path | What It Is |
+|------|-----------|
+| `AppIcon.icon/` | Icon Composer bundle — contains `icon.json` + SVG/PNG layers in `Assets/` |
 
-| Property | Requirement |
-|----------|-------------|
-| Size | 1024 x 1024 pixels |
-| Format | PNG |
-| Color space | sRGB |
-| Shape | Square (iOS adds rounded corners automatically) |
+### How to Create or Edit the Icon
 
-### Per-Variant Notes
+1. Open **Icon Composer** (Xcode → Open Developer Tool → Icon Composer)
+2. Design your icon with up to 4 layer groups, applying Liquid Glass effects
+3. Configure light, dark, and mono appearances inside Icon Composer
+4. **Save** as `AppIcon.icon` (File → Save) into this `Assets/` folder
 
-**Light (`AppIcon-light.png`):**
-- Your full-color default icon
-- No transparency (iOS rejects transparent app icons)
-- This is also used for in-app display (About screen, Onboarding, Login, Widgets)
+The `.icon` bundle is a folder containing:
 
-**Dark (`AppIcon-dark.png`):**
-- Your dark mode variant — typically darker background, lighter/brighter elements
-- No transparency
-- If you skip this file, iOS uses the light icon on dark wallpapers
-
-**Tinted (`AppIcon-tinted.png`):**
-- A grayscale silhouette/shape that iOS will colorize with the user's chosen tint
-- White areas become the tint color, black areas stay dark
-- Design it as a single-layer grayscale shape
-- If you skip this file, iOS uses the light icon for tinted mode
+```
+AppIcon.icon/
+  ├── icon.json          # Layer definitions, colors, Liquid Glass settings
+  └── Assets/
+      ├── layer1.svg     # Individual layer artwork
+      ├── layer2.svg
+      └── ...
+```
 
 ### What the Override Script Does
 
 When you run `./scripts/override.sh --apply`, it:
 
-1. Copies `AppIcon-light.png` to all four `IMG_0816.png` locations (main app + widget, icon + in-app image)
-2. Copies `AppIcon-dark.png` into the two `AppIcon.appiconset/` folders (main app + widget)
-3. Copies `AppIcon-tinted.png` into the two `AppIcon.appiconset/` folders (main app + widget)
-4. Updates `Contents.json` in both `AppIcon.appiconset/` folders to reference the dark and tinted filenames
+1. Copies `AppIcon.icon/` into `Open UI/AppIcon.icon` and
+   `OpenUIWidgets/AppIcon.icon` (Xcode picks these up via filesystem sync)
+2. Copies `AppIcon-preview.png` to the two `AppIconImage.imageset/` locations
+   (for in-app display on About, Login, Onboarding, and Widget screens)
 
-You only need to provide the PNGs — the script handles all the wiring.
+Xcode generates all home-screen icon sizes, App Store icons, and
+backward-compatible flat icons for iOS 18 automatically at build time from the
+`.icon` file. You do not need separate PNGs for light, dark, or tinted.
 
-### Partial Support
+---
 
-You do not need all three variants. The script handles whatever you provide:
+## In-App Preview Icon (`AppIcon-preview.png`)
 
-- **Light only:** Just place `AppIcon-light.png`. Dark and tinted slots stay empty (iOS uses light for everything).
-- **Light + Dark:** Place both. Tinted slot stays empty.
-- **All three:** Place all three for full iOS 18+ icon support.
+SwiftUI `Image("AppIconImage")` cannot read `.icon` files directly. The app
+uses a regular `AppIconImage.imageset` (PNG) to display the icon inside the
+app (About screen, Login, Onboarding, Widgets).
 
-### Legacy Fallback
+### Required File
 
-If you have a single icon and don't want variants, you can also just name it
-`AppIcon-light.png` and skip the other two. The result is identical to the
-old single-icon behavior.
+| Path | What It Is |
+|------|-----------|
+| `AppIcon-preview.png` | 1024x1024 PNG exported from Icon Composer for in-app display |
 
-## Tips for Creating Icons
+### How to Export
 
-- Design at 1024x1024 but check how it looks at small sizes (60x60, 40x40, 29x29)
-- Avoid fine text — it becomes unreadable at small sizes
-- Use bold, simple shapes with good contrast
-- Test on both light and dark wallpapers
-- Apple's Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines/app-icons
+**Option A — Manual export (recommended for local builds):**
+
+1. Open your `AppIcon.icon` in Icon Composer
+2. Select **iOS** platform and **Default** (light) appearance
+3. Choose **File → Export**
+4. Save as `AppIcon-preview.png` in this `Assets/` folder
+
+**Option B — Automatic via `ictool` (used by CI):**
+
+If `AppIcon-preview.png` is missing when you run the override script, it will
+attempt to generate it automatically using `ictool` (bundled with Xcode 26+).
+This is how the GitHub Actions CI build works — no manual export needed.
+
+### Specifications
+
+| Property | Requirement |
+|----------|-------------|
+| Size | 1024 x 1024 pixels |
+| Format | PNG |
+| Color space | sRGB or Display P3 |
+
+---
+
+## Tips for Creating Icons in Icon Composer
+
+- Start with the Apple Design Resources template (1024x1024 canvas)
+- Use SVG layers for maximum scalability (PNG layers also work)
+- Separate your design into up to 4 groups for depth effects
+- Apply Liquid Glass effects (specular, blur, translucency) in Icon Composer,
+  not in your design tool
+- Preview all three appearances (Default, Dark, Mono) before saving
+- Test at small sizes using the preview size selector in Icon Composer
+- Apple's Human Interface Guidelines:
+  https://developer.apple.com/design/human-interface-guidelines/app-icons

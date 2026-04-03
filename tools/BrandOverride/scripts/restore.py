@@ -150,20 +150,18 @@ def main():
         shutil.copy2(str(pristine_file), str(target_file))
         restored += 1
 
-    # Clean up dark/tinted icon PNGs that the override script created
+    # Clean up Icon Composer bundles that the override script copied
     # (these don't exist in upstream, so they must be removed on restore)
-    cleanup_files = [
-        "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png",
-        "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png",
-        "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png",
-        "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png",
+    cleanup_dirs = [
+        "Open UI/AppIcon.icon",
+        "OpenUIWidgets/AppIcon.icon",
     ]
     cleaned = 0
-    for rel_path in cleanup_files:
-        target_file = REPO_ROOT / rel_path
-        if target_file.exists():
-            target_file.unlink()
-            print(f"  {YELLOW}CLEANED{RESET}  {rel_path}  (not in upstream)")
+    for rel_path in cleanup_dirs:
+        target_dir = REPO_ROOT / rel_path
+        if target_dir.exists():
+            shutil.rmtree(str(target_dir))
+            print(f"  {YELLOW}CLEANED{RESET}  {rel_path}/  (not in upstream)")
             cleaned += 1
 
     print(f"\n{BOLD}{CYAN}{'━' * 60}{RESET}")

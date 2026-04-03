@@ -71,8 +71,8 @@ All paths are relative to the repository root.
 │   │   └── Open_UIApp.swift              @main entry point, AppDelegate, URL handling
 │   ├── Assets.xcassets/                  Asset catalog
 │   │   ├── AccentColor.colorset/         Global accent color
-│   │   ├── AppIcon.appiconset/           App icon (IMG_0816.png, 1024x1024)
-│   │   └── AppIconImage.imageset/        In-app icon image (same PNG)
+│   │   ├── AppIcon.appiconset/           App icon (upstream, superseded by .icon)
+│   │   └── AppIconImage.imageset/        In-app icon image (preview PNG)
 │   ├── Core/
 │   │   ├── Extensions/                   Date, Timestamp helpers
 │   │   ├── Models/                       Data models (Chat, Channel, Server, etc.)
@@ -110,7 +110,10 @@ All paths are relative to the repository root.
 │
 ├── tools/
 │   └── BrandOverride/                    THIS FOLDER (brand customization system)
-│       ├── Assets/                       Brand icon sources and docs
+│       ├── Assets/                       Brand assets
+│       │   ├── AppIcon.icon/             Icon Composer bundle (layers + icon.json)
+│       │   ├── AppIcon-preview.png       Exported PNG for in-app display (optional)
+│       │   └── README-assets.md          Asset documentation
 │       ├── backups/                      Versioned pristine/override snapshots
 │       ├── scripts/                      backup, restore, and override tooling
 │       ├── brand_config.json             Brand source of truth
@@ -250,14 +253,18 @@ Every file that contains brand-visible strings, organized by category.
 | `PRIVACY.md` | 46 | `Open UI is not directed to children` |
 | `PRIVACY.md` | 52 | `https://github.com/Ichigo3766/Open-UI` |
 
-### 6.8 Icon Files (Binary)
+### 6.8 Icon Files
 
-| File | Size | Purpose |
-|------|------|---------|
-| `Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png` | 1.7 MB | Home screen icon, App Store |
-| `Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | 1.7 MB | In-app display (About, Login, Onboarding) |
-| `OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png` | 1.7 MB | Widget icon |
-| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | 1.7 MB | Widget in-app display |
+The app icon uses an Icon Composer `.icon` bundle (Liquid Glass format). The
+override script copies the bundle into the project and a preview PNG for in-app
+display.
+
+| File | Purpose |
+|------|---------|
+| `Open UI/AppIcon.icon` | Icon Composer bundle — home screen icon, App Store, all appearances (light/dark/tinted) |
+| `OpenUIWidgets/AppIcon.icon` | Icon Composer bundle — widget icon |
+| `Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | In-app display (About, Login, Onboarding) — preview PNG exported from Icon Composer |
+| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | Widget in-app display — same preview PNG |
 
 ### 6.9 NOT Changed (Internal Identifiers)
 
@@ -340,7 +347,7 @@ Defines font scale using SF system fonts with Dynamic Type support. No custom fo
 
 ---
 
-## 8. Asset Catalog Internals
+## 8. Asset Catalog Internals and Icon Composer
 
 ### How .xcassets Works
 
@@ -349,36 +356,30 @@ An `.xcassets` folder is an Xcode Asset Catalog. Inside it, each subfolder endin
 - A `Contents.json` file that describes the assets
 - The actual asset files (PNGs, etc.)
 
-### AppIcon.appiconset/Contents.json
+### Icon Composer (.icon) Replaces AppIcon.appiconset
 
-This JSON tells Xcode which PNG to use for the app icon:
+The app icon now uses an **Icon Composer `.icon` bundle** instead of the traditional
+`AppIcon.appiconset`. When a `.icon` file named `AppIcon.icon` is present in the
+Xcode project, it takes precedence over any `AppIcon.appiconset` in the asset catalog.
 
-```json
-{
-  "images": [
-    {
-      "filename": "IMG_0816.png",
-      "idiom": "universal",
-      "platform": "ios",
-      "size": "1024x1024"
-    },
-    { "appearances": [{"appearance": "luminosity", "value": "dark"}], ... },
-    { "appearances": [{"appearance": "luminosity", "value": "tinted"}], ... }
-  ]
-}
-```
+The `.icon` bundle is a folder containing:
+- `icon.json` — layer definitions, colors, Liquid Glass effects, appearance variants
+- `Assets/` — SVG or PNG layer artwork files
 
-The `filename` field points to the PNG file in the same directory. The dark and tinted
-slots have no filename (empty), so iOS uses the light icon for all appearances.
+Xcode generates all icon variants at build time (all sizes, all platforms, all
+appearances including light/dark/mono). It also auto-generates backward-compatible
+flat icons for iOS 18 and earlier.
 
-**To change the icon:** Replace `IMG_0816.png` with a new 1024x1024 PNG. Do NOT rename
-the file or change `Contents.json`. The override script handles this by copying from
-`tools/BrandOverride/Assets/AppIcon-light.png` to `IMG_0816.png`, plus optional dark/tinted variants when provided.
+The upstream `AppIcon.appiconset` stays in the repo untouched. When the override
+script copies `AppIcon.icon` into the project, it takes precedence. When the restore
+script removes it, the upstream `appiconset` resumes control.
 
 ### AppIconImage.imageset/Contents.json
 
-Similar structure but for an `Image("AppIconImage")` reference used in SwiftUI views
-(About screen, Onboarding, Login, Widgets). Only the 1x slot has a filename.
+This is a regular image asset used for `Image("AppIconImage")` in SwiftUI views
+(About screen, Onboarding, Login, Widgets). SwiftUI cannot read `.icon` files
+directly, so this imageset still uses a PNG. The override script copies
+`AppIcon-preview.png` (exported from Icon Composer) into the 1x slot.
 
 ---
 
@@ -426,7 +427,9 @@ This JSON file is the single source of truth for all brand values. It contains:
 - `brand`: Object with app name, author, GitHub URLs, widget text, credits
 - `string_replacements`: Array of objects, each with a `file` path and `replacements` array
   of `{find, replace}` pairs
-- `icon_files`: Array of `{source, target}` pairs for icon PNG copies
+- `icon_composer`: Object with `source` (path to `.icon` bundle) and `targets` (array of
+  destination paths in the project)
+- `icon_files`: Array of `{source, target}` pairs for the preview PNG (in-app display)
 - `files_to_backup`: Array of relative file paths that the backup script should snapshot
 
 ### Script Execution Flow
@@ -453,11 +456,13 @@ This JSON file is the single source of truth for all brand values. It contains:
    - Read the target file
    - Apply all find/replace pairs
    - Collect change details (line number, before/after)
-3. For each entry in `icon_files`:
+3. Copy the Icon Composer `.icon` bundle to each target in `icon_composer.targets`
+4. If `AppIcon-preview.png` is missing, attempt auto-export via `ictool` (Xcode 26+)
+5. For each entry in `icon_files`:
    - Check if source exists in `tools/BrandOverride/Assets/`
    - If `--apply`, copy source to target
-4. Print colored diff of all changes
-5. If `--apply`, write modified files to disk
+6. Print colored diff of all changes
+7. If `--apply`, write modified files to disk
 
 ### Colored Diff Output
 
@@ -573,14 +578,16 @@ The `project.pbxproj` file uses a specific format. If you:
 
 The override script only does exact string replacement within existing lines, which is safe.
 
-### Asset Catalog JSON Errors
+### Asset Catalog and Icon Composer
 
-If you modify `Contents.json` files in `.xcassets` folders:
-- Missing commas → Xcode ignores the entire catalog
-- Wrong `filename` value → Icon shows as blank
-- Wrong `size` value → Icon rejected by App Store
+The override script does NOT modify any `Contents.json` files. The app icon is handled
+entirely by the Icon Composer `.icon` bundle, which Xcode processes at build time. The
+only PNG the script touches is the in-app preview image (`AppIconImage.imageset`).
 
-The override script does NOT modify any `Contents.json` files. It only replaces the PNG.
+If you see icon issues after an override:
+- Verify `AppIcon.icon` was copied into `Open UI/` and `OpenUIWidgets/`
+- Verify the target's "App Icon Set Name" build setting is `AppIcon`
+- Clean the build folder (Shift+Cmd+K) to clear cached icon assets
 
 ### Code Signing
 

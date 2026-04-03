@@ -164,16 +164,18 @@ This is the "About" page in Settings. It shows the app name, tagline, credits, a
 
 ---
 
-## Icon Files (Binary Replacement)
+## Icon Files (Bundle + Preview PNG)
 
-These are PNG files, not text. The override script copies your ChatFort icon over them.
+The app icon uses an Icon Composer `.icon` bundle (Liquid Glass format). The
+override script copies the bundle into the project and a preview PNG for in-app
+display.
 
 | File | Type | Impact if not changed |
 |------|------|-----------------------|
-| `Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png` | App icon (home screen, App Store) | Shows original Open Relay icon |
-| `Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | In-app icon (About, Onboarding, Login screens) | Shows original icon in UI |
-| `OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png` | Widget icon | Widget shows original icon |
-| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | Widget in-app icon | Widget shows original icon |
+| `Open UI/AppIcon.icon` | Icon Composer bundle (home screen, App Store, all appearances) | Shows original Open Relay icon |
+| `OpenUIWidgets/AppIcon.icon` | Icon Composer bundle (widget icon) | Widget shows original icon |
+| `Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | In-app preview (About, Onboarding, Login screens) | Shows original icon in UI |
+| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | Widget in-app preview | Widget shows original icon |
 
 ---
 
@@ -187,7 +189,8 @@ These are PNG files, not text. The override script copies your ChatFort icon ove
 | Siri Intents | 1 | 1 |
 | Info.plist | 1 | 1 |
 | Privacy policy | 1 | 5 |
-| Icon PNGs | 4 | 4 (file replacements) |
+| Icon Composer bundles | 2 | 2 (bundle copies) |
+| Icon preview PNGs | 2 | 2 (file replacements) |
 | **TOTAL** | **14 files** | **45 changes** |
 
 ---

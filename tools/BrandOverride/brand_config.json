@@ -339,53 +339,22 @@
     }
   ],
 
+  "icon_composer": {
+    "source": "Assets/AppIcon.icon",
+    "targets": [
+      "Open UI/AppIcon.icon",
+      "OpenUIWidgets/AppIcon.icon"
+    ]
+  },
+
   "icon_files": [
     {
-      "source": "Assets/AppIcon-light.png",
-      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png"
-    },
-    {
-      "source": "Assets/AppIcon-light.png",
+      "source": "Assets/AppIcon-preview.png",
       "target": "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
     },
     {
-      "source": "Assets/AppIcon-light.png",
-      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png"
-    },
-    {
-      "source": "Assets/AppIcon-light.png",
+      "source": "Assets/AppIcon-preview.png",
       "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
-    },
-    {
-      "source": "Assets/AppIcon-dark.png",
-      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png"
-    },
-    {
-      "source": "Assets/AppIcon-dark.png",
-      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-dark.png"
-    },
-    {
-      "source": "Assets/AppIcon-tinted.png",
-      "target": "Open UI/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png"
-    },
-    {
-      "source": "Assets/AppIcon-tinted.png",
-      "target": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/AppIcon-tinted.png"
-    }
-  ],
-
-  "icon_contents_json": [
-    {
-      "target_dir": "Open UI/Assets.xcassets/AppIcon.appiconset",
-      "light_filename": "IMG_0816.png",
-      "dark_filename": "AppIcon-dark.png",
-      "tinted_filename": "AppIcon-tinted.png"
-    },
-    {
-      "target_dir": "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset",
-      "light_filename": "IMG_0816.png",
-      "dark_filename": "AppIcon-dark.png",
-      "tinted_filename": "AppIcon-tinted.png"
     }
   ],
 
@@ -406,11 +375,7 @@
     "Open UI/Info.plist",
     "PRIVACY.md",
     "fastlane/Fastfile",
-    "Open UI/Assets.xcassets/AppIcon.appiconset/IMG_0816.png",
-    "Open UI/Assets.xcassets/AppIcon.appiconset/Contents.json",
     "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png",
-    "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/IMG_0816.png",
-    "OpenUIWidgets/Assets.xcassets/AppIcon.appiconset/Contents.json",
     "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
   ]
 }

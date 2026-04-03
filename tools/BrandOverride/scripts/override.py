@@ -2,8 +2,9 @@
 """
 override.py — Apply ChatFort brand changes to upstream files.
 
-Reads brand_config.json for all string replacements and icon file copies,
-then either previews (--dry-run) or applies (--apply) the changes.
+Reads brand_config.json for all string replacements, Icon Composer bundle
+copies, and preview icon file copies, then either previews (--dry-run) or
+applies (--apply) the changes.
 
 Usage:
     python3 override.py              # default: --dry-run
@@ -14,6 +15,7 @@ Usage:
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -108,6 +110,61 @@ def print_icon_change(source, target, exists):
     print(f"  {GREEN}+ (replaced with {source}){RESET}")
 
 
+def find_ictool():
+    """Locate the ictool binary inside Xcode's Icon Composer app."""
+    try:
+        result = subprocess.run(
+            ["xcode-select", "-p"], capture_output=True, text=True, check=True
+        )
+        xcode_dev = Path(result.stdout.strip())
+        ictool = (
+            xcode_dev.parent
+            / "Applications"
+            / "Icon Composer.app"
+            / "Contents"
+            / "Executables"
+            / "ictool"
+        )
+        if ictool.exists():
+            return ictool
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    return None
+
+
+def auto_export_preview(icon_source, preview_dest, warnings):
+    """Try to generate AppIcon-preview.png from the .icon bundle via ictool."""
+    ictool = find_ictool()
+    if not ictool:
+        warnings.append(
+            "ictool not found (requires Xcode 26+). "
+            "Export a preview PNG manually: Icon Composer → File → Export → "
+            "save as Assets/AppIcon-preview.png"
+        )
+        return False
+
+    try:
+        subprocess.run(
+            [
+                str(ictool),
+                str(icon_source),
+                "--export-preview", "iOS", "Light",
+                "1024", "1024", "1",
+                str(preview_dest),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        warnings.append(
+            f"ictool export failed: {e.stderr.strip() or e.stdout.strip() or str(e)}. "
+            "Export a preview PNG manually from Icon Composer."
+        )
+        return False
+
+
 def main():
     mode = "--dry-run"
     if "--apply" in sys.argv:
@@ -117,6 +174,7 @@ def main():
 
     config = load_config()
     string_replacements = config.get("string_replacements", [])
+    icon_composer = config.get("icon_composer", {})
     icon_files = config.get("icon_files", [])
 
     is_apply = mode == "--apply"
@@ -163,7 +221,59 @@ def main():
             full_path.write_text(new_text, encoding="utf-8")
             print(f"\n  {GREEN}Written {len(changes)} changes.{RESET}")
 
-    # --- Icon files ---
+    # --- Icon Composer bundle (.icon) ---
+    if icon_composer:
+        source_rel = icon_composer["source"]
+        source_path = BRAND_DIR / source_rel
+
+        if not source_path.exists():
+            warnings.append(
+                f"Icon Composer bundle missing: {source_rel} — "
+                "create your icon in Icon Composer and save as "
+                f"tools/BrandOverride/{source_rel}"
+            )
+        else:
+            for target_rel in icon_composer.get("targets", []):
+                target_path = REPO_ROOT / target_rel
+
+                print_file_header(target_rel)
+                already_exists = target_path.exists()
+                status = (
+                    f"{YELLOW}UPDATE{RESET}" if already_exists
+                    else f"{GREEN}NEW{RESET}"
+                )
+                print(f"\n  {YELLOW}Icon Composer bundle:{RESET}  [{status}]")
+                print(f"  {GREEN}+ {source_rel} → {target_rel}{RESET}")
+
+                total_icons += 1
+                if is_apply:
+                    if target_path.exists():
+                        shutil.rmtree(str(target_path))
+                    shutil.copytree(str(source_path), str(target_path))
+                    print(f"\n  {GREEN}Bundle copied.{RESET}")
+
+    # --- Auto-export preview PNG if missing ---
+    preview_path = BRAND_DIR / "Assets" / "AppIcon-preview.png"
+    icon_source_path = BRAND_DIR / icon_composer.get("source", "")
+    if icon_composer and not preview_path.exists() and icon_source_path.exists():
+        print(f"\n{BOLD}{CYAN}{'━' * 60}{RESET}")
+        print(f"{BOLD}{CYAN}  Auto-exporting preview PNG via ictool...{RESET}")
+        print(f"{BOLD}{CYAN}{'━' * 60}{RESET}")
+        if is_apply:
+            if auto_export_preview(icon_source_path, preview_path, warnings):
+                print(f"  {GREEN}Exported AppIcon-preview.png{RESET}")
+        else:
+            ictool = find_ictool()
+            if ictool:
+                print(f"  {YELLOW}Will export AppIcon-preview.png via ictool{RESET}")
+            else:
+                warnings.append(
+                    "AppIcon-preview.png not found and ictool not available. "
+                    "Export manually: Icon Composer → File → Export → "
+                    "save as Assets/AppIcon-preview.png"
+                )
+
+    # --- Icon preview files (PNG for in-app display) ---
     for icon_entry in icon_files:
         source_rel = icon_entry["source"]
         target_rel = icon_entry["target"]
@@ -173,7 +283,11 @@ def main():
         source_exists = source_path.exists()
 
         if not target_path.exists() and not source_exists:
-            warnings.append(f"Icon source missing: {source_rel} — place your ChatFort icon at tools/BrandOverride/{source_rel}")
+            warnings.append(
+                f"Icon source missing: {source_rel} — "
+                f"export from Icon Composer and place at "
+                f"tools/BrandOverride/{source_rel}"
+            )
             continue
 
         if target_path.exists():
@@ -187,77 +301,24 @@ def main():
                 shutil.copy2(str(source_path), str(target_path))
                 print(f"\n  {GREEN}Icon replaced.{RESET}")
         elif not target_path.exists():
-            pass  # warning already added
+            pass
         else:
             warnings.append(
-                f"Icon source missing: {source_rel} — place your ChatFort icon at "
+                f"Icon source missing: {source_rel} — "
+                f"export from Icon Composer and place at "
                 f"tools/BrandOverride/{source_rel}"
             )
-
-    # --- Icon Contents.json updates (dark/tinted variants) ---
-    icon_contents = config.get("icon_contents_json", [])
-    for entry in icon_contents:
-        target_dir = REPO_ROOT / entry["target_dir"]
-        contents_path = target_dir / "Contents.json"
-
-        if not contents_path.exists():
-            warnings.append(f"Contents.json not found: {entry['target_dir']}")
-            continue
-
-        dark_source = BRAND_DIR / "Assets" / "AppIcon-dark.png"
-        tinted_source = BRAND_DIR / "Assets" / "AppIcon-tinted.png"
-        has_dark = dark_source.exists()
-        has_tinted = tinted_source.exists()
-
-        if not has_dark and not has_tinted:
-            continue
-
-        contents_data = json.loads(contents_path.read_text(encoding="utf-8"))
-        changed = False
-
-        for image in contents_data.get("images", []):
-            appearances = image.get("appearances", [])
-            if not appearances:
-                continue
-            for app in appearances:
-                if app.get("appearance") == "luminosity":
-                    if app.get("value") == "dark" and has_dark:
-                        if image.get("filename") != entry["dark_filename"]:
-                            print_file_header(f"{entry['target_dir']}/Contents.json")
-                            old_val = image.get("filename", "(empty)")
-                            print(f"\n  {YELLOW}Dark icon slot:{RESET}")
-                            print(f"  {RED}- filename: {old_val}{RESET}")
-                            print(f"  {GREEN}+ filename: {entry['dark_filename']}{RESET}")
-                            image["filename"] = entry["dark_filename"]
-                            changed = True
-                    elif app.get("value") == "tinted" and has_tinted:
-                        if image.get("filename") != entry["tinted_filename"]:
-                            if not changed:
-                                print_file_header(f"{entry['target_dir']}/Contents.json")
-                            old_val = image.get("filename", "(empty)")
-                            print(f"\n  {YELLOW}Tinted icon slot:{RESET}")
-                            print(f"  {RED}- filename: {old_val}{RESET}")
-                            print(f"  {GREEN}+ filename: {entry['tinted_filename']}{RESET}")
-                            image["filename"] = entry["tinted_filename"]
-                            changed = True
-
-        if changed:
-            total_files += 1
-            if is_apply:
-                new_json = json.dumps(contents_data, indent=2, ensure_ascii=False) + "\n"
-                contents_path.write_text(new_json, encoding="utf-8")
-                print(f"\n  {GREEN}Contents.json updated.{RESET}")
 
     # --- Summary ---
     print(f"\n{BOLD}{CYAN}{'━' * 60}{RESET}")
     if is_apply:
         print(f"  {GREEN}APPLIED: {total_changes} string changes across {total_files} files{RESET}")
         if total_icons:
-            print(f"  {GREEN}APPLIED: {total_icons} icon replacements{RESET}")
+            print(f"  {GREEN}APPLIED: {total_icons} icon operations{RESET}")
     else:
         print(f"  {YELLOW}DRY RUN: {total_changes} string changes across {total_files} files{RESET}")
         if total_icons:
-            print(f"  {YELLOW}DRY RUN: {total_icons} icon replacements ready{RESET}")
+            print(f"  {YELLOW}DRY RUN: {total_icons} icon operations ready{RESET}")
         print(f"\n  {DIM}Run with --apply to write changes to disk.{RESET}")
 
     if warnings:
