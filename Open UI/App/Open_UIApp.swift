@@ -300,21 +300,21 @@ struct Open_UIApp: App {
         // Short delay to let SwiftUI animate the dismissal before presenting new overlay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             switch type {
-            case "com.openui.openui.new-chat":
+            case "com.chatfort.chatfort.new-chat":
                 NotificationCenter.default.post(name: .openUINewChatWithFocus, object: nil)
                 ShortcutDonationService.donateNewChat()
 
-            case "com.openui.openui.voice-call":
+            case "com.chatfort.chatfort.voice-call":
                 NotificationCenter.default.post(name: .openUIWidgetVoiceCall, object: nil)
                 ShortcutDonationService.donateVoiceCall()
 
-            case "com.openui.openui.camera-chat":
+            case "com.chatfort.chatfort.camera-chat":
                 NotificationCenter.default.post(name: .openUINewChatWithFocus, object: nil)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     NotificationCenter.default.post(name: .openUICameraChat, object: nil)
                 }
 
-            case "com.openui.openui.new-channel":
+            case "com.chatfort.chatfort.new-channel":
                 NotificationCenter.default.post(name: .openUINewChannel, object: nil)
 
             default:

@@ -9,8 +9,8 @@ FASTLANE_ISSUER_ID = ENV["FASTLANE_ISSUER_ID"]
 FASTLANE_KEY = ENV["FASTLANE_KEY"]
 ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
 
-MAIN_BUNDLE_ID = "com.openui.openui"
-WIDGET_BUNDLE_ID = "com.openui.openui.OpenUIWidget"
+MAIN_BUNDLE_ID = "com.chatfort.chatfort"
+WIDGET_BUNDLE_ID = "com.chatfort.chatfort.OpenUIWidget"
 
 platform :ios do
 

@@ -24,6 +24,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 BRAND_DIR = SCRIPT_DIR.parent
 REPO_ROOT = BRAND_DIR.parent.parent  # tools/BrandOverride -> tools -> repo root
 CONFIG_PATH = BRAND_DIR / "brand_config.json"
+CONFIGS_DIR = BRAND_DIR / "configs"
 BACKUPS_DIR = BRAND_DIR / "backups"
 
 CYAN = "\033[96m"
@@ -70,7 +71,20 @@ def main():
             custom_tag = sys.argv[idx + 1]
 
     config = load_config()
-    files_to_backup = config["files_to_backup"]
+    files_to_backup = list(config["files_to_backup"])
+
+    # Also discover files_to_backup from configs/*.json and configs/*.yaml
+    if CONFIGS_DIR.exists():
+        for cf in sorted(list(CONFIGS_DIR.glob("*.json")) + list(CONFIGS_DIR.glob("*.yaml")), key=lambda p: p.name):
+            try:
+                text = cf.read_text(encoding="utf-8")
+                parsed = json.loads(text) if cf.suffix == ".json" else {}
+                if parsed and isinstance(parsed, dict):
+                    for f in parsed.get("files_to_backup", []):
+                        if f not in files_to_backup:
+                            files_to_backup.append(f)
+            except Exception:
+                pass
 
     version, build = get_marketing_version()
     git_hash = get_git_hash()

@@ -1,0 +1,35 @@
+{
+  "name": "server_prefill",
+  "description": "Pre-fill chat.chatfort.ai as the default server URL and auto-connect on first launch",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+      "replacements": [
+        {
+          "find": "var serverURL: String = \"\"",
+          "replace": "var serverURL: String = \"https://chat.chatfort.ai\""
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+      "replacements": [
+        {
+          "find": "Text(\"Connect to your OpenWebUI server\")",
+          "replace": "Text(\"Sign in to continue\")"
+        },
+        {
+          "find": "ModernTextField(\n                            label: \"Server URL\",\n                            placeholder: \"https://your-server.com or http://IP:port\",\n                            text: $viewModel.serverURL,\n                            keyboardType: .URL,\n                            textContentType: .URL,\n                            onSubmit: {\n                                if !viewModel.serverURL.isEmpty {\n                                    Task { await viewModel.connect() }\n                                }\n                            }\n                        )\n\n                        // Advanced options\n                        DisclosureGroup(isExpanded: $showAdvancedOptions) {",
+          "replace": "// Server URL hidden by default (ChatFort override)\n                        // Tap \"Advanced\" to reveal for testing other servers.\n\n                        // Advanced options (includes server URL field)\n                        DisclosureGroup(isExpanded: $showAdvancedOptions) {\n                            ModernTextField(\n                                label: \"Server URL\",\n                                placeholder: \"https://chat.chatfort.ai\",\n                                text: $viewModel.serverURL,\n                                keyboardType: .URL,\n                                textContentType: .URL,\n                                onSubmit: {\n                                    if !viewModel.serverURL.isEmpty {\n                                        Task { await viewModel.connect() }\n                                    }\n                                }\n                            )"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+    "Open UI/Features/Auth/Views/ServerConnectionView.swift"
+  ]
+}

@@ -12,7 +12,7 @@ import WidgetKit
 // MARK: - New Chat Control Button
 
 struct OpenUIWidgetsControl: ControlWidget {
-    static let kind: String = "com.openui.openui.OpenUINewChatControl"
+    static let kind: String = "com.chatfort.chatfort.OpenUINewChatControl"
 
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: Self.kind) {

@@ -106,10 +106,28 @@ git pull upstream main
 | `README.md` | This file. The guide you are reading now. |
 | `MANIFEST.md` | Technical reference for AI assistants working on this repo. |
 | `CANNOT_OVERRIDE.md` | Line-by-line list of every brand string the scripts change. |
-| `brand_config.json` | The single file that controls ALL brand values and replacements. |
+| `brand_config.json` | Brand values and string replacements (branding only). |
+| `configs/` | **Modular override configs** — each JSON file handles a specific feature. |
+| `docs/` | Developer documentation for auth overrides and Authentik setup. |
 | `Assets/` | Where you put your ChatFort icon and any future brand images. |
 | `scripts/` | The three Python scripts (backup, restore, override) and their shell wrappers. |
 | `backups/` | Created automatically by the backup script. Contains versioned snapshots. |
+
+### Modular Config Files (`configs/`)
+
+| File | Purpose |
+|------|---------|
+| `01_server_prefill.json` | Pre-fills `chat.chatfort.ai` as the server URL, hides the URL field |
+| `02_auth_native_login.json` | Replaces WebView proxy login with native Authentik Flow Executor login |
+| `03_auth_token_refresh.json` | Adds OAuth2 refresh token support for persistent sessions |
+
+### Documentation (`docs/`)
+
+| File | Purpose |
+|------|---------|
+| `AUTHENTIK_MOBILE_PROVIDER.md` | Step-by-step guide to set up the Authentik OAuth2 provider |
+| `AUTH_NATIVE_LOGIN.md` | Developer guide for the native login flow |
+| `AUTH_TOKEN_REFRESH.md` | Developer guide for refresh token support |
 
 ---
 
@@ -270,9 +288,38 @@ icon copy defined there.
 
 ---
 
+## Auth Overrides (Native Login + Persistent Sessions)
+
+ChatFort includes three additional override configs that go beyond branding to add
+functional improvements for a single-server deployment:
+
+### Server Pre-fill (`01_server_prefill.json`)
+- Pre-fills `https://chat.chatfort.ai` as the server URL
+- Hides the server URL field (accessible via "Advanced" toggle)
+- Users go straight to the login form on first launch
+
+### Native Authentik Login (`02_auth_native_login.json`)
+- Replaces the WebView-based Authentik login with a native SwiftUI form
+- Uses Authentik's headless Flow Executor API for authentication
+- Supports MFA (TOTP) if configured in Authentik
+- Falls back to WebView for non-Authentik proxies
+
+### Persistent Sessions (`03_auth_token_refresh.json`)
+- Adds OAuth2 refresh token support via a dedicated Authentik provider
+- Refresh tokens last 365 days — users stay logged in
+- Access tokens refresh every 10 minutes in the background
+- Requires setting up the `chatfort-mobile` OAuth2 provider in Authentik
+  (see `docs/AUTHENTIK_MOBILE_PROVIDER.md` for step-by-step instructions)
+
+These configs are applied automatically alongside `brand_config.json` when you run
+the override script. They modify `AuthViewModel.swift`, `KeychainService.swift`,
+`ServerConfig.swift`, and `ServerConnectionView.swift`.
+
+---
+
 ## Editing brand_config.json
 
-The `brand_config.json` file is the single source of truth. If you want to change any
+The `brand_config.json` file is the source of truth for branding. If you want to change any
 brand value, edit it here and re-run the override script.
 
 ### Changing the App Name

@@ -115,8 +115,16 @@ All paths are relative to the repository root.
 │       │   ├── AppIcon-preview.png       Exported PNG for in-app display (optional)
 │       │   └── README-assets.md          Asset documentation
 │       ├── backups/                      Versioned pristine/override snapshots
+│       ├── configs/                      Modular override configs (feature-specific)
+│       │   ├── 01_server_prefill.json    Pre-fill server URL, hide URL field
+│       │   ├── 02_auth_native_login.json Native Authentik login (Flow Executor)
+│       │   └── 03_auth_token_refresh.json OAuth2 refresh tokens for persistent sessions
+│       ├── docs/                         Developer documentation
+│       │   ├── AUTHENTIK_MOBILE_PROVIDER.md  Authentik admin setup guide
+│       │   ├── AUTH_NATIVE_LOGIN.md          Native login developer guide
+│       │   └── AUTH_TOKEN_REFRESH.md         Refresh token developer guide
 │       ├── scripts/                      backup, restore, and override tooling
-│       ├── brand_config.json             Brand source of truth
+│       ├── brand_config.json             Brand string replacements (branding only)
 │       ├── README.md                     Human-friendly guide
 │       ├── CANNOT_OVERRIDE.md            Branding inventory and caveats
 │       └── MANIFEST.md                   Technical reference for automation
@@ -418,51 +426,79 @@ it looks up that exact key in the catalog and returns the translation for the cu
 
 ## 10. Override System Architecture
 
-### brand_config.json
+### Modular Config System
 
-Location: `tools/BrandOverride/brand_config.json`
+The override system uses a two-tier configuration approach:
 
-This JSON file is the single source of truth for all brand values. It contains:
+1. **`brand_config.json`** — Brand string replacements, icon config, and file backup list.
+   Applied first for backward compatibility.
+2. **`configs/*.json`** — Feature-specific override configs, applied alphabetically after
+   `brand_config.json`. Each file follows the same schema and handles one concern.
 
-- `brand`: Object with app name, author, GitHub URLs, widget text, credits
-- `string_replacements`: Array of objects, each with a `file` path and `replacements` array
-  of `{find, replace}` pairs
-- `icon_composer`: Object with `source` (path to `.icon` bundle) and `targets` (array of
-  destination paths in the project)
-- `icon_files`: Array of `{source, target}` pairs for the preview PNG (in-app display)
-- `files_to_backup`: Array of relative file paths that the backup script should snapshot
+The `configs/` directory currently contains:
+
+| File | Purpose | Files Modified |
+|------|---------|----------------|
+| `01_server_prefill.json` | Pre-fill server URL, hide URL field | `AuthViewModel.swift`, `ServerConnectionView.swift` |
+| `02_auth_native_login.json` | Native Authentik login via Flow Executor | `AuthViewModel.swift` |
+| `03_auth_token_refresh.json` | OAuth2 refresh tokens for persistent sessions | `KeychainService.swift`, `AuthViewModel.swift`, `ServerConfig.swift` |
+
+### Config File Schema
+
+Each JSON config file (both `brand_config.json` and `configs/*.json`) uses this schema:
+
+```json
+{
+  "name": "descriptive_name",
+  "description": "What this config does",
+  "version": "1.0",
+  "string_replacements": [
+    {
+      "file": "relative/path/to/file.swift",
+      "replacements": [
+        { "find": "exact text to find", "replace": "replacement text" }
+      ]
+    }
+  ],
+  "files_to_backup": ["relative/path/to/file.swift"],
+  "icon_composer": { "source": "...", "targets": ["..."] },
+  "icon_files": [{ "source": "...", "target": "..." }]
+}
+```
+
+Multi-line find/replace strings use `\n` for newlines within JSON strings.
 
 ### Script Execution Flow
 
 **backup.py:**
 1. Load `brand_config.json`
-2. Read `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` from `project.pbxproj`
-3. Get git short hash via `git rev-parse --short HEAD`
-4. Create `backups/v{ver}_build{b}_{date}_{hash}/pristine/` and `override/`
-5. Copy each file from `files_to_backup` into both subdirectories
-6. Print summary
+2. Discover `configs/*.json` and merge `files_to_backup` lists
+3. Read `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` from `project.pbxproj`
+4. Get git short hash via `git rev-parse --short HEAD`
+5. Create `backups/v{ver}_build{b}_{date}_{hash}/pristine/` and `override/`
+6. Copy each file from the merged backup list into both subdirectories
+7. Print summary
 
 **restore.py:**
 1. Find latest backup directory (or use `--version` argument)
-2. For each file in `files_to_backup`:
+2. Discover `configs/*.json` and merge `files_to_backup` lists
+3. For each file in the merged list:
    - Compare `pristine/` copy with current repo file
    - If different, copy `pristine/` version back to repo
    - Show diff of what changed
-3. Print summary
+4. Print summary
 
 **override.py:**
 1. Load `brand_config.json`
-2. For each entry in `string_replacements`:
-   - Read the target file
-   - Apply all find/replace pairs
-   - Collect change details (line number, before/after)
-3. Copy the Icon Composer `.icon` bundle to each target in `icon_composer.targets`
-4. If `AppIcon-preview.png` is missing, attempt auto-export via `ictool` (Xcode 26+)
-5. For each entry in `icon_files`:
-   - Check if source exists in `tools/BrandOverride/Assets/`
-   - If `--apply`, copy source to target
-6. Print colored diff of all changes
-7. If `--apply`, write modified files to disk
+2. Discover and load `configs/*.json` files (alphabetical order)
+3. Merge all `string_replacements`, `files_to_backup`, `icon_composer`, and `icon_files`
+4. Apply `brand_config.json` replacements first, then each config alphabetically
+5. For multi-line find strings, the engine searches the full file text (not line-by-line)
+6. Copy the Icon Composer `.icon` bundle to each target in `icon_composer.targets`
+7. If `AppIcon-preview.png` is missing, attempt auto-export via `ictool` (Xcode 26+)
+8. For each entry in `icon_files`, copy source to target
+9. Print colored diff showing which config file each change came from
+10. If `--apply`, write modified files to disk
 
 ### Colored Diff Output
 
@@ -552,18 +588,21 @@ The script will print a "File not found" warning. To fix:
 
 ### Brand-Touched Files (Changed by Override Script)
 
-| File | Changes | Risk of Upstream Conflict |
-|------|---------|--------------------------|
-| `Open UI.xcodeproj/project.pbxproj` | 14 string replacements | Medium (this file changes often) |
-| `Open UI/Features/Settings/Views/AboutView.swift` | 9 replacements | Medium |
-| `Open UI/Features/Settings/Views/SettingsView.swift` | 2 replacements | Low (large file, branded lines rarely change) |
-| `Open UI/Features/Settings/Views/AppearanceSettingsView.swift` | 1 replacement | Low |
-| `Open UI/Features/Auth/Views/ServerConnectionView.swift` | 1 replacement | Low |
-| `Open UI/Core/Services/AppIntentsService.swift` | 1 replacement | Low |
-| `OpenUIWidgets/OpenUIWidgets.swift` | 6 replacements | Medium |
-| `OpenUIWidgets/OpenUIWidgetsControl.swift` | 1 replacement | Low |
-| `Open UI/Info.plist` | 1 replacement | Low |
-| `PRIVACY.md` | 5 replacements | Low |
+| File | Changes | Source Config | Risk of Upstream Conflict |
+|------|---------|---------------|--------------------------|
+| `Open UI.xcodeproj/project.pbxproj` | 14 string replacements | `brand_config.json` | Medium |
+| `Open UI/Features/Settings/Views/AboutView.swift` | 9 replacements | `brand_config.json` | Medium |
+| `Open UI/Features/Settings/Views/SettingsView.swift` | 2 replacements | `brand_config.json` | Low |
+| `Open UI/Features/Settings/Views/AppearanceSettingsView.swift` | 1 replacement | `brand_config.json` | Low |
+| `Open UI/Features/Auth/Views/ServerConnectionView.swift` | 1 brand + 2 prefill | `brand_config.json` + `01_server_prefill.json` | Low |
+| `Open UI/Core/Services/AppIntentsService.swift` | 1 replacement | `brand_config.json` | Low |
+| `OpenUIWidgets/OpenUIWidgets.swift` | 6 replacements | `brand_config.json` | Medium |
+| `OpenUIWidgets/OpenUIWidgetsControl.swift` | 1 replacement | `brand_config.json` | Low |
+| `Open UI/Info.plist` | 1 replacement | `brand_config.json` | Low |
+| `PRIVACY.md` | 5 replacements | `brand_config.json` | Low |
+| `Open UI/Features/Auth/ViewModels/AuthViewModel.swift` | 6 code injections | `01_server_prefill.json` + `02_auth_native_login.json` + `03_auth_token_refresh.json` | Medium |
+| `Open UI/Core/Networking/KeychainService.swift` | 1 code injection | `03_auth_token_refresh.json` | Low |
+| `Open UI/Core/Models/ServerConfig.swift` | 5 code injections | `03_auth_token_refresh.json` | Medium |
 
 ---
 
@@ -668,14 +707,18 @@ Before modifying any file in this repo:
 
 1. **Is the file in `tools/BrandOverride/`?** If yes, edit freely.
 2. **Is the file an upstream file?** If yes, do NOT edit it directly. Instead:
-   a. Add the change to `brand_config.json` in the `string_replacements` section
-   b. Add the file to `files_to_backup` if not already there
-   c. Update `CANNOT_OVERRIDE.md` with the new entry
-   d. Run `./scripts/override.sh --dry-run` to verify
-   e. Run `./scripts/override.sh --apply` to write
+   a. For **brand string changes**: add to `brand_config.json`
+   b. For **feature/code changes**: create a new JSON file in `configs/` (e.g., `04_my_feature.json`)
+   c. Add the file to `files_to_backup` in the appropriate config
+   d. Update `CANNOT_OVERRIDE.md` with the new entry
+   e. Run `./scripts/override.sh --dry-run` to verify
+   f. Run `./scripts/override.sh --apply` to write
 3. **Is it a new brand value?** Add it to `brand_config.json` under `brand`.
 4. **Is it a theme/color change?** These are in `ColorTokens.swift` and
    `AppearanceManager.swift`. They are NOT in `brand_config.json` because they are
    not simple string replacements. Document the change in `CANNOT_OVERRIDE.md`.
-5. **After any change**, run `./scripts/override.sh --dry-run` to verify the full
+5. **Is it an auth or server change?** Check `configs/01_server_prefill.json`,
+   `configs/02_auth_native_login.json`, or `configs/03_auth_token_refresh.json` first.
+   These may already handle the file you want to modify.
+6. **After any change**, run `./scripts/override.sh --dry-run` to verify the full
    override still works correctly.

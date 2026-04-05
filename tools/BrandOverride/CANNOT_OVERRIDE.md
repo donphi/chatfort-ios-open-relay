@@ -234,6 +234,39 @@ changed to avoid breaking functionality:
 
 ---
 
+## Auth Override Files (ChatFort-Specific)
+
+These files are modified by the modular override configs in `configs/` to implement
+native Authentik login and persistent sessions. They are NOT brand-string changes —
+they are functional code injections.
+
+### Server Pre-fill (`configs/01_server_prefill.json`)
+
+| File | Change | Type | Impact if not applied |
+|------|--------|------|----------------------|
+| `AuthViewModel.swift` | Pre-fill `serverURL` with `https://chat.chatfort.ai` | Code | User must type server URL manually |
+| `ServerConnectionView.swift` | Hide server URL field, change subtitle text | UI | User sees URL field on first launch |
+
+### Native Authentik Login (`configs/02_auth_native_login.json`)
+
+| File | Change | Type | Impact if not applied |
+|------|--------|------|----------------------|
+| `AuthViewModel.swift` | Add `.nativeProxyLogin` to `AuthPhase` enum | Code | No native login phase available |
+| `AuthViewModel.swift` | Add native login state variables (username, password, TOTP) | Code | No state for native login form |
+| `AuthViewModel.swift` | Replace `.proxyAuthRequired` case to use native login | Code | WebView opens instead of native form |
+| `AuthViewModel.swift` | Add Flow Executor client methods | Code | No headless Authentik API calls |
+
+### OAuth2 Token Refresh (`configs/03_auth_token_refresh.json`)
+
+| File | Change | Type | Impact if not applied |
+|------|--------|------|----------------------|
+| `KeychainService.swift` | Add refresh token storage methods | Code | No secure refresh token storage |
+| `AuthViewModel.swift` | Replace `refreshToken()` with OAuth2 grant | Code | Token never actually refreshes |
+| `AuthViewModel.swift` | Change refresh interval from 45 min to 10 min | Code | Token may expire between refreshes |
+| `ServerConfig.swift` | Add OAuth2 metadata fields | Code | No OAuth2 config persistence |
+
+---
+
 ## Tooling Location: `tools/BrandOverride`
 
 The brand tooling now lives at `tools/BrandOverride/`, outside the synchronized
