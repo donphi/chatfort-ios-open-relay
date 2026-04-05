@@ -28,11 +28,21 @@
           "replace": "        case .credentialLogin, .ldapLogin, .ssoLogin, .signUp, .nativeProxyLogin:\n            phase = .authMethodSelection"
         }
       ]
+    },
+    {
+      "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+      "replacements": [
+        {
+          "find": "private struct AnimatedAuthBackground: View {",
+          "replace": "struct AnimatedAuthBackground: View {"
+        }
+      ]
     }
   ],
 
   "files_to_backup": [
     "Open UI/App/Open_UIApp.swift",
-    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift"
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+    "Open UI/Features/Auth/Views/ServerConnectionView.swift"
   ]
 }
