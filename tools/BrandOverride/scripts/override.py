@@ -312,6 +312,7 @@ def merge_configs(json_cfg, yaml_cfgs):
     all_files_to_backup = list(json_cfg.get("files_to_backup", []))
     icon_composer = json_cfg.get("icon_composer", {})
     icon_files = list(json_cfg.get("icon_files", []))
+    all_file_copies = list(json_cfg.get("file_copies", []))
 
     sources = {}
     for entry in all_string_replacements:
@@ -329,12 +330,16 @@ def merge_configs(json_cfg, yaml_cfgs):
             icon_composer = ycfg["icon_composer"]
         for entry in ycfg.get("icon_files", []):
             icon_files.append(entry)
+        for entry in ycfg.get("file_copies", []):
+            all_file_copies.append(entry)
+            sources[entry["target"]] = src
 
     return {
         "string_replacements": all_string_replacements,
         "files_to_backup": all_files_to_backup,
         "icon_composer": icon_composer,
         "icon_files": icon_files,
+        "file_copies": all_file_copies,
         "_sources": sources,
     }
 
@@ -482,6 +487,7 @@ def main():
     merged = merge_configs(json_config, yaml_configs)
 
     string_replacements = merged["string_replacements"]
+    file_copies = merged["file_copies"]
     icon_composer = merged["icon_composer"]
     icon_files = merged["icon_files"]
     sources = merged["_sources"]
@@ -539,6 +545,33 @@ def main():
         if is_apply and new_text != original_text:
             full_path.write_text(new_text, encoding="utf-8")
             print(f"\n  {GREEN}Written {len(changes)} changes.{RESET}")
+
+    # --- File copies (Swift files injected into the project) ---
+    for fc_entry in file_copies:
+        source_rel = fc_entry["source"]
+        target_rel = fc_entry["target"]
+        source_path = BRAND_DIR / source_rel
+        target_path = REPO_ROOT / target_rel
+
+        if not source_path.exists():
+            warnings.append(f"File copy source missing: {source_rel}")
+            continue
+
+        source_cfg = sources.get(target_rel, "")
+        print_file_header(target_rel, source_cfg)
+        already_exists = target_path.exists()
+        status = (
+            f"{YELLOW}UPDATE{RESET}" if already_exists
+            else f"{GREEN}NEW{RESET}"
+        )
+        print(f"\n  {YELLOW}File copy:{RESET}  [{status}]")
+        print(f"  {GREEN}+ {source_rel} → {target_rel}{RESET}")
+
+        total_icons += 1
+        if is_apply:
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(str(source_path), str(target_path))
+            print(f"\n  {GREEN}File copied.{RESET}")
 
     # --- Icon Composer bundle (.icon) ---
     if icon_composer:

@@ -164,11 +164,14 @@ def main():
         shutil.copy2(str(pristine_file), str(target_file))
         restored += 1
 
-    # Clean up Icon Composer bundles that the override script copied
-    # (these don't exist in upstream, so they must be removed on restore)
+    # Clean up Icon Composer bundles and injected files that the override
+    # script copied (these don't exist in upstream, so they must be removed on restore)
     cleanup_dirs = [
         "Open UI/AppIcon.icon",
         "OpenUIWidgets/AppIcon.icon",
+    ]
+    cleanup_files = [
+        "Open UI/Features/Auth/Views/NativeProxyLoginView.swift",
     ]
     cleaned = 0
     for rel_path in cleanup_dirs:
@@ -176,6 +179,12 @@ def main():
         if target_dir.exists():
             shutil.rmtree(str(target_dir))
             print(f"  {YELLOW}CLEANED{RESET}  {rel_path}/  (not in upstream)")
+            cleaned += 1
+    for rel_path in cleanup_files:
+        target_file = REPO_ROOT / rel_path
+        if target_file.exists():
+            target_file.unlink()
+            print(f"  {YELLOW}CLEANED{RESET}  {rel_path}  (not in upstream)")
             cleaned += 1
 
     print(f"\n{BOLD}{CYAN}{'━' * 60}{RESET}")
