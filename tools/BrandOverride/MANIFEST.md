@@ -441,10 +441,7 @@ The `configs/` directory currently contains:
 |------|---------|----------------|
 | `01_server_prefill.json` | Pre-fill server URL, hide URL field | `AuthViewModel.swift`, `ServerConnectionView.swift` |
 | `02_auth_native_login.json` | Native Authentik login via Flow Executor | `AuthViewModel.swift` |
-| `02b_auth_native_login_view.json` | Custom NativeProxyLoginView with auto-connect | `ServerConnectionView.swift`, `NativeProxyLoginView.swift` |
 | `03_auth_token_refresh.json` | OAuth2 refresh tokens for persistent sessions | `KeychainService.swift`, `AuthViewModel.swift`, `ServerConfig.swift` |
-| `04_simplify_logout.json` | Single sign-out action (removes server too) | `SettingsView.swift` |
-| `05_remove_advanced_screen.json` | Keep server URL on disconnect so auto-connect works after sign-out | `AuthViewModel.swift` |
 
 ### Config File Schema
 
