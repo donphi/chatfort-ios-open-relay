@@ -44,6 +44,15 @@
       ]
     },
     {
+      "file": "Open UI/Shared/Components/ChatInputField.swift",
+      "replacements": [
+        {
+          "find": "            isEnabled: isEnabled,\n            onPasteAttachments: { pastedAttachments in",
+          "replace": "            isEnabled: true,\n            onPasteAttachments: { pastedAttachments in"
+        }
+      ]
+    },
+    {
       "file": "Open UI/Shared/Components/ChatMessageBubble.swift",
       "replacements": [
         {
@@ -58,6 +67,7 @@
     "Open UI/Shared/Theme/DesignTokens.swift",
     "Open UI/Shared/Theme/Animations.swift",
     "Open UI/Features/Chat/Views/ChatDetailView.swift",
-    "Open UI/Shared/Components/ChatMessageBubble.swift"
+    "Open UI/Shared/Components/ChatMessageBubble.swift",
+    "Open UI/Shared/Components/ChatInputField.swift"
   ]
 }
