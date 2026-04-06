@@ -1,0 +1,29 @@
+{
+  "name": "simplify_logout",
+  "description": "Simplify logout to a single action that signs out AND removes the server, since the native login override eliminates the intermediate OAuth screen",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Settings/Views/SettingsView.swift",
+      "replacements": [
+        {
+          "find": "            .sheet(isPresented: $showSignOutConfirmation) {\n                SignOutConfirmationSheet(\n                    onSignOut: {\n                        showSignOutConfirmation = false\n                        Task {\n                            await viewModel.signOut()\n                            dismiss()\n                        }\n                    },\n                    onSignOutAndRemove: {\n                        showSignOutConfirmation = false\n                        Task {\n                            await viewModel.signOutAndDisconnect()\n                            dismiss()\n                        }\n                    },\n                    onCancel: {\n                        showSignOutConfirmation = false\n                    }\n                )\n                .presentationDetents([.height(260)])\n                .presentationDragIndicator(.visible)\n                .presentationCornerRadius(24)\n            }",
+          "replace": "            .sheet(isPresented: $showSignOutConfirmation) {\n                SignOutConfirmationSheet(\n                    onSignOut: {\n                        showSignOutConfirmation = false\n                        Task {\n                            await viewModel.signOutAndDisconnect()\n                            dismiss()\n                        }\n                    },\n                    onCancel: {\n                        showSignOutConfirmation = false\n                    }\n                )\n                .presentationDetents([.height(220)])\n                .presentationDragIndicator(.visible)\n                .presentationCornerRadius(24)\n            }"
+        },
+        {
+          "find": "struct SignOutConfirmationSheet: View {\n    let onSignOut: () -> Void\n    let onSignOutAndRemove: () -> Void\n    let onCancel: () -> Void",
+          "replace": "struct SignOutConfirmationSheet: View {\n    let onSignOut: () -> Void\n    let onCancel: () -> Void"
+        },
+        {
+          "find": "            // Action buttons\n            VStack(spacing: Spacing.sm) {\n                signOutButton(\n                    title: \"Sign Out\",\n                    subtitle: \"Keep server connection\",\n                    icon: \"arrow.right.circle\",\n                    action: onSignOut,\n                    index: 0\n                )\n\n                signOutButton(\n                    title: \"Sign Out & Remove Server\",\n                    subtitle: \"Clear all connection data\",\n                    icon: \"trash.circle\",\n                    action: onSignOutAndRemove,\n                    index: 1\n                )",
+          "replace": "            // Action buttons (ChatFort override: single sign-out that also removes server)\n            VStack(spacing: Spacing.sm) {\n                signOutButton(\n                    title: \"Sign Out\",\n                    subtitle: \"Sign out and clear connection data\",\n                    icon: \"arrow.right.circle\",\n                    action: onSignOut,\n                    index: 0\n                )"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Settings/Views/SettingsView.swift"
+  ]
+}

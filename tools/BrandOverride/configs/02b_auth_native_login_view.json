@@ -1,0 +1,48 @@
+{
+  "name": "auth_native_login_view",
+  "description": "Copy NativeProxyLoginView.swift into the project and wire it into the phase switch",
+  "version": "1.0",
+
+  "file_copies": [
+    {
+      "source": "Assets/NativeProxyLoginView.swift",
+      "target": "Open UI/Features/Auth/Views/NativeProxyLoginView.swift"
+    }
+  ],
+
+  "string_replacements": [
+    {
+      "file": "Open UI/App/Open_UIApp.swift",
+      "replacements": [
+        {
+          "find": "            case .ssoLogin:\n                NavigationStack {\n                    SSOAuthView(viewModel: viewModel)\n                }\n\n            case .authenticated:",
+          "replace": "            case .ssoLogin:\n                NavigationStack {\n                    SSOAuthView(viewModel: viewModel)\n                }\n\n            case .nativeProxyLogin:\n                NativeProxyLoginView(viewModel: viewModel)\n\n            case .authenticated:"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+      "replacements": [
+        {
+          "find": "        case .credentialLogin, .ldapLogin, .ssoLogin, .signUp:\n            phase = .authMethodSelection",
+          "replace": "        case .credentialLogin, .ldapLogin, .ssoLogin, .signUp, .nativeProxyLogin:\n            phase = .authMethodSelection"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+      "replacements": [
+        {
+          "find": "private struct AnimatedAuthBackground: View {",
+          "replace": "struct AnimatedAuthBackground: View {"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/App/Open_UIApp.swift",
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+    "Open UI/Features/Auth/Views/ServerConnectionView.swift"
+  ]
+}

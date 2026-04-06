@@ -1,0 +1,47 @@
+{
+  "name": "remove_advanced_screen",
+  "description": "Completely remove the Advanced/server-connection screen. Replace it with an invisible auto-connect view so the user only ever sees the login form or the app.",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/App/Open_UIApp.swift",
+      "replacements": [
+        {
+          "find": "            case .serverConnection:\n                ServerConnectionView(viewModel: viewModel)\n\n            case .restoringSession:",
+          "replace": "            case .serverConnection:\n                // ChatFort override: the Advanced screen does not exist.\n                // Auto-connect to the pre-filled ChatFort server immediately.\n                chatFortAutoConnectView\n\n            case .restoringSession:"
+        },
+        {
+          "find": "            case .authMethodSelection:\n                NavigationStack {\n                    AuthMethodSelectionView(viewModel: viewModel)\n                }",
+          "replace": "            case .authMethodSelection:\n                // ChatFort override: skip auth method selection entirely.\n                // Re-use the auto-connect view which routes through proxy auth\n                // to the native login form automatically.\n                chatFortAutoConnectView"
+        },
+        {
+          "find": "    @Environment(\\.horizontalSizeClass) private var horizontalSizeClass",
+          "replace": "    /// ChatFort override: replaces ServerConnectionView entirely.\n    /// Shows a spinner while connecting, or an error with retry if it fails.\n    private var chatFortAutoConnectView: some View {\n        VStack(spacing: 20) {\n            if let error = viewModel.errorMessage {\n                Image(systemName: \"wifi.exclamationmark\")\n                    .font(.system(size: 44))\n                    .foregroundStyle(.secondary)\n\n                Text(\"Connection Issue\")\n                    .font(.title3.weight(.semibold))\n\n                Text(error)\n                    .font(.subheadline)\n                    .foregroundStyle(.secondary)\n                    .multilineTextAlignment(.center)\n                    .padding(.horizontal, 32)\n\n                Button {\n                    viewModel.errorMessage = nil\n                    Task { await viewModel.connect() }\n                } label: {\n                    Label(\"Retry\", systemImage: \"arrow.clockwise\")\n                        .font(.body.weight(.medium))\n                        .frame(minWidth: 120)\n                }\n                .buttonStyle(.borderedProminent)\n                .padding(.top, 4)\n            } else {\n                ProgressView()\n                    .controlSize(.large)\n            }\n        }\n        .frame(maxWidth: .infinity, maxHeight: .infinity)\n        .task {\n            if viewModel.serverURL.isEmpty {\n                viewModel.serverURL = \"https://chat.chatfort.ai\"\n            }\n            guard !viewModel.isConnecting else { return }\n            await viewModel.connect()\n        }\n        .fullScreenCover(isPresented: Binding(\n            get: { viewModel.showCloudflareChallenge },\n            set: { viewModel.showCloudflareChallenge = $0 }\n        )) {\n            CloudflareChallengeView(\n                serverURL: viewModel.serverURL,\n                onClearance: { cookieValue, userAgent, expiry in\n                    viewModel.resumeAfterCloudflareClearance(cookieValue, userAgent: userAgent, expiry: expiry)\n                },\n                onDismiss: {\n                    viewModel.dismissCloudflareChallenge()\n                }\n            )\n        }\n    }\n\n    @Environment(\\.horizontalSizeClass) private var horizontalSizeClass"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+      "replacements": [
+        {
+          "find": "            } else {\n                // Server saved but no token (signed out). Decision:\n                // - If only ONE server is saved → go straight to its login screen (best UX for single-server users).\n                // - If MULTIPLE servers are saved → show the server list so the user\n                //   can choose which server to sign into, rather than auto-picking one.\n                if serverConfigStore.servers.count > 1 {\n                    phase = .serverSwitcher\n                } else {\n                    phase = .authMethodSelection\n                }\n            }",
+          "replace": "            } else {\n                // ChatFort override: always go through serverConnection so the\n                // auto-connect view kicks in and routes to nativeProxyLogin.\n                phase = .serverConnection\n            }"
+        },
+        {
+          "find": "    func disconnect() {\n        serverConfigStore.removeAllServers()\n        dependencies?.refreshServices()\n        backendConfig = nil\n        currentUser = nil\n        phase = .serverConnection\n        serverURL = \"\"\n        apiKey = \"\"\n        stopTokenRefreshTimer()\n    }",
+          "replace": "    func disconnect() {\n        serverConfigStore.removeAllServers()\n        dependencies?.refreshServices()\n        backendConfig = nil\n        currentUser = nil\n        phase = .serverConnection\n        // ChatFort override: keep the default server URL so auto-connect works.\n        serverURL = \"https://chat.chatfort.ai\"\n        apiKey = \"\"\n        stopTokenRefreshTimer()\n        // ChatFort override: clear Authentik session cookies so the proxy\n        // requires re-authentication on next connect.\n        if let cookies = HTTPCookieStorage.shared.cookies {\n            for cookie in cookies {\n                HTTPCookieStorage.shared.deleteCookie(cookie)\n            }\n        }\n    }"
+        },
+        {
+          "find": "            // No more servers — go to the server connection screen\n            dependencies?.refreshServices()\n            serverURL = \"\"\n            apiKey = \"\"\n            phase = .serverConnection",
+          "replace": "            // No more servers — go to the server connection screen\n            dependencies?.refreshServices()\n            // ChatFort override: keep the default server URL so auto-connect works.\n            serverURL = \"https://chat.chatfort.ai\"\n            apiKey = \"\"\n            phase = .serverConnection"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/App/Open_UIApp.swift",
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift"
+  ]
+}
