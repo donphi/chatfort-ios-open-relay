@@ -82,7 +82,7 @@ struct NativeProxyLoginView: View {
                         }
                     }
                     .padding(Spacing.lg)
-                    .background(theme.surfacePrimary)
+                    .background(theme.surfaceContainer)
                     .clipShape(RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous))
                     .shadow(color: .black.opacity(0.08), radius: 20, y: 10)
 
