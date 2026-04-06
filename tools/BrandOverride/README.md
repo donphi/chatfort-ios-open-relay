@@ -452,3 +452,13 @@ bottom of that file lists everything left alone and why.
 | `.py` | Python script | Runs in Terminal with `python3` |
 | `.sh` | Shell script | Runs in Terminal with `./filename.sh` |
 | `.md` | Markdown document (like this file) | Any text editor, or GitHub |
+
+
+## QUICK SYNC WITH FUTURE UPSTREAMS:
+
+cd tools/BrandOverride
+./scripts/sync.sh
+./scripts/override.sh --dry-run    # check for surprises
+./scripts/override.sh --apply
+git add -A && git commit -m "Sync upstream vX.Y + apply overrides"
+git push --force-with-lease

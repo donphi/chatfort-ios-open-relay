@@ -41,6 +41,18 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
 
+      - name: Clone local Swift packages from upstream
+        run: |
+          UPSTREAM_ORG="Ichigo3766"
+          grep -oP 'relativePath = \.\./\K[^;]+' "Open UI.xcodeproj/project.pbxproj" \
+            | sort -u \
+            | while read -r pkg; do
+                if [ ! -d "../$pkg" ]; then
+                  echo "Cloning $UPSTREAM_ORG/$pkg → ../$pkg"
+                  git clone "https://github.com/$UPSTREAM_ORG/$pkg.git" "../$pkg"
+                fi
+              done
+
       - name: Apply patches
         run: |
           if $(ls ./patches/* &> /dev/null); then
