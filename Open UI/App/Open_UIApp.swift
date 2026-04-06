@@ -320,21 +320,21 @@ struct Open_UIApp: App {
         // Short delay to let SwiftUI animate the dismissal before presenting new overlay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             switch type {
-            case "com.openui.openui.new-chat":
+            case "com.chatfort.chatfort.new-chat":
                 NotificationCenter.default.post(name: .openUINewChatWithFocus, object: nil)
                 ShortcutDonationService.donateNewChat()
 
-            case "com.openui.openui.voice-call":
+            case "com.chatfort.chatfort.voice-call":
                 NotificationCenter.default.post(name: .openUIWidgetVoiceCall, object: nil)
                 ShortcutDonationService.donateVoiceCall()
 
-            case "com.openui.openui.camera-chat":
+            case "com.chatfort.chatfort.camera-chat":
                 NotificationCenter.default.post(name: .openUINewChatWithFocus, object: nil)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     NotificationCenter.default.post(name: .openUICameraChat, object: nil)
                 }
 
-            case "com.openui.openui.new-channel":
+            case "com.chatfort.chatfort.new-channel":
                 NotificationCenter.default.post(name: .openUINewChannel, object: nil)
 
             default:
@@ -377,16 +377,19 @@ struct RootView: View {
         Group {
             switch viewModel.phase {
             case .serverConnection:
-                ServerConnectionView(viewModel: viewModel)
+                // ChatFort override: the Advanced screen does not exist.
+                // Auto-connect to the pre-filled ChatFort server immediately.
+                chatFortAutoConnectView
 
             case .restoringSession:
                 // Show a lightweight loading/retry screen while validating the saved token
                 sessionRestoringView
 
             case .authMethodSelection:
-                NavigationStack {
-                    AuthMethodSelectionView(viewModel: viewModel)
-                }
+                // ChatFort override: skip auth method selection entirely.
+                // Re-use the auto-connect view which routes through proxy auth
+                // to the native login form automatically.
+                chatFortAutoConnectView
 
             case .credentialLogin:
                 NavigationStack {
@@ -410,6 +413,9 @@ struct RootView: View {
                 NavigationStack {
                     SSOAuthView(viewModel: viewModel)
                 }
+
+            case .nativeProxyLogin:
+                NativeProxyLoginView(viewModel: viewModel)
 
             case .authenticated:
                 authenticatedContent
@@ -502,6 +508,63 @@ struct RootView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// ChatFort override: replaces ServerConnectionView entirely.
+    /// Shows a spinner while connecting, or an error with retry if it fails.
+    private var chatFortAutoConnectView: some View {
+        VStack(spacing: 20) {
+            if let error = viewModel.errorMessage {
+                Image(systemName: "wifi.exclamationmark")
+                    .font(.system(size: 44))
+                    .foregroundStyle(.secondary)
+
+                Text("Connection Issue")
+                    .font(.title3.weight(.semibold))
+
+                Text(error)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+
+                Button {
+                    viewModel.errorMessage = nil
+                    Task { await viewModel.connect() }
+                } label: {
+                    Label("Retry", systemImage: "arrow.clockwise")
+                        .font(.body.weight(.medium))
+                        .frame(minWidth: 120)
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 4)
+            } else {
+                ProgressView()
+                    .controlSize(.large)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task {
+            if viewModel.serverURL.isEmpty {
+                viewModel.serverURL = "https://chat.chatfort.ai"
+            }
+            guard !viewModel.isConnecting else { return }
+            await viewModel.connect()
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { viewModel.showCloudflareChallenge },
+            set: { viewModel.showCloudflareChallenge = $0 }
+        )) {
+            CloudflareChallengeView(
+                serverURL: viewModel.serverURL,
+                onClearance: { cookieValue, userAgent, expiry in
+                    viewModel.resumeAfterCloudflareClearance(cookieValue, userAgent: userAgent, expiry: expiry)
+                },
+                onDismiss: {
+                    viewModel.dismissCloudflareChallenge()
+                }
+            )
+        }
     }
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

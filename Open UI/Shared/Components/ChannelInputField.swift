@@ -49,7 +49,7 @@ struct ChannelInputField: View {
     // MARK: - Font
 
     /// Base font size matching ChatInputField.
-    private static let inputBaseFontSize: CGFloat = 14
+    private static let inputBaseFontSize: CGFloat = 17
 
     private var scaledInputFont: UIFont {
         let scale = accessibilityScale.scale(for: .content)

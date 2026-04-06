@@ -365,7 +365,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2.4.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui.OpenUIWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort.OpenUIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -397,7 +397,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 2.4.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui.OpenUIWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort.OpenUIWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -546,15 +546,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Open Relay";
+				INFOPLIST_KEY_CFBundleDisplayName = "ChatFort";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Open Relay needs camera access to capture photos and documents for chat attachments.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Open Relay uses Face ID to protect your account and conversations.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Open Relay needs microphone access for voice input and voice calls.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Open Relay needs permission to save images generated in conversations to your photo library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Open Relay needs photo library access to attach images to your conversations.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Open Relay uses speech recognition to convert your voice input to text.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ChatFort needs camera access to capture photos and documents for chat attachments.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "ChatFort uses Face ID to protect your account and conversations.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ChatFort needs microphone access for voice input and voice calls.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "ChatFort needs permission to save images generated in conversations to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ChatFort needs photo library access to attach images to your conversations.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "ChatFort uses speech recognition to convert your voice input to text.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -566,7 +566,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.4.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -590,15 +590,15 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Open UI/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Open Relay";
+				INFOPLIST_KEY_CFBundleDisplayName = "ChatFort";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Open Relay needs camera access to capture photos and documents for chat attachments.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Open Relay uses Face ID to protect your account and conversations.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Open Relay needs microphone access for voice input and voice calls.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Open Relay needs permission to save images generated in conversations to your photo library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Open Relay needs photo library access to attach images to your conversations.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Open Relay uses speech recognition to convert your voice input to text.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ChatFort needs camera access to capture photos and documents for chat attachments.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "ChatFort uses Face ID to protect your account and conversations.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ChatFort needs microphone access for voice input and voice calls.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "ChatFort needs permission to save images generated in conversations to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ChatFort needs photo library access to attach images to your conversations.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "ChatFort uses speech recognition to convert your voice input to text.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -610,7 +610,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.4.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.openui.openui;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chatfort.chatfort;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

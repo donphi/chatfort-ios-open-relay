@@ -27,7 +27,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.openui.openui</string>
+			<string>com.chatfort.chatfort</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>openui</string>
@@ -47,7 +47,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>New Chat</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>com.openui.openui.new-chat</string>
+			<string>com.chatfort.chatfort.new-chat</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
@@ -60,7 +60,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Voice Call</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>com.openui.openui.voice-call</string>
+			<string>com.chatfort.chatfort.voice-call</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
@@ -73,7 +73,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Camera Chat</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>com.openui.openui.camera-chat</string>
+			<string>com.chatfort.chatfort.camera-chat</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
@@ -86,7 +86,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>New Channel</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>com.openui.openui.new-channel</string>
+			<string>com.chatfort.chatfort.new-channel</string>
 			<key>UIApplicationShortcutItemUserInfo</key>
 			<dict>
 				<key>url</key>
@@ -109,7 +109,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Open Relay Chat Item</string>
+			<string>ChatFort Chat Item</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.openui.chat-item</string>
 		</dict>

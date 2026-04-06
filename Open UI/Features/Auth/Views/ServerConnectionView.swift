@@ -22,14 +22,14 @@ private struct FloatingOrb: View {
                     offset = CGSize(width: randomX, height: randomY)
                 }
                 withAnimation(.easeInOut(duration: 2)) {
-                    opacity = Double.random(in: 0.15...0.35)
+                    opacity = Double.random(in: 0.05...0.15)
                 }
             }
     }
 }
 
 /// Animated mesh-like background with floating orbs.
-private struct AnimatedAuthBackground: View {
+struct AnimatedAuthBackground: View {
     @Environment(\.theme) private var theme
 
     var body: some View {
@@ -196,6 +196,7 @@ struct ServerConnectionView: View {
     @Bindable var viewModel: AuthViewModel
     @Environment(\.theme) private var theme
     @State private var showAdvancedOptions = false
+    @State private var hasAutoConnected = false
     @State private var appeared = false
     @State private var logoScale: CGFloat = 0.5
     @State private var logoOpacity: Double = 0
@@ -206,38 +207,38 @@ struct ServerConnectionView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: Spacing.xl) {
-                    Spacer(minLength: 60)
+                    Spacer(minLength: 30)
 
                     // App branding with animated entrance
                     VStack(spacing: Spacing.md) {
                         // Animated logo
                         ZStack {
                             Circle()
-                                .fill(theme.brandPrimary.opacity(0.1))
+                                .fill(Color.clear)
                                 .frame(width: 100, height: 100)
                                 .scaleEffect(logoScale * 1.3)
 
                             Circle()
-                                .fill(theme.brandPrimary.opacity(0.05))
+                                .fill(Color.clear)
                                 .frame(width: 130, height: 130)
                                 .scaleEffect(logoScale * 1.1)
 
                             Image("AppIconImage")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 72, height: 72)
-                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .frame(width: 100, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                                 .scaleEffect(logoScale)
                         }
                         .opacity(logoOpacity)
 
-                        Text("Open UI")
+                        Text("ChatFort")
                             .scaledFont(size: 36, weight: .bold, design: .rounded)
                             .foregroundStyle(theme.textPrimary)
                             .opacity(appeared ? 1 : 0)
                             .offset(y: appeared ? 0 : 10)
 
-                        Text("Connect to your OpenWebUI server")
+                        Text("Sign in to continue")
                             .scaledFont(size: 16)
                             .foregroundStyle(theme.textSecondary)
                             .opacity(appeared ? 1 : 0)
@@ -246,21 +247,23 @@ struct ServerConnectionView: View {
 
                     // Connection form card
                     VStack(spacing: Spacing.lg) {
-                        ModernTextField(
-                            label: "Server URL",
-                            placeholder: "https://your-server.com or http://IP:port",
-                            text: $viewModel.serverURL,
-                            keyboardType: .URL,
-                            textContentType: .URL,
-                            onSubmit: {
-                                if !viewModel.serverURL.isEmpty {
-                                    Task { await viewModel.connect() }
-                                }
-                            }
-                        )
+                        // Server URL hidden by default (ChatFort override)
+                        // Tap "Advanced" to reveal for testing other servers.
 
-                        // Advanced options
+                        // Advanced options (includes server URL field)
                         DisclosureGroup(isExpanded: $showAdvancedOptions) {
+                            ModernTextField(
+                                label: "Server URL",
+                                placeholder: "https://chat.chatfort.ai",
+                                text: $viewModel.serverURL,
+                                keyboardType: .URL,
+                                textContentType: .URL,
+                                onSubmit: {
+                                    if !viewModel.serverURL.isEmpty {
+                                        Task { await viewModel.connect() }
+                                    }
+                                }
+                            )
                             VStack(spacing: Spacing.lg) {
                                 ModernTextField(
                                     label: "API Key (optional)",
@@ -389,6 +392,13 @@ struct ServerConnectionView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.3)) {
                 appeared = true
             }
+        }
+        .task {
+            // ChatFort override: auto-connect on first launch when URL is pre-filled.
+            // Skips the "Connect" button so the user goes straight to login.
+            guard !hasAutoConnected, !viewModel.serverURL.isEmpty, !viewModel.isConnecting else { return }
+            hasAutoConnected = true
+            await viewModel.connect()
         }
         .fullScreenCover(isPresented: $viewModel.showCloudflareChallenge) {
             CloudflareChallengeView(

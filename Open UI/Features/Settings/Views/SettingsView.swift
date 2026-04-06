@@ -220,7 +220,7 @@ struct SettingsView: View {
                     SettingsSection(header: "About") {
                         SettingsCell(
                             icon: "info.circle",
-                            title: "About Open Relay",
+                            title: "About ChatFort",
                             showDivider: false,
                             accessory: .chevron
                         ) {
@@ -305,13 +305,6 @@ struct SettingsView: View {
                     onSignOut: {
                         showSignOutConfirmation = false
                         Task {
-                            await viewModel.signOut()
-                            dismiss()
-                        }
-                    },
-                    onSignOutAndRemove: {
-                        showSignOutConfirmation = false
-                        Task {
                             await viewModel.signOutAndDisconnect()
                             dismiss()
                         }
@@ -320,7 +313,7 @@ struct SettingsView: View {
                         showSignOutConfirmation = false
                     }
                 )
-                .presentationDetents([.height(260)])
+                .presentationDetents([.height(220)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
             }
@@ -812,8 +805,8 @@ struct TTSSettingsView: View {
                     Picker("Voice", selection: $marvisVoice) {
                         Text("Conversational A").tag("conversationalA")
                         Text("Conversational B").tag("conversationalB")
-                        Text("Conversational DE 🇩🇪").tag("conversationalDE")
-                        Text("Conversational FR 🇫🇷").tag("conversationalFR")
+                        // Text("Conversational DE").tag("conversationalDE") // not yet in mlx-audio-swift
+                        // Text("Conversational FR").tag("conversationalFR") // not yet in mlx-audio-swift
                     }
                     .onChange(of: marvisVoice) { _, _ in
                         syncMarvisConfig()
@@ -1935,7 +1928,7 @@ struct NotificationSettingsView: View {
                 if systemPermissionGranted {
                     Text("Notifications are authorized. You can manage notification style in iOS Settings.")
                 } else {
-                    Text("Notifications require system permission. Tap \"Request Permission\" or enable them in iOS Settings → Open Relay → Notifications.")
+                    Text("Notifications require system permission. Tap \"Request Permission\" or enable them in iOS Settings → ChatFort → Notifications.")
                 }
             }
         }
@@ -1966,7 +1959,6 @@ struct NotificationSettingsView: View {
 /// A beautiful bottom sheet for sign-out confirmation, replacing the system confirmationDialog.
 struct SignOutConfirmationSheet: View {
     let onSignOut: () -> Void
-    let onSignOutAndRemove: () -> Void
     let onCancel: () -> Void
 
     @Environment(\.theme) private var theme
@@ -2005,22 +1997,14 @@ struct SignOutConfirmationSheet: View {
                 .background(theme.divider)
                 .padding(.horizontal, Spacing.screenPadding)
 
-            // Action buttons
+            // Action buttons (ChatFort override: single sign-out that also removes server)
             VStack(spacing: Spacing.sm) {
                 signOutButton(
                     title: "Sign Out",
-                    subtitle: "Keep server connection",
+                    subtitle: "Sign out and clear connection data",
                     icon: "arrow.right.circle",
                     action: onSignOut,
                     index: 0
-                )
-
-                signOutButton(
-                    title: "Sign Out & Remove Server",
-                    subtitle: "Clear all connection data",
-                    icon: "trash.circle",
-                    action: onSignOutAndRemove,
-                    index: 1
                 )
 
                 // Cancel
