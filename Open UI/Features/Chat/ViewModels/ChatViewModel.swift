@@ -1934,7 +1934,6 @@ final class ChatViewModel {
                     conversation?.messages[index].content += contentDelta
                 }
                 conversation?.messages[index].isStreaming = true
-                triggerStreamingHaptic()
             }
 
             // Also check for done signal within content events (chat:completion
@@ -4978,11 +4977,9 @@ final class ChatViewModel {
             if let error { conversation?.messages[index].error = error }
         }
 
-        // Trigger streaming haptic feedback (throttled to ~10 Hz to avoid
-        // overwhelming the Taptic Engine while still feeling responsive)
-        if isStreaming && error == nil {
-            triggerStreamingHaptic()
-        }
+        // Streaming haptics removed — even throttled to 3 Hz, each
+        // impactOccurred() costs ~0.5ms of main-thread time and competes
+        // with layout/render work during the most performance-critical path.
     }
 
     /// Fires a subtle haptic pulse during token streaming, throttled via

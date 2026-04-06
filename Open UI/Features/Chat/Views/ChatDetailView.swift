@@ -719,8 +719,6 @@ struct ChatDetailView: View {
             )
         }
         .background(theme.background)
-        .animation(.easeOut(duration: 0.2), value: vm.isShowingKnowledgePicker)
-        .animation(.easeOut(duration: 0.15), value: vm.selectedKnowledgeItems.count)
         // Sync mentionedModel → viewModel.mentionedModelId when user taps × on chip
         .onChange(of: mentionedModel) { _, newModel in
             viewModel.mentionedModelId = newModel?.id
@@ -878,7 +876,7 @@ struct ChatDetailView: View {
 
     private var scrollContent: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 if viewModel.isLoadingConversation {
                     loadingPlaceholders
                 } else {
@@ -889,50 +887,47 @@ struct ChatDetailView: View {
             .padding(.bottom, 8)
             .frame(maxWidth: iPadMaxContentWidth)
             .frame(maxWidth: .infinity)
-            .clipped()
         }
         .background(ScrollViewHorizontalLock())
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(editingMessageId != nil ? .never : .interactively)
         .defaultScrollAnchor(.bottom)
         .scrollPosition($scrollPosition, anchor: .bottom)
-        // Detect scroll position to show/hide FAB
-        .onScrollGeometryChange(for: CGPoint.self) { geo in
-            geo.contentOffset
-        } action: { _, newOffset in
+        // Single consolidated scroll geometry observer (was two separate
+        // callbacks — each fires per frame, so merging halves the overhead).
+        .onScrollGeometryChange(for: ScrollGeoSnapshot.self) { geo in
+            ScrollGeoSnapshot(
+                offsetY: geo.contentOffset.y,
+                contentHeight: geo.contentSize.height,
+                containerHeight: geo.containerSize.height
+            )
+        } action: { old, new in
+            // ── FAB show/hide (was first observer) ──
             let distanceFromBottom = max(0,
-                viewState_contentHeight - newOffset.y - viewState_containerHeight)
+                new.contentHeight - new.offsetY - new.containerHeight)
             if distanceFromBottom <= 120 {
                 if isScrolledUp { isScrolledUp = false }
-            } else if newOffset.y < lastScrollOffset - 40 {
+            } else if new.offsetY < lastScrollOffset - 40 {
                 if !isScrolledUp { isScrolledUp = true }
             }
-            if abs(newOffset.y - lastScrollOffset) > 2 {
-                lastScrollOffset = newOffset.y
+            if abs(new.offsetY - lastScrollOffset) > 2 {
+                lastScrollOffset = new.offsetY
             }
-        }
-        .onScrollGeometryChange(for: CGSize.self) { geo in
-            CGSize(width: geo.contentSize.height, height: geo.containerSize.height)
-        } action: { oldSize, newSize in
+
+            // ── Cache sizes & streaming scroll (was second observer) ──
             let oldContentHeight = viewState_contentHeight
-            if abs(newSize.width - viewState_contentHeight) > 1 {
-                viewState_contentHeight = newSize.width
+            if abs(new.contentHeight - viewState_contentHeight) > 1 {
+                viewState_contentHeight = new.contentHeight
             }
-            if abs(newSize.height - viewState_containerHeight) > 1 {
-                viewState_containerHeight = newSize.height
+            if abs(new.containerHeight - viewState_containerHeight) > 1 {
+                viewState_containerHeight = new.containerHeight
             }
-            // Smooth scroll-to-bottom during active streaming:
-            // When the content height grows (new tokens pushed layout taller)
-            // and the user hasn't scrolled up, animate to the bottom so new
-            // content slides in smoothly instead of snapping.
-            let grew = newSize.width > oldContentHeight + 1
+            let grew = new.contentHeight > oldContentHeight + 1
             if grew && viewModel.isStreaming && !isScrolledUp {
                 let now = Date()
-                if now.timeIntervalSince(lastStreamingScrollTime) > 0.1 {
+                if now.timeIntervalSince(lastStreamingScrollTime) > 0.3 {
                     lastStreamingScrollTime = now
-                    withAnimation(.easeOut(duration: 0.15)) {
-                        scrollPosition.scrollTo(edge: .bottom)
-                    }
+                    scrollPosition.scrollTo(edge: .bottom)
                 }
             }
         }
@@ -3186,6 +3181,17 @@ struct ShareSheetView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
+// MARK: - Scroll Geometry Snapshot
+
+/// Equatable value type for the consolidated `onScrollGeometryChange`.
+/// Packing offset, content height, and container height into one struct
+/// lets us use a single observer instead of two (halves per-frame callback count).
+private struct ScrollGeoSnapshot: Equatable {
+    let offsetY: CGFloat
+    let contentHeight: CGFloat
+    let containerHeight: CGFloat
+}
+
 // MARK: - ScrollView Horizontal Lock
 
 /// A zero-size `UIViewRepresentable` that finds the enclosing `UIScrollView`
@@ -3227,7 +3233,6 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        private var observation: NSKeyValueObservation?
         weak var observedScrollView: UIScrollView?
         private var panBlocker: UIPanGestureRecognizer?
 
@@ -3243,14 +3248,10 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
                     scrollView.showsHorizontalScrollIndicator = false
                     scrollView.isDirectionalLockEnabled = true
 
-                    // KVO: snap contentOffset.x to 0 on every change
-                    observation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] sv, change in
-                        guard self != nil, let offset = change.newValue else { return }
-                        if abs(offset.x) > 0.5 {
-                            // Use setContentOffset to avoid triggering another KVO notification loop
-                            sv.contentOffset = CGPoint(x: 0, y: offset.y)
-                        }
-                    }
+                    // KVO removed — the pan blocker + static config below are
+                    // sufficient to prevent horizontal scroll. The KVO was firing
+                    // on every contentOffset change (60-120 Hz during scrolling),
+                    // adding unnecessary main-thread overhead.
 
                     // Add a pan gesture recognizer that blocks horizontal panning
                     let blocker = UIPanGestureRecognizer(target: nil, action: nil)
@@ -3266,8 +3267,6 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
         }
 
         func detach() {
-            observation?.invalidate()
-            observation = nil
             if let blocker = panBlocker, let sv = observedScrollView {
                 sv.removeGestureRecognizer(blocker)
             }

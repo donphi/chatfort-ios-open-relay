@@ -210,8 +210,6 @@ struct ChatInputField: View {
         }
         .padding(.top, Spacing.xs)
         .padding(.bottom, Spacing.sm)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isDictating)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: dictationService?.state == .processing)
         // Widget deep link — focus the text field and show keyboard when
         // the user taps the "New Chat" action button on the home screen widget.
         .onReceive(NotificationCenter.default.publisher(for: .chatInputFieldRequestFocus)) { _ in
@@ -238,7 +236,6 @@ struct ChatInputField: View {
         .onChange(of: showToolsSheet) { _, isPresented in
             if isPresented { onToolsSheetPresented?() }
         }
-        .animation(.easeOut(duration: 0.2), value: attachments.count)
         .sheet(item: $previewingAttachment) { attachment in
             AttachmentPreviewSheet(attachment: attachment)
         }
@@ -351,7 +348,6 @@ struct ChatInputField: View {
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1.0 : 0.4)
         .accessibilityLabel("Attachments & tools")
-        .animation(.easeInOut(duration: 0.15), value: hasActiveFeatures)
     }
 
     // MARK: - Text Field
