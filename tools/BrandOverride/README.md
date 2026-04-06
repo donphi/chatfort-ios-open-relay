@@ -79,22 +79,30 @@ Open the project in Xcode and build. Your app should now say "ChatFort" everywhe
 When the upstream Open Relay repo has new features or fixes you want:
 
 ```bash
-# 1. Put everything back to the original state
-./scripts/restore.sh
+# 1. Sync with upstream (fetches, resets, preserves fork-only files, backs up)
+./scripts/sync.sh
 
-# 2. Pull the latest from the original repo
-git pull upstream main
-
-# 3. Create a fresh backup of the updated files
-./scripts/backup.sh
-
-# 4. Preview what the override will do (check for any surprises)
+# 2. Preview what the override will do (check for any surprises)
 ./scripts/override.sh --dry-run
 
-# 5. Apply ChatFort branding again
+# 3. Apply ChatFort branding again
 ./scripts/override.sh --apply
 
-# 6. Build in Xcode and verify
+# 4. Commit and push
+git add -A && git commit -m "Sync upstream vX.Y + apply overrides"
+git push --force-with-lease
+
+# 5. Build in Xcode and verify
+```
+
+The `sync.sh` script replaces the old manual `restore.sh` → `git pull` → `backup.sh`
+workflow. It safely protects all fork-only paths (listed in `brand_config.json` under
+`fork_only_paths`) before resetting to upstream, then restores them afterward.
+
+You can preview what it will do first:
+
+```bash
+./scripts/sync.sh --dry-run
 ```
 
 ---
@@ -110,7 +118,7 @@ git pull upstream main
 | `configs/` | **Modular override configs** — each JSON file handles a specific feature. |
 | `docs/` | Developer documentation for auth overrides and Authentik setup. |
 | `Assets/` | Where you put your ChatFort icon and any future brand images. |
-| `scripts/` | The three Python scripts (backup, restore, override) and their shell wrappers. |
+| `scripts/` | The four Python scripts (backup, restore, override, sync) and their shell wrappers. |
 | `backups/` | Created automatically by the backup script. Contains versioned snapshots. |
 
 ### Modular Config Files (`configs/`)
@@ -266,11 +274,31 @@ timestamped folder inside `backups/`. Creates two copies:
 **What it does:** Copies the `pristine/` files back to their original locations,
 undoing all brand changes. After running this, the repo looks exactly like upstream.
 
-**When to run:** Before `git pull upstream main`.
+**When to run:** You usually don't need to run this directly — `sync.sh` calls it
+automatically. Use it if you just want to undo overrides without syncing upstream.
 
 **Options:**
 - `./scripts/restore.sh` — uses the most recent backup
 - `./scripts/restore.sh --version v2.4_build1_2026-04-01_f49448d` — uses a specific backup
+
+### `sync.sh` — Safe Upstream Sync (Recommended)
+
+**What it does:** The all-in-one command for pulling upstream updates. It:
+1. Fetches `upstream/main`
+2. Runs restore (undoes brand overrides)
+3. Stashes all fork-only paths to a temp directory
+4. Runs `git reset --hard upstream/main`
+5. Restores fork-only paths
+6. Creates a fresh backup
+
+Fork-only paths (like `tools/BrandOverride/`, `.github/`, `fastlane/`) are defined in
+`brand_config.json` under `fork_only_paths` and are automatically protected.
+
+**When to run:** Whenever you want to pull the latest from the upstream Open Relay repo.
+
+**Options:**
+- `./scripts/sync.sh` — sync for real
+- `./scripts/sync.sh --dry-run` — preview what would happen without changing anything
 
 ### `override.sh` — Apply ChatFort Branding
 
@@ -386,13 +414,19 @@ tools/BrandOverride/Assets/AppIcon.icon
 The upstream file has been moved or renamed in a new version. Check `CANNOT_OVERRIDE.md`
 for the expected file paths and update `brand_config.json` if needed.
 
-### Merge conflicts after git pull
+### Merge conflicts or divergent branches after git pull
 
-You forgot to run `restore.sh` before pulling. Fix it:
+Use `sync.sh` instead of manual `git pull`. It handles the reset safely:
 ```bash
-git checkout --theirs .    # accept upstream versions
-./scripts/backup.sh        # create new backup
+./scripts/sync.sh          # safe upstream sync
 ./scripts/override.sh --apply  # re-apply brand
+```
+
+If you already ran `git reset --hard upstream/main` and lost fork-only files,
+recover them from the previous HEAD using `git reflog`:
+```bash
+git reflog                            # find the commit before the reset
+git checkout <old-commit> -- tools/BrandOverride/ .github/ fastlane/ Gemfile
 ```
 
 ### The app still says "Open Relay" somewhere

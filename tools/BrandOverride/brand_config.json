@@ -358,6 +358,16 @@
     }
   ],
 
+  "fork_only_paths": [
+    "tools/BrandOverride",
+    ".github",
+    "fastlane",
+    "Gemfile",
+    "github_ios_build.md",
+    "xcode_ios_build.md",
+    "translate_missing.py"
+  ],
+
   "files_to_backup": [
     "Open UI.xcodeproj/project.pbxproj",
     "Open UI/Features/Settings/Views/AboutView.swift",
