@@ -44,12 +44,14 @@ jobs:
       - name: Clone local Swift packages from upstream
         run: |
           UPSTREAM_ORG="Ichigo3766"
-          grep -oP 'relativePath = \.\./\K[^;]+' "Open UI.xcodeproj/project.pbxproj" \
+          sed -n 's/.*relativePath = \.\.\/\([^;]*\);/\1/p' "Open UI.xcodeproj/project.pbxproj" \
             | sort -u \
             | while read -r pkg; do
                 if [ ! -d "../$pkg" ]; then
-                  echo "Cloning $UPSTREAM_ORG/$pkg → ../$pkg"
+                  echo "Cloning $UPSTREAM_ORG/$pkg -> ../$pkg"
                   git clone "https://github.com/$UPSTREAM_ORG/$pkg.git" "../$pkg"
+                else
+                  echo "Already exists: ../$pkg"
                 fi
               done
 
