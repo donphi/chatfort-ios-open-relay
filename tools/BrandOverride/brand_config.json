@@ -121,6 +121,24 @@
       ]
     },
     {
+      "file": "Open UI/Shared/Components/ChatInputField.swift",
+      "replacements": [
+        {
+          "find": "private static let inputBaseFontSize: CGFloat = 14",
+          "replace": "private static let inputBaseFontSize: CGFloat = 17"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChannelInputField.swift",
+      "replacements": [
+        {
+          "find": "private static let inputBaseFontSize: CGFloat = 14",
+          "replace": "private static let inputBaseFontSize: CGFloat = 17"
+        }
+      ]
+    },
+    {
       "file": "Open UI/Features/Settings/Views/AppearanceSettingsView.swift",
       "replacements": [
         {
@@ -372,6 +390,8 @@
     "Open UI.xcodeproj/project.pbxproj",
     "Open UI/Features/Settings/Views/AboutView.swift",
     "Open UI/Features/Settings/Views/SettingsView.swift",
+    "Open UI/Shared/Components/ChatInputField.swift",
+    "Open UI/Shared/Components/ChannelInputField.swift",
     "Open UI/Features/Settings/Views/AppearanceSettingsView.swift",
     "Open UI/Features/Auth/Views/ServerConnectionView.swift",
     "Open UI/Core/Services/AppIntentsService.swift",
