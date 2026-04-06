@@ -107,10 +107,11 @@ struct NativeProxyLoginView: View {
     @ViewBuilder
     private var loginForm: some View {
         ModernTextField(
-            label: "Username",
-            placeholder: "Enter your username",
+            label: "Email",
+            placeholder: "Enter your email",
             text: $viewModel.nativeProxyUsername,
-            textContentType: .username,
+            keyboardType: .emailAddress,
+            textContentType: .emailAddress,
             onSubmit: { focusedField = .password }
         )
         .focused($focusedField, equals: .username)
@@ -125,26 +126,14 @@ struct NativeProxyLoginView: View {
         )
         .focused($focusedField, equals: .password)
 
-        Button {
+        AuthPrimaryButton(
+            title: viewModel.isNativeProxyLoggingIn ? "Signing in..." : "Sign In",
+            icon: viewModel.isNativeProxyLoggingIn ? nil : "arrow.right",
+            isLoading: viewModel.isNativeProxyLoggingIn,
+            isDisabled: viewModel.nativeProxyUsername.isEmpty || viewModel.nativeProxyPassword.isEmpty
+        ) {
             submitLogin()
-        } label: {
-            Group {
-                if viewModel.isNativeProxyLoggingIn {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Text("Sign In")
-                        .scaledFont(size: 16, weight: .semibold)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(theme.brandPrimary)
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
         }
-        .disabled(viewModel.nativeProxyUsername.isEmpty || viewModel.nativeProxyPassword.isEmpty || viewModel.isNativeProxyLoggingIn)
-        .opacity(viewModel.nativeProxyUsername.isEmpty || viewModel.nativeProxyPassword.isEmpty ? 0.6 : 1.0)
     }
 
     // MARK: - MFA Form
@@ -177,26 +166,14 @@ struct NativeProxyLoginView: View {
         )
         .focused($focusedField, equals: .totp)
 
-        Button {
+        AuthPrimaryButton(
+            title: viewModel.isNativeProxyLoggingIn ? "Verifying..." : "Verify",
+            icon: viewModel.isNativeProxyLoggingIn ? nil : "checkmark.shield",
+            isLoading: viewModel.isNativeProxyLoggingIn,
+            isDisabled: viewModel.nativeProxyTOTP.isEmpty
+        ) {
             submitMFA()
-        } label: {
-            Group {
-                if viewModel.isNativeProxyLoggingIn {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Text("Verify")
-                        .scaledFont(size: 16, weight: .semibold)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(theme.brandPrimary)
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.lg, style: .continuous))
         }
-        .disabled(viewModel.nativeProxyTOTP.isEmpty || viewModel.isNativeProxyLoggingIn)
-        .opacity(viewModel.nativeProxyTOTP.isEmpty ? 0.6 : 1.0)
     }
 
     // MARK: - Actions
