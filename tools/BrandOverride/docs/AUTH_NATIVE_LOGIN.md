@@ -8,7 +8,7 @@ This document explains how the ChatFort override replaces the default WebView-ba
 
 **Before (upstream):** When the app detects an Authentik-protected server, it opens `ProxyAuthView` — a full `WKWebView` showing the Authentik web portal. The user logs in through the web interface, and session cookies are captured when the flow completes.
 
-**After (override):** The app shows a native SwiftUI form with username and password fields. The form posts credentials to Authentik's Flow Executor API, which returns the same session cookies without ever showing a web view.
+**After (override):** The app shows a native SwiftUI form with username and password fields. The form posts credentials to Authentik's Flow Executor API, which returns the same session cookies without ever showing a web view. After the proxy login succeeds, the app automatically completes the OpenWebUI OAuth login programmatically — the user goes straight from the native login form to the chat interface with no intermediate screens.
 
 The `ProxyAuthView` is **not deleted** — it remains as a fallback for non-Authentik proxies (Authelia, Keycloak, etc.) or if the Flow Executor returns an unexpected response.
 
@@ -99,9 +99,58 @@ This ensures compatibility with non-Authentik proxies (Authelia, Keycloak, oauth
 
 ---
 
-## Override Config
+## Auto-Connect + Auto-OAuth Flow
 
-The override is defined in `configs/02_auth_native_login.json`. It modifies:
+The complete streamlined login flow works as follows:
+
+```
+App Launch (first time)
+    |
+    v
+[ServerConnectionView] -- .task auto-triggers connect()
+    |                      (no "Connect" button press needed)
+    v
+Health check detects proxy auth required
+    |
+    v
+[NativeProxyLoginView] -- user enters username + password
+    |
+    v
+Authentik Flow Executor authenticates (session cookies captured)
+    |
+    v
+connectSkippingProxyCheck() -- fetches OpenWebUI config
+    |
+    v
+Auto-detects OAuth provider (e.g. "oidc")
+    |
+    v
+performAutoOAuthLogin() -- follows /oauth/oidc/login redirect
+    |                       chain via URLSession (has Authentik
+    |                       session cookies, auto-completes)
+    v
+Captures OpenWebUI JWT token from cookie
+    |
+    v
+loginWithSSOToken() --> [Authenticated] --> Chat interface
+```
+
+**Key insight:** `performAutoOAuthLogin` uses URLSession (not WKWebView) to follow the OAuth redirect chain. Since URLSession shares `HTTPCookieStorage.shared` with the Flow Executor session, Authentik recognizes the existing session and auto-authorizes without user interaction. The JWT token cookie set by OpenWebUI's callback is captured and used to complete authentication.
+
+**Fallback:** If no OAuth provider is detected or the programmatic OAuth fails, the app falls back to showing the auth method selection screen.
+
+---
+
+## Override Configs
+
+### `configs/01_server_prefill.json`
+
+| File | Change |
+|------|--------|
+| `ServerConnectionView.swift` | Adds `hasAutoConnected` state variable |
+| `ServerConnectionView.swift` | Adds `.task` modifier that auto-triggers `connect()` when URL is pre-filled |
+
+### `configs/02_auth_native_login.json`
 
 | File | Change |
 |------|--------|
@@ -109,19 +158,22 @@ The override is defined in `configs/02_auth_native_login.json`. It modifies:
 | `AuthViewModel.swift` | Adds state variables for native login (username, password, TOTP, loading state) |
 | `AuthViewModel.swift` | Replaces `.proxyAuthRequired` case to use native login instead of WebView |
 | `AuthViewModel.swift` | Adds `authenticateViaFlowExecutor()`, `submitNativeProxyMFA()`, and `captureFlowCookiesAndResume()` methods |
+| `AuthViewModel.swift` | Adds `performAutoOAuthLogin()` — programmatic OAuth via URLSession after proxy auth |
+| `AuthViewModel.swift` | Modifies `connectSkippingProxyCheck()` to auto-trigger OAuth instead of showing auth method selection |
 
 ---
 
 ## Testing Checklist
 
-- [ ] App launches and auto-connects to `chat.chatfort.ai`
+- [ ] App launches and auto-connects to `chat.chatfort.ai` (no "Connect" button press)
 - [ ] Native login form appears (username + password fields, no WebView)
-- [ ] Correct credentials → login succeeds, conversations load
+- [ ] Correct credentials → auto-OAuth completes → chat loads (no auth method selection screen)
 - [ ] Incorrect password → error message from Authentik is displayed
 - [ ] Non-existent username → error message is displayed
 - [ ] MFA-enabled account → TOTP field appears after password
-- [ ] Correct TOTP → login completes
+- [ ] Correct TOTP → auto-OAuth completes → chat loads
 - [ ] Incorrect TOTP → error message is displayed
 - [ ] Network error during login → appropriate error message
 - [ ] After successful login, session cookies are persisted (app restart maintains session)
+- [ ] If OAuth auto-complete fails, falls back to auth method selection screen
 - [ ] ProxyAuthView still works if manually triggered (fallback path)
