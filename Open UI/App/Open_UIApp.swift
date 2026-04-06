@@ -391,6 +391,9 @@ struct RootView: View {
                     SSOAuthView(viewModel: viewModel)
                 }
 
+            case .nativeProxyLogin:
+                NativeProxyLoginView(viewModel: viewModel)
+
             case .authenticated:
                 authenticatedContent
 

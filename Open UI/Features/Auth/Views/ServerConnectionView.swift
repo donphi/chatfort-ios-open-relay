@@ -29,7 +29,7 @@ private struct FloatingOrb: View {
 }
 
 /// Animated mesh-like background with floating orbs.
-private struct AnimatedAuthBackground: View {
+struct AnimatedAuthBackground: View {
     @Environment(\.theme) private var theme
 
     var body: some View {
@@ -237,7 +237,7 @@ struct ServerConnectionView: View {
                             .opacity(appeared ? 1 : 0)
                             .offset(y: appeared ? 0 : 10)
 
-                        Text("Connect to your OpenWebUI server")
+                        Text("Sign in to continue")
                             .scaledFont(size: 16)
                             .foregroundStyle(theme.textSecondary)
                             .opacity(appeared ? 1 : 0)
@@ -246,21 +246,23 @@ struct ServerConnectionView: View {
 
                     // Connection form card
                     VStack(spacing: Spacing.lg) {
-                        ModernTextField(
-                            label: "Server URL",
-                            placeholder: "https://your-server.com or http://IP:port",
-                            text: $viewModel.serverURL,
-                            keyboardType: .URL,
-                            textContentType: .URL,
-                            onSubmit: {
-                                if !viewModel.serverURL.isEmpty {
-                                    Task { await viewModel.connect() }
-                                }
-                            }
-                        )
+                        // Server URL hidden by default (ChatFort override)
+                        // Tap "Advanced" to reveal for testing other servers.
 
-                        // Advanced options
+                        // Advanced options (includes server URL field)
                         DisclosureGroup(isExpanded: $showAdvancedOptions) {
+                            ModernTextField(
+                                label: "Server URL",
+                                placeholder: "https://chat.chatfort.ai",
+                                text: $viewModel.serverURL,
+                                keyboardType: .URL,
+                                textContentType: .URL,
+                                onSubmit: {
+                                    if !viewModel.serverURL.isEmpty {
+                                        Task { await viewModel.connect() }
+                                    }
+                                }
+                            )
                             VStack(spacing: Spacing.lg) {
                                 ModernTextField(
                                     label: "API Key (optional)",

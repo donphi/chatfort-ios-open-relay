@@ -20,6 +20,8 @@ enum AuthPhase: Equatable {
     case ldapLogin
     /// SSO (OAuth/OIDC) WebView flow.
     case ssoLogin
+    /// Native proxy login (Authentik Flow Executor).
+    case nativeProxyLogin
     /// Authenticated; ready to use.
     case authenticated
     /// Shows the list of saved server profiles for quick switching.
@@ -39,7 +41,7 @@ enum AuthType: String, Codable, Sendable {
 final class AuthViewModel {
     // MARK: - Published State
 
-    var serverURL: String = ""
+    var serverURL: String = "https://chat.chatfort.ai"
     var apiKey: String = ""
     /// User-supplied custom HTTP headers (key–value pairs) entered during server setup.
     var customHeaderEntries: [CustomHeaderEntry] = []
@@ -63,6 +65,23 @@ final class AuthViewModel {
     var showProxyAuthChallenge: Bool = false
     /// The normalized URL pending connection after a proxy auth challenge is solved.
     private var pendingProxyAuthURL: String?
+
+    // MARK: - Native Proxy Login State (ChatFort Authentik Flow Executor)
+
+    /// Username for native Authentik login.
+    var nativeProxyUsername: String = ""
+    /// Password for native Authentik login.
+    var nativeProxyPassword: String = ""
+    /// TOTP code for MFA stage.
+    var nativeProxyTOTP: String = ""
+    /// Whether the native proxy login is currently in progress.
+    var isNativeProxyLoggingIn: Bool = false
+    /// Whether MFA (TOTP) is required for the current login attempt.
+    var nativeProxyNeedsMFA: Bool = false
+    /// The Authentik auth domain derived from the proxy redirect.
+    private var authentikAuthDomain: String?
+    /// URLSession with cookie persistence for flow executor calls.
+    private var flowExecutorSession: URLSession?
     /// The OAuth provider key selected by the user (e.g. "google", "microsoft").
     /// Set before navigating to `.ssoLogin` so SSOAuthView can load the provider URL directly.
     var selectedSSOProvider: String?
@@ -324,12 +343,20 @@ final class AuthViewModel {
             showCloudflareChallenge = true
             return
         case .proxyAuthRequired:
-            // The server is behind an auth proxy (Authelia, Authentik, Keycloak, etc.).
-            // Show a WKWebView so the user can authenticate through the proxy portal.
-            // Once done, the proxy session cookies are captured and injected into URLSession.
+            // ChatFort override: use native Authentik login instead of WebView.
+            // Derive the auth domain from the server URL convention.
             pendingProxyAuthURL = normalizedURL
+            if let serverHost = URL(string: normalizedURL)?.host {
+                // Convention: chat.chatfort.ai -> auth.chatfort.ai
+                let parts = serverHost.split(separator: ".", maxSplits: 1)
+                if parts.count == 2 {
+                    authentikAuthDomain = "auth." + parts[1]
+                } else {
+                    authentikAuthDomain = serverHost
+                }
+            }
             isConnecting = false
-            showProxyAuthChallenge = true
+            phase = .nativeProxyLogin
             return
         case .unhealthy:
             errorMessage = "Server is reachable but not responding correctly."
@@ -763,8 +790,9 @@ final class AuthViewModel {
     func startTokenRefreshTimer() {
         stopTokenRefreshTimer()
         tokenRefreshTask = Task { [weak self] in
-            // Refresh every 45 minutes (JWT tokens typically expire in 1 hour)
-            let interval: TimeInterval = 45 * 60
+            // ChatFort override: refresh every 10 minutes to stay ahead of
+            // the 15-minute access token lifetime from the Authentik mobile provider.
+            let interval: TimeInterval = 10 * 60
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
                 guard !Task.isCancelled else { break }
@@ -779,11 +807,45 @@ final class AuthViewModel {
         tokenRefreshTask = nil
     }
 
-    /// Refreshes the authentication by re-fetching the current user.
-    /// If the token is expired, triggers re-authentication.
+    /// Refreshes the authentication by attempting an OAuth2 token refresh first,
+    /// then falling back to a session validity check.
     private func refreshToken() async {
         guard let client = dependencies?.apiClient else { return }
 
+        // ChatFort override: attempt OAuth2 refresh token grant first
+        if let serverURL = serverConfigStore.activeServer?.url,
+           let refreshToken = KeychainService.shared.getRefreshToken(forServer: serverURL) {
+            let tokenEndpoint = "https://auth.chatfort.ai/application/o/token/"
+            let clientID = "chatfort-mobile"
+
+            var request = URLRequest(url: URL(string: tokenEndpoint)!)
+            request.httpMethod = "POST"
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientID)"
+            request.httpBody = body.data(using: .utf8)
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                if let httpResp = response as? HTTPURLResponse, httpResp.statusCode == 200,
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let newAccessToken = json["access_token"] as? String {
+                    // Store new tokens
+                    client.updateAuthToken(newAccessToken)
+                    if let newRefreshToken = json["refresh_token"] as? String {
+                        KeychainService.shared.saveRefreshToken(newRefreshToken, forServer: serverURL)
+                    }
+                    logger.debug("Token refresh: OAuth2 refresh succeeded")
+                    return
+                }
+            } catch {
+                logger.warning("OAuth2 refresh failed: \(error.localizedDescription)")
+            }
+
+            // Refresh token may be expired — clear it
+            KeychainService.shared.deleteRefreshToken(forServer: serverURL)
+        }
+
+        // Fall back to session validity check
         do {
             currentUser = try await client.getCurrentUser()
             logger.debug("Token refresh: session still valid")
@@ -793,7 +855,7 @@ final class AuthViewModel {
                 logger.warning("Token expired during refresh; user must re-authenticate")
                 await MainActor.run {
                     self.currentUser = nil
-                    self.phase = .authMethodSelection
+                    self.phase = .nativeProxyLogin
                     self.errorMessage = "Your session has expired. Please sign in again."
                 }
             }
@@ -812,7 +874,7 @@ final class AuthViewModel {
     func goBack() {
         errorMessage = nil
         switch phase {
-        case .credentialLogin, .ldapLogin, .ssoLogin, .signUp:
+        case .credentialLogin, .ldapLogin, .ssoLogin, .signUp, .nativeProxyLogin:
             phase = .authMethodSelection
         case .authMethodSelection:
             // If we have a saved server, don't go back to a blank URL screen.
@@ -1017,6 +1079,187 @@ final class AuthViewModel {
         pendingCloudflareURL = nil
         isConnecting = false
         errorMessage = "Security check cancelled. Please try again."
+    }
+
+    // MARK: - Native Authentik Flow Executor Login (ChatFort Override)
+
+    /// Authenticate via Authentik's headless Flow Executor API.
+    /// Steps through identification -> password -> optional MFA stages.
+    func authenticateViaFlowExecutor() async {
+        guard let urlString = pendingProxyAuthURL,
+              let authDomain = authentikAuthDomain else {
+            errorMessage = "No server configured for native login."
+            return
+        }
+
+        isNativeProxyLoggingIn = true
+        errorMessage = nil
+
+        let flowSlug = "default-authentication-flow"
+        let baseURL = "https://\(authDomain)/api/v3/flows/executor/\(flowSlug)/"
+
+        // Dedicated session with cookie persistence for flow state
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.httpCookieAcceptPolicy = .always
+        sessionConfig.httpCookieStorage = HTTPCookieStorage.shared
+        sessionConfig.httpShouldSetCookies = true
+        let session = URLSession(configuration: sessionConfig)
+        flowExecutorSession = session
+
+        do {
+            // Step 1: Initiate flow (GET)
+            guard let initURL = URL(string: baseURL) else {
+                errorMessage = "Invalid auth URL."
+                isNativeProxyLoggingIn = false
+                return
+            }
+            var initReq = URLRequest(url: initURL)
+            initReq.httpMethod = "GET"
+            let (initData, _) = try await session.data(for: initReq)
+            let initChallenge = try JSONSerialization.jsonObject(with: initData) as? [String: Any] ?? [:]
+            let initComponent = initChallenge["component"] as? String ?? ""
+
+            // Step 2: Submit identification
+            guard let postURL = URL(string: baseURL) else { throw URLError(.badURL) }
+            var idReq = URLRequest(url: postURL)
+            idReq.httpMethod = "POST"
+            idReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            let idBody: [String: Any]
+            if initComponent == "ak-stage-identification" {
+                idBody = ["component": "ak-stage-identification", "uid_field": nativeProxyUsername]
+            } else if initComponent == "xak-flow-redirect" {
+                // Already authenticated (session cookies valid)
+                await captureFlowCookiesAndResume(session: session, serverURL: urlString)
+                return
+            } else if initComponent == "ak-stage-access-denied" {
+                let msg = initChallenge["message"] as? String ?? "Access denied."
+                errorMessage = msg
+                isNativeProxyLoggingIn = false
+                return
+            } else {
+                // Unknown stage — fall back to WebView
+                isNativeProxyLoggingIn = false
+                showProxyAuthChallenge = true
+                return
+            }
+
+            idReq.httpBody = try JSONSerialization.data(withJSONObject: idBody)
+            let (idData, _) = try await session.data(for: idReq)
+            let idChallenge = try JSONSerialization.jsonObject(with: idData) as? [String: Any] ?? [:]
+            let idComponent = idChallenge["component"] as? String ?? ""
+
+            // Step 3: Submit password
+            if idComponent == "ak-stage-password" {
+                var pwReq = URLRequest(url: postURL)
+                pwReq.httpMethod = "POST"
+                pwReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                let pwBody: [String: Any] = ["component": "ak-stage-password", "password": nativeProxyPassword]
+                pwReq.httpBody = try JSONSerialization.data(withJSONObject: pwBody)
+                let (pwData, _) = try await session.data(for: pwReq)
+                let pwChallenge = try JSONSerialization.jsonObject(with: pwData) as? [String: Any] ?? [:]
+                let pwComponent = pwChallenge["component"] as? String ?? ""
+
+                if pwComponent == "xak-flow-redirect" {
+                    await captureFlowCookiesAndResume(session: session, serverURL: urlString)
+                    return
+                } else if pwComponent == "ak-stage-authenticator-validate" {
+                    // MFA required
+                    nativeProxyNeedsMFA = true
+                    isNativeProxyLoggingIn = false
+                    return
+                } else if pwComponent == "ak-stage-access-denied" {
+                    let msg = pwChallenge["message"] as? String ?? "Invalid credentials."
+                    errorMessage = msg
+                    isNativeProxyLoggingIn = false
+                    return
+                } else {
+                    // Unexpected stage — fall back to WebView
+                    isNativeProxyLoggingIn = false
+                    showProxyAuthChallenge = true
+                    return
+                }
+            } else if idComponent == "ak-stage-access-denied" {
+                let msg = idChallenge["message"] as? String ?? "User not found."
+                errorMessage = msg
+                isNativeProxyLoggingIn = false
+                return
+            } else if idComponent == "xak-flow-redirect" {
+                await captureFlowCookiesAndResume(session: session, serverURL: urlString)
+                return
+            } else {
+                isNativeProxyLoggingIn = false
+                showProxyAuthChallenge = true
+                return
+            }
+        } catch {
+            errorMessage = "Login failed: \(error.localizedDescription)"
+            isNativeProxyLoggingIn = false
+        }
+    }
+
+    /// Submit TOTP code for MFA stage.
+    func submitNativeProxyMFA() async {
+        guard let authDomain = authentikAuthDomain,
+              let urlString = pendingProxyAuthURL,
+              let session = flowExecutorSession else {
+            errorMessage = "MFA session expired. Please try again."
+            nativeProxyNeedsMFA = false
+            return
+        }
+
+        isNativeProxyLoggingIn = true
+        errorMessage = nil
+
+        let flowSlug = "default-authentication-flow"
+        let baseURL = "https://\(authDomain)/api/v3/flows/executor/\(flowSlug)/"
+
+        do {
+            guard let postURL = URL(string: baseURL) else { throw URLError(.badURL) }
+            var mfaReq = URLRequest(url: postURL)
+            mfaReq.httpMethod = "POST"
+            mfaReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let mfaBody: [String: Any] = ["component": "ak-stage-authenticator-validate", "code": nativeProxyTOTP]
+            mfaReq.httpBody = try JSONSerialization.data(withJSONObject: mfaBody)
+            let (mfaData, _) = try await session.data(for: mfaReq)
+            let mfaChallenge = try JSONSerialization.jsonObject(with: mfaData) as? [String: Any] ?? [:]
+            let mfaComponent = mfaChallenge["component"] as? String ?? ""
+
+            if mfaComponent == "xak-flow-redirect" {
+                nativeProxyNeedsMFA = false
+                await captureFlowCookiesAndResume(session: session, serverURL: urlString)
+            } else if mfaComponent == "ak-stage-access-denied" {
+                let msg = mfaChallenge["message"] as? String ?? "MFA verification failed."
+                errorMessage = msg
+                isNativeProxyLoggingIn = false
+            } else {
+                errorMessage = "Invalid MFA code. Please try again."
+                isNativeProxyLoggingIn = false
+            }
+        } catch {
+            errorMessage = "MFA failed: \(error.localizedDescription)"
+            isNativeProxyLoggingIn = false
+        }
+    }
+
+    /// Capture cookies from the flow executor session and resume connection.
+    private func captureFlowCookiesAndResume(session: URLSession, serverURL: String) async {
+        var cookieDict: [String: String] = [:]
+        if let cookies = session.configuration.httpCookieStorage?.cookies {
+            for cookie in cookies {
+                cookieDict[cookie.name] = cookie.value
+            }
+        }
+        logger.info("Native Authentik login succeeded — captured \(cookieDict.count) cookie(s)")
+
+        // Clear login state
+        nativeProxyPassword = ""
+        nativeProxyTOTP = ""
+        isNativeProxyLoggingIn = false
+        nativeProxyNeedsMFA = false
+
+        // Resume connection using the same path as ProxyAuthView
+        resumeAfterProxyAuth(cookieDict, userAgent: "")
     }
 
     // MARK: - Auth Proxy Challenge Handling (Authelia, Authentik, Keycloak, etc.)

@@ -49,6 +49,17 @@ struct ServerConfig: Codable, Identifiable, Hashable, Sendable {
     /// The URL the proxy redirected to (auth portal URL) — used to re-scope cookies.
     var proxyAuthPortalURL: String?
 
+    // MARK: - OAuth2 Mobile Provider (ChatFort Override)
+
+    /// OAuth2 client ID for the mobile provider (e.g. "chatfort-mobile").
+    var oauth2ClientID: String?
+
+    /// OAuth2 token endpoint URL.
+    var oauth2TokenEndpoint: String?
+
+    /// OAuth2 authorization endpoint URL.
+    var oauth2AuthEndpoint: String?
+
     /// API key — stored in Keychain, NOT serialised to UserDefaults.
     /// Populated transiently at runtime via ``KeychainService``.
     var apiKey: String?
@@ -77,6 +88,7 @@ struct ServerConfig: Codable, Identifiable, Hashable, Sendable {
         case id, name, url, customHeaders, lastConnected, isActive, allowSelfSignedCertificates
         case cfClearanceValue, cfClearanceExpiry, cfUserAgent, isCloudflareBotProtected
         case proxyAuthCookies, isAuthProxyProtected, proxyAuthPortalURL
+        case oauth2ClientID, oauth2TokenEndpoint, oauth2AuthEndpoint
         case lastUserName, lastUserEmail, lastUserProfileImageURL, lastAuthType, hasActiveSession
     }
 
@@ -98,6 +110,9 @@ struct ServerConfig: Codable, Identifiable, Hashable, Sendable {
         proxyAuthCookies = try? c.decode([String: String].self, forKey: .proxyAuthCookies)
         isAuthProxyProtected = (try? c.decode(Bool.self, forKey: .isAuthProxyProtected)) ?? false
         proxyAuthPortalURL = try? c.decode(String.self, forKey: .proxyAuthPortalURL)
+        oauth2ClientID = try? c.decode(String.self, forKey: .oauth2ClientID)
+        oauth2TokenEndpoint = try? c.decode(String.self, forKey: .oauth2TokenEndpoint)
+        oauth2AuthEndpoint = try? c.decode(String.self, forKey: .oauth2AuthEndpoint)
         // New metadata fields — default gracefully when absent (backwards compat)
         lastUserName = try? c.decode(String.self, forKey: .lastUserName)
         lastUserEmail = try? c.decode(String.self, forKey: .lastUserEmail)
@@ -123,6 +138,9 @@ struct ServerConfig: Codable, Identifiable, Hashable, Sendable {
         proxyAuthCookies: [String: String]? = nil,
         isAuthProxyProtected: Bool = false,
         proxyAuthPortalURL: String? = nil,
+        oauth2ClientID: String? = nil,
+        oauth2TokenEndpoint: String? = nil,
+        oauth2AuthEndpoint: String? = nil,
         lastUserName: String? = nil,
         lastUserEmail: String? = nil,
         lastUserProfileImageURL: String? = nil,
@@ -144,6 +162,9 @@ struct ServerConfig: Codable, Identifiable, Hashable, Sendable {
         self.proxyAuthCookies = proxyAuthCookies
         self.isAuthProxyProtected = isAuthProxyProtected
         self.proxyAuthPortalURL = proxyAuthPortalURL
+        self.oauth2ClientID = oauth2ClientID
+        self.oauth2TokenEndpoint = oauth2TokenEndpoint
+        self.oauth2AuthEndpoint = oauth2AuthEndpoint
         self.lastUserName = lastUserName
         self.lastUserEmail = lastUserEmail
         self.lastUserProfileImageURL = lastUserProfileImageURL
