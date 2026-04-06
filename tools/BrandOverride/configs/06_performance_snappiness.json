@@ -1,0 +1,77 @@
+{
+  "name": "performance_snappiness",
+  "description": "Optimize chat UI snappiness: LazyVStack for message list, reduce streaming scroll overhead, consolidate scroll geometry observers, remove per-frame KVO, remove streaming haptics, strip implicit .animation() modifiers from hot paths",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Chat/Views/ChatDetailView.swift",
+      "replacements": [
+        {
+          "find": "        ScrollView {\n            VStack(spacing: 0) {\n                if viewModel.isLoadingConversation {\n                    loadingPlaceholders\n                } else {\n                    messagesList\n                }\n            }\n            .padding(.top, 8)\n            .padding(.bottom, 8)\n            .frame(maxWidth: iPadMaxContentWidth)\n            .frame(maxWidth: .infinity)\n            .clipped()\n        }",
+          "replace": "        ScrollView {\n            LazyVStack(spacing: 0) {\n                if viewModel.isLoadingConversation {\n                    loadingPlaceholders\n                } else {\n                    messagesList\n                }\n            }\n            .padding(.top, 8)\n            .padding(.bottom, 8)\n            .frame(maxWidth: iPadMaxContentWidth)\n            .frame(maxWidth: .infinity)\n        }"
+        },
+        {
+          "find": "        // Detect scroll position to show/hide FAB\n        .onScrollGeometryChange(for: CGPoint.self) { geo in\n            geo.contentOffset\n        } action: { _, newOffset in\n            let distanceFromBottom = max(0,\n                viewState_contentHeight - newOffset.y - viewState_containerHeight)\n            if distanceFromBottom <= 120 {\n                if isScrolledUp { isScrolledUp = false }\n            } else if newOffset.y < lastScrollOffset - 40 {\n                if !isScrolledUp { isScrolledUp = true }\n            }\n            if abs(newOffset.y - lastScrollOffset) > 2 {\n                lastScrollOffset = newOffset.y\n            }\n        }\n        .onScrollGeometryChange(for: CGSize.self) { geo in\n            CGSize(width: geo.contentSize.height, height: geo.containerSize.height)\n        } action: { oldSize, newSize in\n            let oldContentHeight = viewState_contentHeight\n            if abs(newSize.width - viewState_contentHeight) > 1 {\n                viewState_contentHeight = newSize.width\n            }\n            if abs(newSize.height - viewState_containerHeight) > 1 {\n                viewState_containerHeight = newSize.height\n            }\n            // Smooth scroll-to-bottom during active streaming:\n            // When the content height grows (new tokens pushed layout taller)\n            // and the user hasn't scrolled up, animate to the bottom so new\n            // content slides in smoothly instead of snapping.\n            let grew = newSize.width > oldContentHeight + 1\n            if grew && viewModel.isStreaming && !isScrolledUp {\n                let now = Date()\n                if now.timeIntervalSince(lastStreamingScrollTime) > 0.1 {\n                    lastStreamingScrollTime = now\n                    withAnimation(.easeOut(duration: 0.15)) {\n                        scrollPosition.scrollTo(edge: .bottom)\n                    }\n                }\n            }\n        }",
+          "replace": "        // Consolidated scroll geometry observer (ChatFort perf override:\n        // merged two separate callbacks into one to halve per-frame overhead).\n        .onScrollGeometryChange(for: ScrollGeoSnapshot.self) { geo in\n            ScrollGeoSnapshot(\n                offsetY: geo.contentOffset.y,\n                contentHeight: geo.contentSize.height,\n                containerHeight: geo.containerSize.height\n            )\n        } action: { old, new in\n            // FAB show/hide\n            let distanceFromBottom = max(0,\n                new.contentHeight - new.offsetY - new.containerHeight)\n            if distanceFromBottom <= 120 {\n                if isScrolledUp { isScrolledUp = false }\n            } else if new.offsetY < lastScrollOffset - 40 {\n                if !isScrolledUp { isScrolledUp = true }\n            }\n            if abs(new.offsetY - lastScrollOffset) > 2 {\n                lastScrollOffset = new.offsetY\n            }\n            // Cache sizes & streaming scroll\n            let oldContentHeight = viewState_contentHeight\n            if abs(new.contentHeight - viewState_contentHeight) > 1 {\n                viewState_contentHeight = new.contentHeight\n            }\n            if abs(new.containerHeight - viewState_containerHeight) > 1 {\n                viewState_containerHeight = new.containerHeight\n            }\n            let grew = new.contentHeight > oldContentHeight + 1\n            if grew && viewModel.isStreaming && !isScrolledUp {\n                let now = Date()\n                if now.timeIntervalSince(lastStreamingScrollTime) > 0.3 {\n                    lastStreamingScrollTime = now\n                    scrollPosition.scrollTo(edge: .bottom)\n                }\n            }\n        }"
+        },
+        {
+          "find": "        .background(theme.background)\n        .animation(.easeOut(duration: 0.2), value: vm.isShowingKnowledgePicker)\n        .animation(.easeOut(duration: 0.15), value: vm.selectedKnowledgeItems.count)",
+          "replace": "        .background(theme.background)"
+        },
+        {
+          "find": "                    // KVO: snap contentOffset.x to 0 on every change\n                    observation = scrollView.observe(\\.contentOffset, options: [.new]) { [weak self] sv, change in\n                        guard self != nil, let offset = change.newValue else { return }\n                        if abs(offset.x) > 0.5 {\n                            // Use setContentOffset to avoid triggering another KVO notification loop\n                            sv.contentOffset = CGPoint(x: 0, y: offset.y)\n                        }\n                    }\n\n                    // Add a pan gesture recognizer that blocks horizontal panning",
+          "replace": "                    // KVO removed (ChatFort perf override) — the pan blocker\n                    // + static config are sufficient. KVO was firing 60-120 Hz.\n\n                    // Add a pan gesture recognizer that blocks horizontal panning"
+        },
+        {
+          "find": "    final class Coordinator: NSObject, UIGestureRecognizerDelegate {\n        private var observation: NSKeyValueObservation?\n        weak var observedScrollView: UIScrollView?",
+          "replace": "    final class Coordinator: NSObject, UIGestureRecognizerDelegate {\n        weak var observedScrollView: UIScrollView?"
+        },
+        {
+          "find": "        func detach() {\n            observation?.invalidate()\n            observation = nil\n            if let blocker = panBlocker, let sv = observedScrollView {",
+          "replace": "        func detach() {\n            if let blocker = panBlocker, let sv = observedScrollView {"
+        },
+        {
+          "find": "// MARK: - ScrollView Horizontal Lock\n\n/// A zero-size `UIViewRepresentable` that finds the enclosing `UIScrollView`",
+          "replace": "// MARK: - Scroll Geometry Snapshot\n\n/// Equatable value type for the consolidated `onScrollGeometryChange`.\nprivate struct ScrollGeoSnapshot: Equatable {\n    let offsetY: CGFloat\n    let contentHeight: CGFloat\n    let containerHeight: CGFloat\n}\n\n// MARK: - ScrollView Horizontal Lock\n\n/// A zero-size `UIViewRepresentable` that finds the enclosing `UIScrollView`"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Chat/ViewModels/ChatViewModel.swift",
+      "replacements": [
+        {
+          "find": "                conversation?.messages[index].isStreaming = true\n                triggerStreamingHaptic()",
+          "replace": "                conversation?.messages[index].isStreaming = true"
+        },
+        {
+          "find": "        // Trigger streaming haptic feedback (throttled to ~10 Hz to avoid\n        // overwhelming the Taptic Engine while still feeling responsive)\n        if isStreaming && error == nil {\n            triggerStreamingHaptic()\n        }",
+          "replace": "        // Streaming haptics removed (ChatFort perf override) — even at\n        // 3 Hz, each impactOccurred() costs ~0.5ms of main-thread time."
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChatInputField.swift",
+      "replacements": [
+        {
+          "find": "        .padding(.top, Spacing.xs)\n        .padding(.bottom, Spacing.sm)\n        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isDictating)\n        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: dictationService?.state == .processing)",
+          "replace": "        .padding(.top, Spacing.xs)\n        .padding(.bottom, Spacing.sm)"
+        },
+        {
+          "find": "        .animation(.easeOut(duration: 0.2), value: attachments.count)\n        .sheet(item: $previewingAttachment) { attachment in",
+          "replace": "        .sheet(item: $previewingAttachment) { attachment in"
+        },
+        {
+          "find": "        .accessibilityLabel(\"Attachments & tools\")\n        .animation(.easeInOut(duration: 0.15), value: hasActiveFeatures)",
+          "replace": "        .accessibilityLabel(\"Attachments & tools\")"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Chat/Views/ChatDetailView.swift",
+    "Open UI/Features/Chat/ViewModels/ChatViewModel.swift",
+    "Open UI/Shared/Components/ChatInputField.swift"
+  ]
+}
