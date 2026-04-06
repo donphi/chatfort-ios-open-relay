@@ -35,6 +35,25 @@ For the in-app preview PNG, export from Icon Composer: File → Export → save 
 `AppIcon-preview.png` (1024x1024). If you skip this, the CI build will generate
 it automatically via `ictool`.
 
+### Step 1b: Place Your Fonts (Optional)
+
+Custom fonts go in `Assets/Fonts/`, organized by family:
+
+```
+tools/BrandOverride/Assets/Fonts/
+  main/   StyreneB-{Thin,Light,Regular,Medium,Bold,Black}.otf
+  round/  CircularStd-{Book,Medium,Bold}.otf
+  mono/   ApercuMonoPro{Regular,Medium,Bold}.otf
+```
+
+The override script copies these into `Open UI/Resources/Fonts/` and
+`OpenUIWidgets/Fonts/`, registers them in both `Info.plist` files, and rewrites
+`Typography.swift` plus all direct `.font(.system())` call sites to use them.
+
+If you don't place fonts here, the `07_custom_fonts.json` config still runs
+but the file copies will fail gracefully and the string replacements will
+apply (falling back to system fonts via the `?? UIFont.systemFont(...)` guards).
+
 ### Step 2: Create a Backup
 
 Open Terminal, navigate to the repo, and run:
@@ -131,6 +150,8 @@ You can preview what it will do first:
 | `03_auth_token_refresh.json` | Adds OAuth2 refresh token support for persistent sessions |
 | `04_simplify_logout.json` | Simplifies logout to a single sign-out action |
 | `05_remove_advanced_screen.json` | Removes Advanced screen; auto-connect on every entry |
+| `06_snappy_performance.json` | Tightens animations and delays for a snappier UI |
+| `07_custom_fonts.json` | Replaces system fonts with Styrene B, Circular Std, Apercu Mono Pro |
 
 ### Documentation (`docs/`)
 
@@ -218,9 +239,25 @@ These are the popup messages iOS shows when the app asks for camera, microphone,
 | Privacy policy contact | GitHub link | `PRIVACY.md` | 52 | `Ichigo3766/Open-UI` | `donphi/chatfort-ios-chat-relay` | Yes |
 | Info.plist UTType | Share sheet label | `Info.plist` | 112 | `Open Relay Chat Item` | `ChatFort Chat Item` | Yes |
 
+### Typography / Fonts (Changed by `07_custom_fonts.json`)
+
+| Element | What It Controls | File | Handled by Scripts? |
+|---------|-----------------|------|---------------------|
+| Font mapping helper | `customFont(size:weight:design:)` → PostScript name | `Typography.swift` | Yes |
+| 15 static font constants | `displayLargeFont` through `codeLargeFont` | `Typography.swift` | Yes |
+| Scaled font modifier | `ScaledFontModifier` body | `Typography.swift` | Yes |
+| Scaled factory methods | Both `scaled()` overloads | `Typography.swift` | Yes |
+| UIKit input font (rounded) | `ChatInputField` / `ChannelInputField` | `ChatInputField.swift`, `ChannelInputField.swift` | Yes |
+| UIKit terminal font (mono) | `TerminalBrowserView` text field | `TerminalBrowserView.swift` | Yes |
+| CSS body font | HTML preview `font-family` | `HTMLPreviewView.swift` | Yes |
+| CSS code font | HTML preview monospaced `font-family` | `HTMLPreviewView.swift` | Yes |
+| Widget text fonts | 4 text `.font()` calls in widget | `OpenUIWidgets.swift` | Yes |
+| Direct `.font(.system())` calls | UsageInfoPopover, VoiceCallPillView, AccessibilitySettingsView, ChannelDetailView | Various | Yes (text only; SF Symbols keep system) |
+| Info.plist font registration | `UIAppFonts` array | `Info.plist` (both targets) | Yes |
+
 ### Theme and Visual Design (NOT Changed by Scripts)
 
-These control colors, spacing, fonts, and animations. They are not "brand strings" but
+These control colors, spacing, and animations. They are not "brand strings" but
 you can customize them by editing the upstream files directly if desired.
 
 | Element | What It Controls | File | File Type |
@@ -230,7 +267,6 @@ you can customize them by editing the upstream files directly if desired.
 | Accent color presets | The 12 accent colors in Settings | `Open UI/Core/Services/AppearanceManager.swift` | Swift |
 | Spacing grid | Padding, margins, gaps | `Open UI/Shared/Theme/DesignTokens.swift` | Swift |
 | Corner radii | How rounded things are | `Open UI/Shared/Theme/DesignTokens.swift` | Swift |
-| Typography scale | Font sizes and weights | `Open UI/Shared/Theme/Typography.swift` | Swift |
 | Animations | Motion timing and curves | `Open UI/Shared/Theme/Animations.swift` | Swift |
 | View styles | Reusable component styles | `Open UI/Shared/Theme/ViewStyles.swift` | Swift |
 

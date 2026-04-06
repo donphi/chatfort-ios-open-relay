@@ -179,6 +179,75 @@ display.
 
 ---
 
+## Custom Font Overrides (`configs/07_custom_fonts.json`)
+
+These are font-related string replacements and file operations applied by the
+`07_custom_fonts.json` modular config. They are NOT brand-string changes — they
+replace system font calls with custom font references.
+
+### Font File Copies
+
+| Source | Target | Purpose |
+|--------|--------|---------|
+| `Assets/Fonts/main/*.otf` (6 files) | `Open UI/Resources/Fonts/` | Main app body fonts |
+| `Assets/Fonts/round/*.otf` (3 files) | `Open UI/Resources/Fonts/` | Rounded (input field) fonts |
+| `Assets/Fonts/mono/*.otf` (3 files) | `Open UI/Resources/Fonts/` | Monospaced (code/terminal) fonts |
+| `Assets/Fonts/main/StyreneB-{Regular,Bold}.otf` | `OpenUIWidgets/Fonts/` | Widget text fonts |
+
+### Info.plist Font Registration
+
+| File | Change | Type |
+|------|--------|------|
+| `Open UI/Info.plist` | Inject `UIAppFonts` array with 12 font filenames | Build |
+| `OpenUIWidgets/Info.plist` | Inject `UIAppFonts` array with 2 font filenames | Build |
+
+### Typography.swift Rewrites
+
+| File | Change | Type |
+|------|--------|------|
+| `Typography.swift` | Add `customFont(size:weight:design:)` helper | Code |
+| `Typography.swift` | Rewrite 15 static font constants to use `customFont()` | Code |
+| `Typography.swift` | Rewrite both `scaled()` factories to use `customFont()` | Code |
+| `Typography.swift` | Rewrite `ScaledFontModifier` body to use `AppTypography.customFont()` | Code |
+
+### UIKit Font Replacements
+
+| File | Change | Type |
+|------|--------|------|
+| `ChatInputField.swift` | `UIFont.systemFont` + `.rounded` → `UIFont(name: "CircularStd-Book")` | Code |
+| `ChannelInputField.swift` | Same as ChatInputField | Code |
+| `TerminalBrowserView.swift` | `.monospacedSystemFont` → `UIFont(name: "ApercuMonoPro-Regular")` | Code |
+
+### CSS Font Replacements
+
+| File | Change | Type |
+|------|--------|------|
+| `HTMLPreviewView.swift` | Body `font-family` prepended with `'Styrene B'` | Code |
+| `HTMLPreviewView.swift` | Code `font-family` prepended with `'Apercu Mono Pro'` | Code |
+
+### Direct `.font(.system())` Replacements
+
+| File | Calls Changed | Notes |
+|------|---------------|-------|
+| `UsageInfoPopover.swift` | 4 | Text labels and values; SF Symbol icon kept as system |
+| `VoiceCallPillView.swift` | 1 | Monospaced timer; phone icon kept as system |
+| `AccessibilitySettingsView.swift` | 7 | Preview card text; SF Symbol icons and dynamic-weight expressions kept as system |
+| `ChannelDetailView.swift` | 1 | Reaction emoji text |
+| `OpenUIWidgets.swift` | 4 | Widget text labels; 7 SF Symbol icon calls kept as system |
+
+### NOT Changed (Font-Related)
+
+| Item | Why it stays as system font |
+|------|----------------------------|
+| SF Symbol `Image(systemName:)` font calls | SF Symbols only render correctly with system fonts |
+| `.fontWeight()` modifier calls | These modify existing fonts, not set new ones |
+| Semantic font styles (`.headline`, `.caption`, `.title3`, `.body`, `.footnote`) | Used in edge cases (loading screens, error sheets); acceptable as system |
+| `MessageReactionOverlay` emoji font | Emoji rendering depends on Apple's system emoji font |
+| `StreamingMarkdownView` / `MarkdownView` library | Uses `MarkdownTheme.default` which applies system body font; custom theme is a follow-up |
+| Dynamic weight expressions (`isSelected ? .semibold : .medium`) | Too complex for static find/replace |
+
+---
+
 ## Grand Total
 
 | Category | Files | Changes |
@@ -191,7 +260,13 @@ display.
 | Privacy policy | 1 | 5 |
 | Icon Composer bundles | 2 | 2 (bundle copies) |
 | Icon preview PNGs | 2 | 2 (file replacements) |
-| **TOTAL** | **14 files** | **45 changes** |
+| Custom font copies | 14 | 14 (file copies) |
+| Font registration (Info.plist) | 2 | 2 (UIAppFonts injection) |
+| Typography rewrites | 1 | 3 (helper + constants + modifier) |
+| UIKit font replacements | 3 | 3 |
+| CSS font replacements | 1 | 2 |
+| Direct .font() replacements | 5 | 17 |
+| **TOTAL** | **26+ files** | **86+ changes** |
 
 ---
 

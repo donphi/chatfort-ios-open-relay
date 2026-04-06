@@ -98,3 +98,64 @@ This is how the GitHub Actions CI build works — no manual export needed.
 - Test at small sizes using the preview size selector in Icon Composer
 - Apple's Human Interface Guidelines:
   https://developer.apple.com/design/human-interface-guidelines/app-icons
+
+---
+
+## Custom Fonts (`Fonts/`)
+
+Three font families replace the system fonts (SF Pro, SF Pro Rounded, SF Mono):
+
+```
+Fonts/
+  main/                         Replaces SF Pro (.default design)
+    StyreneB-Thin.otf           PostScript: StyreneB-Thin
+    StyreneB-Light.otf          PostScript: StyreneB-Light
+    StyreneB-Regular.otf        PostScript: StyreneB-Regular
+    StyreneB-Medium.otf         PostScript: StyreneB-Medium
+    StyreneB-Bold.otf           PostScript: StyreneB-Bold
+    StyreneB-Black.otf          PostScript: StyreneB-Black
+  round/                        Replaces SF Pro Rounded (.rounded design)
+    CircularStd-Book.otf        PostScript: CircularStd-Book
+    CircularStd-Medium.otf      PostScript: CircularStd-Medium
+    CircularStd-Bold.otf        PostScript: CircularStd-Bold
+  mono/                         Replaces SF Mono (.monospaced design)
+    ApercuMonoProRegular.otf    PostScript: ApercuMonoPro-Regular
+    ApercuMonoProMedium.otf     PostScript: ApercuMonoPro-Medium
+    ApercuMonoProBold.otf       PostScript: ApercuMonoPro-Bold
+```
+
+### Weight Mapping
+
+Styrene B has no `.semibold` variant. Both `.semibold` and `.bold` map to `StyreneB-Bold`.
+
+| SwiftUI Weight | Styrene B | Circular Std | Apercu Mono Pro |
+|----------------|-----------|--------------|-----------------|
+| `.thin` / `.ultraLight` / `.light` | StyreneB-Light | CircularStd-Book | ApercuMonoPro-Regular |
+| `.regular` | StyreneB-Regular | CircularStd-Book | ApercuMonoPro-Regular |
+| `.medium` | StyreneB-Medium | CircularStd-Medium | ApercuMonoPro-Medium |
+| `.semibold` | StyreneB-Bold | CircularStd-Medium | ApercuMonoPro-Bold |
+| `.bold` | StyreneB-Bold | CircularStd-Bold | ApercuMonoPro-Bold |
+| `.heavy` / `.black` | StyreneB-Black | CircularStd-Bold | ApercuMonoPro-Bold |
+
+### What the Override Script Does
+
+The `07_custom_fonts.json` config:
+
+1. **Copies** all 12 `.otf` files to `Open UI/Resources/Fonts/` (Xcode's filesystem
+   sync automatically bundles them — no `project.pbxproj` changes needed)
+2. **Copies** 2 widget-used fonts to `OpenUIWidgets/Fonts/`
+3. **Injects** `UIAppFonts` arrays into both `Info.plist` files (required for iOS to
+   load the fonts)
+4. **Rewrites** `Typography.swift` with a `customFont()` helper that maps
+   `Font.Weight` × `Font.Design` to PostScript names
+5. **Replaces** all direct `.font(.system(...))` text calls in 8+ Swift files
+6. **Prepends** custom font names to CSS `font-family` stacks in `HTMLPreviewView`
+
+### Swapping to a Different Custom Font
+
+To use different fonts:
+
+1. Replace the `.otf` files in `Fonts/main/`, `Fonts/round/`, and `Fonts/mono/`
+2. Run `fc-scan --format '%{postscriptname}\n' YourFont.otf` to get PostScript names
+3. Update all PostScript name strings in `07_custom_fonts.json`
+4. Run `./scripts/override.sh --dry-run` to verify

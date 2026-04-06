@@ -164,8 +164,9 @@ def main():
         shutil.copy2(str(pristine_file), str(target_file))
         restored += 1
 
-    # Clean up Icon Composer bundles and injected files that the override
-    # script copied (these don't exist in upstream, so they must be removed on restore)
+    # Clean up override-injected dirs/files that don't exist in upstream.
+    # Start with the hardcoded defaults, then merge any cleanup_on_restore
+    # entries declared by brand_config.json or modular configs/*.json files.
     cleanup_dirs = [
         "Open UI/AppIcon.icon",
         "OpenUIWidgets/AppIcon.icon",
@@ -173,6 +174,27 @@ def main():
     cleanup_files = [
         "Open UI/Features/Auth/Views/NativeProxyLoginView.swift",
     ]
+
+    all_cfgs = [config]
+    if CONFIGS_DIR.exists():
+        for cf in sorted(list(CONFIGS_DIR.glob("*.json")) + list(CONFIGS_DIR.glob("*.yaml")), key=lambda p: p.name):
+            try:
+                text = cf.read_text(encoding="utf-8")
+                parsed = json.loads(text) if cf.suffix == ".json" else {}
+                if parsed and isinstance(parsed, dict):
+                    all_cfgs.append(parsed)
+            except Exception:
+                pass
+
+    for cfg in all_cfgs:
+        cor = cfg.get("cleanup_on_restore", {})
+        for d in cor.get("dirs", []):
+            if d not in cleanup_dirs:
+                cleanup_dirs.append(d)
+        for f in cor.get("files", []):
+            if f not in cleanup_files:
+                cleanup_files.append(f)
+
     cleaned = 0
     for rel_path in cleanup_dirs:
         target_dir = REPO_ROOT / rel_path

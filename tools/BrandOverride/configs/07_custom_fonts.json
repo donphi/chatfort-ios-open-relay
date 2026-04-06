@@ -1,0 +1,212 @@
+{
+  "name": "custom_fonts",
+  "description": "Replace system fonts with Styrene B (body), Circular Std (rounded), and Apercu Mono Pro (monospaced)",
+  "version": "1.0",
+
+  "file_copies": [
+    { "source": "Assets/Fonts/main/StyreneB-Thin.otf",         "target": "Open UI/Resources/Fonts/StyreneB-Thin.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Light.otf",        "target": "Open UI/Resources/Fonts/StyreneB-Light.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Regular.otf",      "target": "Open UI/Resources/Fonts/StyreneB-Regular.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Medium.otf",       "target": "Open UI/Resources/Fonts/StyreneB-Medium.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Bold.otf",         "target": "Open UI/Resources/Fonts/StyreneB-Bold.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Black.otf",        "target": "Open UI/Resources/Fonts/StyreneB-Black.otf" },
+    { "source": "Assets/Fonts/round/CircularStd-Book.otf",     "target": "Open UI/Resources/Fonts/CircularStd-Book.otf" },
+    { "source": "Assets/Fonts/round/CircularStd-Medium.otf",   "target": "Open UI/Resources/Fonts/CircularStd-Medium.otf" },
+    { "source": "Assets/Fonts/round/CircularStd-Bold.otf",     "target": "Open UI/Resources/Fonts/CircularStd-Bold.otf" },
+    { "source": "Assets/Fonts/mono/ApercuMonoProRegular.otf",  "target": "Open UI/Resources/Fonts/ApercuMonoProRegular.otf" },
+    { "source": "Assets/Fonts/mono/ApercuMonoProMedium.otf",   "target": "Open UI/Resources/Fonts/ApercuMonoProMedium.otf" },
+    { "source": "Assets/Fonts/mono/ApercuMonoProBold.otf",     "target": "Open UI/Resources/Fonts/ApercuMonoProBold.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Regular.otf",      "target": "OpenUIWidgets/Fonts/StyreneB-Regular.otf" },
+    { "source": "Assets/Fonts/main/StyreneB-Bold.otf",         "target": "OpenUIWidgets/Fonts/StyreneB-Bold.otf" }
+  ],
+
+  "cleanup_on_restore": {
+    "dirs": [
+      "Open UI/Resources/Fonts",
+      "OpenUIWidgets/Fonts"
+    ],
+    "files": []
+  },
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Info.plist",
+      "replacements": [
+        {
+          "find": "</dict>\n</plist>",
+          "replace": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Thin.otf</string>\n\t\t<string>Fonts/StyreneB-Light.otf</string>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Medium.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t\t<string>Fonts/StyreneB-Black.otf</string>\n\t\t<string>Fonts/CircularStd-Book.otf</string>\n\t\t<string>Fonts/CircularStd-Medium.otf</string>\n\t\t<string>Fonts/CircularStd-Bold.otf</string>\n\t\t<string>Fonts/ApercuMonoProRegular.otf</string>\n\t\t<string>Fonts/ApercuMonoProMedium.otf</string>\n\t\t<string>Fonts/ApercuMonoProBold.otf</string>\n\t</array>\n</dict>\n</plist>"
+        }
+      ]
+    },
+    {
+      "file": "OpenUIWidgets/Info.plist",
+      "replacements": [
+        {
+          "find": "</dict>\n</plist>",
+          "replace": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t</array>\n</dict>\n</plist>"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Theme/Typography.swift",
+      "replacements": [
+        {
+          "find": "/// Uses the SF system fonts with carefully chosen sizes, weights, and\n/// line heights that support Dynamic Type.",
+          "replace": "/// Uses custom brand fonts (Styrene B, Circular Std, Apercu Mono Pro)\n/// with carefully chosen sizes, weights, and line heights that support Dynamic Type."
+        },
+        {
+          "find": "    // MARK: - Font Definitions (Base Sizes)\n\n    static let displayLargeFont: Font = .system(size: 48, weight: .bold, design: .default)\n    static let displayMediumFont: Font = .system(size: 36, weight: .bold, design: .default)\n    static let displaySmallFont: Font = .system(size: 32, weight: .bold, design: .default)\n\n    static let headlineLargeFont: Font = .system(size: 28, weight: .bold, design: .default)\n    static let headlineMediumFont: Font = .system(size: 24, weight: .semibold, design: .default)\n    static let headlineSmallFont: Font = .system(size: 20, weight: .semibold, design: .default)\n\n    static let bodyLargeFont: Font = .system(size: 18, weight: .regular, design: .default)\n    static let bodyMediumFont: Font = .system(size: 16, weight: .regular, design: .default)\n    static let bodySmallFont: Font = .system(size: 14, weight: .regular, design: .default)\n\n    static let labelLargeFont: Font = .system(size: 16, weight: .medium, design: .default)\n    static let labelMediumFont: Font = .system(size: 14, weight: .medium, design: .default)\n    static let labelSmallFont: Font = .system(size: 12, weight: .medium, design: .default)\n\n    static let captionFont: Font = .system(size: 12, weight: .medium, design: .default)\n    static let codeFont: Font = .system(size: 14, weight: .regular, design: .monospaced)\n    static let codeLargeFont: Font = .system(size: 16, weight: .regular, design: .monospaced)\n\n    // MARK: - Scaled Font Factory\n\n    /// Returns a font scaled by the given factor.\n    /// Preserves weight and design while adjusting the point size.\n    static func scaled(\n        baseSize: CGFloat,\n        weight: Font.Weight = .regular,\n        design: Font.Design = .default,\n        scale: CGFloat\n    ) -> Font {\n        .system(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)\n    }\n\n    /// Returns a system font scaled by the accessibility manager's factor\n    /// for the given context.\n    static func scaled(\n        baseSize: CGFloat,\n        weight: Font.Weight = .regular,\n        design: Font.Design = .default,\n        context: AccessibilityManager.FontContext,\n        manager: AccessibilityManager\n    ) -> Font {\n        let scale = manager.scale(for: context)\n        return .system(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)\n    }",
+          "replace": "    // MARK: - Custom Font Mapping\n\n    static func customFont(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {\n        let name: String\n        switch design {\n        case .monospaced:\n            switch weight {\n            case .semibold, .bold, .heavy, .black: name = \"ApercuMonoPro-Bold\"\n            case .medium: name = \"ApercuMonoPro-Medium\"\n            default: name = \"ApercuMonoPro-Regular\"\n            }\n        case .rounded:\n            switch weight {\n            case .bold, .heavy, .black: name = \"CircularStd-Bold\"\n            case .medium, .semibold: name = \"CircularStd-Medium\"\n            default: name = \"CircularStd-Book\"\n            }\n        default:\n            switch weight {\n            case .heavy, .black: name = \"StyreneB-Black\"\n            case .bold, .semibold: name = \"StyreneB-Bold\"\n            case .medium: name = \"StyreneB-Medium\"\n            case .light, .thin, .ultraLight: name = \"StyreneB-Light\"\n            default: name = \"StyreneB-Regular\"\n            }\n        }\n        return .custom(name, size: size)\n    }\n\n    // MARK: - Font Definitions (Base Sizes)\n\n    static let displayLargeFont: Font = customFont(size: 48, weight: .bold)\n    static let displayMediumFont: Font = customFont(size: 36, weight: .bold)\n    static let displaySmallFont: Font = customFont(size: 32, weight: .bold)\n\n    static let headlineLargeFont: Font = customFont(size: 28, weight: .bold)\n    static let headlineMediumFont: Font = customFont(size: 24, weight: .semibold)\n    static let headlineSmallFont: Font = customFont(size: 20, weight: .semibold)\n\n    static let bodyLargeFont: Font = customFont(size: 18)\n    static let bodyMediumFont: Font = customFont(size: 16)\n    static let bodySmallFont: Font = customFont(size: 14)\n\n    static let labelLargeFont: Font = customFont(size: 16, weight: .medium)\n    static let labelMediumFont: Font = customFont(size: 14, weight: .medium)\n    static let labelSmallFont: Font = customFont(size: 12, weight: .medium)\n\n    static let captionFont: Font = customFont(size: 12, weight: .medium)\n    static let codeFont: Font = customFont(size: 14, design: .monospaced)\n    static let codeLargeFont: Font = customFont(size: 16, design: .monospaced)\n\n    // MARK: - Scaled Font Factory\n\n    static func scaled(\n        baseSize: CGFloat,\n        weight: Font.Weight = .regular,\n        design: Font.Design = .default,\n        scale: CGFloat\n    ) -> Font {\n        customFont(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)\n    }\n\n    static func scaled(\n        baseSize: CGFloat,\n        weight: Font.Weight = .regular,\n        design: Font.Design = .default,\n        context: AccessibilityManager.FontContext,\n        manager: AccessibilityManager\n    ) -> Font {\n        let scale = manager.scale(for: context)\n        return customFont(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)\n    }"
+        },
+        {
+          "find": "        content.font(.system(\n            size: round(baseSize * scale * 10) / 10,\n            weight: weight,\n            design: design\n        ))",
+          "replace": "        content.font(AppTypography.customFont(\n            size: round(baseSize * scale * 10) / 10,\n            weight: weight,\n            design: design\n        ))"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChatInputField.swift",
+      "replacements": [
+        {
+          "find": "        let base = UIFont.systemFont(ofSize: size, weight: .regular)\n        if let rounded = base.fontDescriptor.withDesign(.rounded) {\n            return UIFont(descriptor: rounded, size: size)\n        }\n        return base",
+          "replace": "        return UIFont(name: \"CircularStd-Book\", size: size) ?? UIFont.systemFont(ofSize: size)"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChannelInputField.swift",
+      "replacements": [
+        {
+          "find": "        let base = UIFont.systemFont(ofSize: size, weight: .regular)\n        if let rounded = base.fontDescriptor.withDesign(.rounded) {\n            return UIFont(descriptor: rounded, size: size)\n        }\n        return base",
+          "replace": "        return UIFont(name: \"CircularStd-Book\", size: size) ?? UIFont.systemFont(ofSize: size)"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Terminal/Views/TerminalBrowserView.swift",
+      "replacements": [
+        {
+          "find": "field.font = .monospacedSystemFont(ofSize: 14, weight: .regular)",
+          "replace": "field.font = UIFont(name: \"ApercuMonoPro-Regular\", size: 14) ?? .monospacedSystemFont(ofSize: 14, weight: .regular)"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/HTMLPreviewView.swift",
+      "replacements": [
+        {
+          "find": "font-family: -apple-system, system-ui, sans-serif;",
+          "replace": "font-family: 'Styrene B', -apple-system, system-ui, sans-serif;"
+        },
+        {
+          "find": "font-family: ui-monospace, SFMono-Regular, Menlo, monospace;",
+          "replace": "font-family: 'Apercu Mono Pro', ui-monospace, SFMono-Regular, Menlo, monospace;"
+        }
+      ]
+    },
+    {
+      "file": "OpenUIWidgets/OpenUIWidgets.swift",
+      "replacements": [
+        {
+          "find": ".font(.system(size: 16, weight: .semibold))\n                        .foregroundStyle(.secondary)",
+          "replace": ".font(.custom(\"StyreneB-Bold\", size: 16))\n                        .foregroundStyle(.secondary)"
+        },
+        {
+          "find": ".font(.system(size: 10, weight: .semibold))\n                    .foregroundStyle(.secondary)",
+          "replace": ".font(.custom(\"StyreneB-Bold\", size: 10))\n                    .foregroundStyle(.secondary)"
+        },
+        {
+          "find": "Text(\"Open Relay\")\n                            .font(.system(size: 13, weight: .semibold))",
+          "replace": "Text(\"Open Relay\")\n                            .font(.custom(\"StyreneB-Bold\", size: 13))"
+        },
+        {
+          "find": "Text(\"Ask anything\")\n                            .font(.system(size: 11))",
+          "replace": "Text(\"Ask anything\")\n                            .font(.custom(\"StyreneB-Regular\", size: 11))"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/UsageInfoPopover.swift",
+      "replacements": [
+        {
+          "find": ".font(.system(size: 15, weight: .semibold))\n                .foregroundStyle(theme.textPrimary)",
+          "replace": ".font(.custom(\"StyreneB-Bold\", size: 15))\n                .foregroundStyle(theme.textPrimary)"
+        },
+        {
+          "find": ".font(.system(size: 10, weight: .bold))\n            .foregroundStyle(theme.textTertiary)",
+          "replace": ".font(.custom(\"StyreneB-Bold\", size: 10))\n            .foregroundStyle(theme.textTertiary)"
+        },
+        {
+          "find": ".font(.system(size: row.indent == 0 ? 13.5 : 12.5))\n                .foregroundStyle(row.indent == 0 ? theme.textSecondary : theme.textTertiary)",
+          "replace": ".font(.custom(\"StyreneB-Regular\", size: row.indent == 0 ? 13.5 : 12.5))\n                .foregroundStyle(row.indent == 0 ? theme.textSecondary : theme.textTertiary)"
+        },
+        {
+          "find": ".font(.system(size: row.indent == 0 ? 13.5 : 12.5, weight: .semibold).monospacedDigit())",
+          "replace": ".font(.custom(\"StyreneB-Bold\", size: row.indent == 0 ? 13.5 : 12.5).monospacedDigit())"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/VoiceCall/Views/VoiceCallPillView.swift",
+      "replacements": [
+        {
+          "find": ".font(.system(size: 10, weight: .semibold, design: .monospaced))",
+          "replace": ".font(.custom(\"ApercuMonoPro-Bold\", size: 10))"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Settings/Views/AccessibilitySettingsView.swift",
+      "replacements": [
+        {
+          "find": ".font(.system(size: 14 * manager.listTextScale, weight: .medium))",
+          "replace": ".font(.custom(\"StyreneB-Medium\", size: 14 * manager.listTextScale))"
+        },
+        {
+          "find": ".font(.system(size: 12 * manager.listTextScale, weight: .regular))",
+          "replace": ".font(.custom(\"StyreneB-Regular\", size: 12 * manager.listTextScale))"
+        },
+        {
+          "find": ".font(.system(size: 15 * manager.contentTextScale, weight: .regular))",
+          "replace": ".font(.custom(\"StyreneB-Regular\", size: 15 * manager.contentTextScale))"
+        },
+        {
+          "find": "Text(\"2m ago\")\n                        .font(.system(size: 10 * manager.uiScale, weight: .medium))",
+          "replace": "Text(\"2m ago\")\n                        .font(.custom(\"StyreneB-Medium\", size: 10 * manager.uiScale))"
+        },
+        {
+          "find": "Text(\"Assistant\")\n                            .font(.system(size: 10 * manager.uiScale, weight: .semibold))",
+          "replace": "Text(\"Assistant\")\n                            .font(.custom(\"StyreneB-Bold\", size: 10 * manager.uiScale))"
+        },
+        {
+          "find": ".font(.system(size: 14, weight: .semibold, design: .monospaced))",
+          "replace": ".font(.custom(\"ApercuMonoPro-Bold\", size: 14))"
+        },
+        {
+          "find": ".font(.system(size: 8, weight: .medium))\n                                    .foregroundStyle(theme.textTertiary)",
+          "replace": ".font(.custom(\"StyreneB-Medium\", size: 8))\n                                    .foregroundStyle(theme.textTertiary)"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Channels/Views/ChannelDetailView.swift",
+      "replacements": [
+        {
+          "find": ".font(.system(size: 13))\n                        if reaction.count > 1",
+          "replace": ".font(.custom(\"StyreneB-Regular\", size: 13))\n                        if reaction.count > 1"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Shared/Theme/Typography.swift",
+    "Open UI/Shared/Components/HTMLPreviewView.swift",
+    "Open UI/Features/Terminal/Views/TerminalBrowserView.swift",
+    "Open UI/Shared/Components/UsageInfoPopover.swift",
+    "Open UI/Features/VoiceCall/Views/VoiceCallPillView.swift",
+    "Open UI/Features/Settings/Views/AccessibilitySettingsView.swift",
+    "Open UI/Features/Channels/Views/ChannelDetailView.swift",
+    "OpenUIWidgets/Info.plist"
+  ]
+}
