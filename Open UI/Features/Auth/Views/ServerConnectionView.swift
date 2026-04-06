@@ -391,6 +391,11 @@ struct ServerConnectionView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.3)) {
                 appeared = true
             }
+            // ChatFort override: auto-connect when the server URL is pre-filled
+            // and no server has been saved yet (first launch).
+            if !viewModel.serverURL.isEmpty && !viewModel.isConnecting {
+                Task { await viewModel.connect() }
+            }
         }
         .fullScreenCover(isPresented: $viewModel.showCloudflareChallenge) {
             CloudflareChallengeView(

@@ -1358,18 +1358,21 @@ final class AuthViewModel {
         }
         dependencies?.refreshServices()
 
-        if !apiKey.isEmpty {
-            do {
-                currentUser = try await client.getCurrentUser()
-                cacheCurrentUser()
-                phase = .authenticated
-                startTokenRefreshTimer()
-                markOnboardingSeen()
-            } catch {
-                logger.warning("API key auth failed after proxy sign-in: \(error.localizedDescription)")
-                phase = .authMethodSelection
+        // ChatFort override: after proxy auth, try to auto-login using the
+        // proxy session cookies. The Authentik proxy cookies grant access to
+        // OpenWebUI's API, so we can skip the auth method selection screen.
+        do {
+            if !apiKey.isEmpty {
+                client.updateAuthToken(apiKey)
             }
-        } else {
+            currentUser = try await client.getCurrentUser()
+            cacheCurrentUser()
+            phase = .authenticated
+            startTokenRefreshTimer()
+            markOnboardingSeen()
+            logger.info("✅ Auto-login after proxy auth succeeded")
+        } catch {
+            logger.warning("Auto-login after proxy auth failed: \(error.localizedDescription). Falling back to auth method selection.")
             phase = .authMethodSelection
         }
 

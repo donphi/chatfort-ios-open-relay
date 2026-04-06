@@ -1,0 +1,31 @@
+{
+  "name": "auto_connect_flow",
+  "description": "Auto-connect on first launch and auto-login after Authentik proxy auth, skipping the Connect button and auth method selection screen",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+      "replacements": [
+        {
+          "find": "        .onAppear {\n            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1)) {\n                logoScale = 1.0\n                logoOpacity = 1.0\n            }\n            withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.3)) {\n                appeared = true\n            }\n        }",
+          "replace": "        .onAppear {\n            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1)) {\n                logoScale = 1.0\n                logoOpacity = 1.0\n            }\n            withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.3)) {\n                appeared = true\n            }\n            // ChatFort override: auto-connect when the server URL is pre-filled\n            // and no server has been saved yet (first launch).\n            if !viewModel.serverURL.isEmpty && !viewModel.isConnecting {\n                Task { await viewModel.connect() }\n            }\n        }"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+      "replacements": [
+        {
+          "find": "        if !apiKey.isEmpty {\n            do {\n                currentUser = try await client.getCurrentUser()\n                cacheCurrentUser()\n                phase = .authenticated\n                startTokenRefreshTimer()\n                markOnboardingSeen()\n            } catch {\n                logger.warning(\"API key auth failed after proxy sign-in: \\(error.localizedDescription)\")\n                phase = .authMethodSelection\n            }\n        } else {\n            phase = .authMethodSelection\n        }\n\n        isConnecting = false\n    }\n\n    /// Called when the user dismisses the proxy auth challenge without completing it.\n    func dismissProxyAuthChallenge() {",
+          "replace": "        // ChatFort override: after proxy auth, try to auto-login using the\n        // proxy session cookies. The Authentik proxy cookies grant access to\n        // OpenWebUI's API, so we can skip the auth method selection screen.\n        do {\n            if !apiKey.isEmpty {\n                client.updateAuthToken(apiKey)\n            }\n            currentUser = try await client.getCurrentUser()\n            cacheCurrentUser()\n            phase = .authenticated\n            startTokenRefreshTimer()\n            markOnboardingSeen()\n            logger.info(\"✅ Auto-login after proxy auth succeeded\")\n        } catch {\n            logger.warning(\"Auto-login after proxy auth failed: \\(error.localizedDescription). Falling back to auth method selection.\")\n            phase = .authMethodSelection\n        }\n\n        isConnecting = false\n    }\n\n    /// Called when the user dismisses the proxy auth challenge without completing it.\n    func dismissProxyAuthChallenge() {"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Auth/Views/ServerConnectionView.swift",
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift"
+  ]
+}
