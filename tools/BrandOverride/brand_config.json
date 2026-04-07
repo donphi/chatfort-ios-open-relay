@@ -383,7 +383,8 @@
     "Gemfile",
     "github_ios_build.md",
     "xcode_ios_build.md",
-    "translate_missing.py"
+    "translate_missing.py",
+    "README.md"
   ],
 
   "files_to_backup": [
