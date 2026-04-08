@@ -453,6 +453,7 @@ The `configs/` directory currently contains:
 | `05_remove_advanced_screen.json` | Remove Advanced screen; auto-connect on every entry to `.serverConnection` | `Open_UIApp.swift`, `AuthViewModel.swift` |
 | `06_snappy_performance.json` | Tighten animations and reduce delays for a snappier chat UI | `DesignTokens.swift`, `Animations.swift`, and others |
 | `07_custom_fonts.json` | Replace system fonts with Styrene B / Circular Std / Apercu Mono Pro | `Typography.swift`, `ChatInputField.swift`, `ChannelInputField.swift`, `TerminalBrowserView.swift`, `HTMLPreviewView.swift`, `OpenUIWidgets.swift`, `UsageInfoPopover.swift`, `VoiceCallPillView.swift`, `AccessibilitySettingsView.swift`, `ChannelDetailView.swift`, both `Info.plist` files |
+| `06_chat_scroll_fix.json` | Replace SwiftUI scroll-correction loop with synchronous UIKit KVO bottom-pinning | `ChatDetailView.swift`, `ChannelDetailView.swift` |
 
 ### Config File Schema
 
@@ -624,6 +625,8 @@ The script will print a "File not found" warning. To fix:
 | `OpenUIWidgets/Info.plist` | UIAppFonts registration | `07_custom_fonts.json` | Low |
 | `Open UI/Resources/Fonts/*.otf` | 12 font files copied from Assets | `07_custom_fonts.json` | N/A (new) |
 | `OpenUIWidgets/Fonts/*.otf` | 2 font files copied for widget | `07_custom_fonts.json` | N/A (new) |
+| `Open UI/Features/Chat/Views/ChatDetailView.swift` | 4 replacements (scroll state, onChange, geometry handlers, ScrollViewHorizontalLock→ChatScrollController) | `06_chat_scroll_fix.json` | Medium |
+| `Open UI/Features/Channels/Views/ChannelDetailView.swift` | 3 replacements (scroll state, geometry handlers, inject ChannelScrollController) | `06_chat_scroll_fix.json` | Medium |
 
 ---
 
