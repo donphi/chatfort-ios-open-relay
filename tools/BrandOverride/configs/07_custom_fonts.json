@@ -33,6 +33,10 @@
       "file": "Open UI/Info.plist",
       "replacements": [
         {
+          "find": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Thin.otf</string>\n\t\t<string>Fonts/StyreneB-Light.otf</string>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Medium.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t\t<string>Fonts/StyreneB-Black.otf</string>\n\t\t<string>Fonts/CircularStd-Book.otf</string>\n\t\t<string>Fonts/CircularStd-Medium.otf</string>\n\t\t<string>Fonts/CircularStd-Bold.otf</string>\n\t\t<string>Fonts/ApercuMonoProRegular.otf</string>\n\t\t<string>Fonts/ApercuMonoProMedium.otf</string>\n\t\t<string>Fonts/ApercuMonoProBold.otf</string>\n\t</array>\n</dict>\n</plist>",
+          "replace": "</dict>\n</plist>"
+        },
+        {
           "find": "</dict>\n</plist>",
           "replace": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Thin.otf</string>\n\t\t<string>Fonts/StyreneB-Light.otf</string>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Medium.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t\t<string>Fonts/StyreneB-Black.otf</string>\n\t\t<string>Fonts/CircularStd-Book.otf</string>\n\t\t<string>Fonts/CircularStd-Medium.otf</string>\n\t\t<string>Fonts/CircularStd-Bold.otf</string>\n\t\t<string>Fonts/ApercuMonoProRegular.otf</string>\n\t\t<string>Fonts/ApercuMonoProMedium.otf</string>\n\t\t<string>Fonts/ApercuMonoProBold.otf</string>\n\t</array>\n</dict>\n</plist>"
         }
@@ -41,6 +45,10 @@
     {
       "file": "OpenUIWidgets/Info.plist",
       "replacements": [
+        {
+          "find": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t</array>\n</dict>\n</plist>",
+          "replace": "</dict>\n</plist>"
+        },
         {
           "find": "</dict>\n</plist>",
           "replace": "\t<key>UIAppFonts</key>\n\t<array>\n\t\t<string>Fonts/StyreneB-Regular.otf</string>\n\t\t<string>Fonts/StyreneB-Bold.otf</string>\n\t</array>\n</dict>\n</plist>"

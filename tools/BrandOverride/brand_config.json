@@ -151,7 +151,7 @@
       "file": "Open UI/Features/Auth/Views/ServerConnectionView.swift",
       "replacements": [
         {
-          "find": "Text(\"Open UI\")",
+          "find": "Text(\"Open Relay\")",
           "replace": "Text(\"ChatFort\")"
         },
         {
@@ -233,6 +233,10 @@
         {
           "find": "<string>Open Relay Chat Item</string>",
           "replace": "<string>ChatFort Chat Item</string>"
+        },
+        {
+          "find": "<string>Open Relay uses your location to provide location-aware responses when you enable the Share Location feature in Privacy &amp; Security settings.</string>",
+          "replace": "<string>ChatFort uses your location to provide location-aware responses when you enable the Share Location feature in Privacy &amp; Security settings.</string>"
         },
         {
           "find": "<string>com.openui.openui</string>",
@@ -368,11 +372,11 @@
   "icon_files": [
     {
       "source": "Assets/AppIcon-preview.png",
-      "target": "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+      "target": "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
     },
     {
       "source": "Assets/AppIcon-preview.png",
-      "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+      "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
     }
   ],
 
@@ -407,7 +411,7 @@
     "PRIVACY.md",
     "fastlane/Fastfile",
     "fastlane/Matchfile",
-    "Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png",
-    "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png"
+    "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png",
+    "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
   ]
 }

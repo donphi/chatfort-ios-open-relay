@@ -99,7 +99,7 @@ This is the "About" page in Settings. It shows the app name, tagline, credits, a
 
 | File | Line | Current Value | Desired Value | Type | Risk | Impact |
 |------|------|---------------|---------------|------|------|--------|
-| `Open UI/Features/Auth/Views/ServerConnectionView.swift` | 234 | `Text("Open UI")` | `Text("ChatFort")` | UI | Medium | Large title on the server connection screen |
+| `Open UI/Features/Auth/Views/ServerConnectionView.swift` | 235 | `Text("Open Relay")` | `Text("ChatFort")` | UI | Medium | Large title on the server connection screen (renamed from `Text("Open UI")` in upstream 3.2.1) |
 
 **Total: 1 change in this file.**
 
@@ -145,8 +145,9 @@ This is the "About" page in Settings. It shows the app name, tagline, credits, a
 | File | Line | Current Value | Desired Value | Type | Risk | Impact |
 |------|------|---------------|---------------|------|------|--------|
 | `Open UI/Info.plist` | 112 | `<string>Open Relay Chat Item</string>` | `<string>ChatFort Chat Item</string>` | Build | Low | UTType description (shown in share sheets) |
+| `Open UI/Info.plist` | 38 | `<string>Open Relay uses your location to provide location-aware responses…</string>` | `<string>ChatFort uses your location…</string>` | Build | Low | Location permission prompt shown to the user |
 
-**Total: 1 change in this file.**
+**Total: 2 changes in this file.**
 
 ---
 
@@ -174,8 +175,8 @@ display.
 |------|------|-----------------------|
 | `Open UI/AppIcon.icon` | Icon Composer bundle (home screen, App Store, all appearances) | Shows original Open Relay icon |
 | `OpenUIWidgets/AppIcon.icon` | Icon Composer bundle (widget icon) | Widget shows original icon |
-| `Open UI/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | In-app preview (About, Onboarding, Login screens) | Shows original icon in UI |
-| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/IMG_0816.png` | Widget in-app preview | Widget shows original icon |
+| `Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png` | In-app preview (About, Onboarding, Login screens) — overwritten with `AppIcon-preview.png`; filename referenced in `Contents.json` (upstream 3.2.1 changed from `IMG_0816.png`) | Shows original Open Relay icon in UI |
+| `OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png` | Widget in-app preview — same as above | Widget shows original icon |
 
 ---
 
@@ -256,7 +257,7 @@ replace system font calls with custom font references.
 | Swift UI views | 4 | 13 |
 | Widget Swift files | 2 | 7 |
 | Siri Intents | 1 | 1 |
-| Info.plist | 1 | 1 |
+| Info.plist | 1 | 2 |
 | Privacy policy | 1 | 5 |
 | Icon Composer bundles | 2 | 2 (bundle copies) |
 | Icon preview PNGs | 2 | 2 (file replacements) |
