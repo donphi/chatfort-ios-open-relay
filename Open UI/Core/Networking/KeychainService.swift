@@ -166,6 +166,63 @@ final class KeychainService: Sendable {
         return status == errSecSuccess || status == errSecItemNotFound
     }
 
+    // MARK: - Refresh Token Storage (ChatFort Override)
+
+    /// Saves an OAuth2 refresh token for the given server URL.
+    @discardableResult
+    func saveRefreshToken(_ token: String, forServer serverURL: String) -> Bool {
+        guard let tokenData = token.data(using: .utf8) else { return false }
+        let account = refreshTokenKey(for: serverURL)
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: tokenData,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        return SecItemAdd(addQuery as CFDictionary, nil) == errSecSuccess
+    }
+
+    /// Retrieves the OAuth2 refresh token for the given server URL.
+    func getRefreshToken(forServer serverURL: String) -> String? {
+        let account = refreshTokenKey(for: serverURL)
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    /// Removes the OAuth2 refresh token for the given server URL.
+    @discardableResult
+    func deleteRefreshToken(forServer serverURL: String) -> Bool {
+        let account = refreshTokenKey(for: serverURL)
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceName,
+            kSecAttrAccount as String: account
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        return status == errSecSuccess || status == errSecItemNotFound
+    }
+
+    /// Checks whether a refresh token exists for the given server URL.
+    func hasRefreshToken(forServer serverURL: String) -> Bool {
+        getRefreshToken(forServer: serverURL) != nil
+    }
+
     // MARK: - Private
 
     /// Derives a stable Keychain account key from a server URL.
@@ -178,6 +235,12 @@ final class KeychainService: Sendable {
     private func accountKey(for serverURL: String, userId: String) -> String {
         let normalized = normalizeURL(serverURL)
         return "token:\(normalized)::\(userId)"
+    }
+
+    /// Derives a Keychain account key for refresh tokens.
+    private func refreshTokenKey(for serverURL: String) -> String {
+        let normalized = normalizeURL(serverURL)
+        return "refresh_token:\(normalized)"
     }
 
     /// Normalizes a URL for use as a Keychain key component.

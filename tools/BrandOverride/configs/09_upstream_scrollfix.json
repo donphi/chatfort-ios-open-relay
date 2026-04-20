@@ -1,0 +1,25 @@
+{
+  "name": "upstream_scrollfix",
+  "description": "Fix two bugs introduced by the upstream scrolling commits: (1) ScrollViewHorizontalLock() call not updated to ChatScrollController, (2) ChatScrollController is private but used cross-file from ChannelDetailView",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Chat/Views/ChatDetailView.swift",
+      "replacements": [
+        {
+          "find": "        .background(ScrollViewHorizontalLock())",
+          "replace": "        .background(ChatScrollController(isScrolledUp: $isScrolledUp, containerHeight: $viewState_containerHeight))"
+        },
+        {
+          "find": "private struct ChatScrollController: UIViewRepresentable {",
+          "replace": "struct ChatScrollController: UIViewRepresentable {"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Chat/Views/ChatDetailView.swift"
+  ]
+}

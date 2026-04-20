@@ -997,7 +997,7 @@ struct ChatDetailView: View {
             .frame(maxWidth: .infinity)
             .clipped()
         }
-        .background(ScrollViewHorizontalLock())
+        .background(ChatScrollController(isScrolledUp: $isScrolledUp, containerHeight: $viewState_containerHeight))
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(editingMessageId != nil ? .never : .interactively)
         .defaultScrollAnchor(.bottom)
@@ -3379,7 +3379,7 @@ struct ShareSheetView: UIViewControllerRepresentable {
 ///
 /// 4. **Container height:** Exposes the scroll view's visible height via a binding
 ///    so the parent can use it for `minHeight` frame constraints.
-private struct ChatScrollController: UIViewRepresentable {
+struct ChatScrollController: UIViewRepresentable {
     @Binding var isScrolledUp: Bool
     @Binding var containerHeight: CGFloat
 
