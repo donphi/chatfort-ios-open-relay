@@ -35,7 +35,7 @@
 		</dict>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Open Relay uses your location to provide location-aware responses when you enable the Share Location feature in Privacy &amp; Security settings.</string>
+	<string>ChatFort uses your location to provide location-aware responses when you enable the Share Location feature in Privacy &amp; Security settings.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -119,21 +119,6 @@
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict/>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Fonts/StyreneB-Thin.otf</string>
-		<string>Fonts/StyreneB-Light.otf</string>
-		<string>Fonts/StyreneB-Regular.otf</string>
-		<string>Fonts/StyreneB-Medium.otf</string>
-		<string>Fonts/StyreneB-Bold.otf</string>
-		<string>Fonts/StyreneB-Black.otf</string>
-		<string>Fonts/CircularStd-Book.otf</string>
-		<string>Fonts/CircularStd-Medium.otf</string>
-		<string>Fonts/CircularStd-Bold.otf</string>
-		<string>Fonts/ApercuMonoProRegular.otf</string>
-		<string>Fonts/ApercuMonoProMedium.otf</string>
-		<string>Fonts/ApercuMonoProBold.otf</string>
 	</array>
 	<key>UIAppFonts</key>
 	<array>

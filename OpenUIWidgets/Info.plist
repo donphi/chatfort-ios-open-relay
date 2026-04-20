@@ -12,10 +12,5 @@
 		<string>Fonts/StyreneB-Regular.otf</string>
 		<string>Fonts/StyreneB-Bold.otf</string>
 	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Fonts/StyreneB-Regular.otf</string>
-		<string>Fonts/StyreneB-Bold.otf</string>
-	</array>
 </dict>
 </plist>
