@@ -228,7 +228,7 @@ struct HTMLPreviewView: View {
                     padding: 4px 0;
                     background: \(bgColor);
                     color: \(textColor);
-                    font-family: -apple-system, system-ui, sans-serif;
+                    font-family: 'Styrene B', -apple-system, system-ui, sans-serif;
                     font-size: 14px;
                     line-height: 1.5;
                     -webkit-text-size-adjust: 100%;
@@ -254,7 +254,7 @@ struct HTMLPreviewView: View {
                     font-weight: 600;
                 }
                 pre, code {
-                    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                    font-family: 'Apercu Mono Pro', ui-monospace, SFMono-Regular, Menlo, monospace;
                     font-size: 12px;
                     background: \(isDark ? "#2c2c2e" : "#f2f2f7");
                     border-radius: 4px;

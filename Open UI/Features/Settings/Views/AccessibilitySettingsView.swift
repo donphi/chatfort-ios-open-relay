@@ -122,11 +122,11 @@ struct AccessibilitySettingsView: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Trip to Tokyo Planning")
-                            .font(.system(size: 14 * manager.listTextScale, weight: .medium))
+                            .font(.custom("StyreneB-Medium", size: 14 * manager.listTextScale))
                             .foregroundStyle(theme.textPrimary)
                             .lineLimit(1)
                         Text("Help me plan a week-long trip…")
-                            .font(.system(size: 12 * manager.listTextScale, weight: .regular))
+                            .font(.custom("StyreneB-Regular", size: 12 * manager.listTextScale))
                             .foregroundStyle(theme.textSecondary)
                             .lineLimit(1)
                     }
@@ -134,7 +134,7 @@ struct AccessibilitySettingsView: View {
                     Spacer()
 
                     Text("2m ago")
-                        .font(.system(size: 10 * manager.uiScale, weight: .medium))
+                        .font(.custom("StyreneB-Medium", size: 10 * manager.uiScale))
                         .foregroundStyle(theme.textTertiary)
                 }
                 .padding(.bottom, 4)
@@ -159,11 +159,11 @@ struct AccessibilitySettingsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Assistant")
-                            .font(.system(size: 10 * manager.uiScale, weight: .semibold))
+                            .font(.custom("StyreneB-Bold", size: 10 * manager.uiScale))
                             .foregroundStyle(theme.textTertiary)
 
                         Text("Here's a 7-day itinerary for Tokyo! Day 1: Explore Shibuya and Harajuku.")
-                            .font(.system(size: 15 * manager.contentTextScale, weight: .regular))
+                            .font(.custom("StyreneB-Regular", size: 15 * manager.contentTextScale))
                             .foregroundStyle(theme.chatBubbleAssistantText)
                             .lineSpacing(2 * manager.contentTextScale)
                     }
@@ -176,7 +176,7 @@ struct AccessibilitySettingsView: View {
                     Spacer(minLength: 40)
 
                     Text("What about budget tips?")
-                        .font(.system(size: 15 * manager.contentTextScale, weight: .regular))
+                        .font(.custom("StyreneB-Regular", size: 15 * manager.contentTextScale))
                         .foregroundStyle(theme.chatBubbleUserText)
                         .padding(.horizontal, 12 * manager.uiScale)
                         .padding(.vertical, 8 * manager.uiScale)
@@ -278,7 +278,7 @@ struct AccessibilitySettingsView: View {
                 Spacer()
 
                 Text("\(Int(round(value.wrappedValue * 100)))%")
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .font(.custom("ApercuMonoPro-Bold", size: 14))
                     .foregroundStyle(theme.brandPrimary)
                     .frame(minWidth: 44, alignment: .trailing)
             }
@@ -313,7 +313,7 @@ struct AccessibilitySettingsView: View {
                                 .frame(width: 4, height: 4)
                             if tick == 1.0 {
                                 Text("Default")
-                                    .font(.system(size: 8, weight: .medium))
+                                    .font(.custom("StyreneB-Medium", size: 8))
                                     .foregroundStyle(theme.textTertiary)
                             }
                         }

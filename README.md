@@ -1,158 +1,184 @@
-# Open Relay
+# ChatFort
 
-> **ℹ️ Previously known as "Open UI"** — The app was renamed to **Open Relay** starting with v2.0.0. The Xcode project files still use the original "Open UI" name internally, but the GitHub repo, App Store listing, and all display names are now **Open Relay**.
+A rebranded, self-hosted iOS client for AI chat — built as a non-invasive overlay on top of [Open Relay](https://github.com/Ichigo3766/Open-Relay).
 
-**A beautiful, native iOS & iPadOS client for [Open WebUI](https://openwebui.com).**
-
-Chat with any AI model on your self-hosted Open WebUI server — right from your iPhone or iPad. Open Relay is built 100% in SwiftUI and brings a fast, polished, native experience that the PWA can't match.
-
-<p align="center">
-  <a href="https://apps.apple.com/app/id6759630325">
-    <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="50">
-  </a>
-</p>
-
-<p align="center">
-  <img src="openui.gif" alt="Open Relay Demo" width="300">
-</p>
+> **This is a fork.** The upstream project is [Ichigo3766/Open-Relay](https://github.com/Ichigo3766/Open-Relay), a native SwiftUI iOS & iPadOS client for [Open WebUI](https://openwebui.com). Full credit to the original author. This fork changes zero upstream files — everything is applied through a scripted overlay system that can be cleanly reverted at any time.
 
 ---
 
-## What It Does
+## Why This Exists
 
-Open Relay connects to your Open WebUI server and lets you have conversations with any AI model you've configured — it's like having ChatGPT on your phone, but pointed at *your* server and *your* models.
+I was using three separate apps daily — Claude, ChatGPT, and Gemini — each with its own interface, its own conversation history, and its own data silo. Conversations were locked inside each provider's cloud with no way to export, search across, or train on them later.
 
----
+The goal was simple: **one app on my phone that replaces all three.**
 
-## Features
+The requirements were specific:
 
-**🗨️ Streaming Chat with Full Markdown** — Real-time word-by-word streaming with complete markdown support — syntax-highlighted code blocks (with language detection and copy button), tables, math equations, block quotes, headings, inline code, links, and more. Everything renders beautifully as it streams in.
+- **Single interface** — one app instead of three, with a UI polished enough that I wouldn't reach for the originals
+- **Self-hosted backend** — conversations stored on my own [Open WebUI](https://openwebui.com) server, not in provider clouds
+- **Model-agnostic** — talk to Claude, GPT, Gemini, or any other model through the same interface
+- **Conversation ownership** — all chat history retained locally where it can be searched, exported, or used for fine-tuning later
+- **No performance compromise** — the app had to match the responsiveness of the native first-party apps to actually replace them
 
-**🖥️ Terminal Integration** — Enable terminal access for AI models directly from the chat input, giving the model the ability to run commands, manage files, and interact with a real Linux environment. Swipe from the right edge to open a slide-over file panel with directory navigation, breadcrumb path bar, file upload, folder creation, file preview/download, and a built-in mini terminal.
-
-**@ Model Mentions** — Type `@` in the chat input to instantly switch which model handles your message. Pick from a fluent popup, and a persistent chip appears in the composer showing the active override. Switch models mid-conversation without changing the chat's default.
-
-**\$ Skills** — Type `$` in the chat input to browse and apply your Open WebUI skills directly from the composer.
-
-**/ Prompt Library** — Type `/` in the chat input to browse and search your Open WebUI prompt library with slash commands.
-
-**📐 Native SVG & Mermaid Rendering** — AI-generated SVG code blocks render as crisp, zoomable images with a header bar, Image/Source toggle, copy button, and fullscreen view with pinch-to-zoom. Mermaid diagrams (flowcharts, state, sequence, class, and ER) also render as beautiful inline images.
-
-**🌐 Rich HTML Embeds** — Tools that return interactive HTML (audio players, video, cards, dashboards, charts, forms, SMS composers, and more) render inline in chat as live, interactive webviews.
-
-**📞 Voice Calls with AI** — Call your AI like a phone call using Apple's CallKit — it shows up and feels like a real iOS call. An animated orb visualization reacts to your voice and the AI's response in real-time. Calls default to loudspeaker with a speaker toggle to switch to earpiece.
-
-**🧠 Reasoning / Thinking Display** — When your model uses chain-of-thought reasoning (like DeepSeek, QwQ, etc.), the app shows collapsible "Thought for X seconds" blocks. Expand them to see the full reasoning process.
-
-**📚 Knowledge Bases (RAG)** — Type `#` in the chat input for a searchable picker for your knowledge collections, folders, and files. Works exactly like the web UI's `#` picker.
-
-**🛠️ Tools & Workspace Management** — All your server-side tools show up in a tools menu. Toggle them on/off per conversation. Tool calls are rendered inline with collapsible argument/result views. Manage your models, knowledge bases, prompts, skills, and tools directly from the app via the Workspace section.
-
-**🧠 Memories** — View, add, edit, and delete AI memories (Settings → Personalization → Memories) that persist across conversations.
-
-**🎙️ On-Device TTS (Marvis Neural Voice)** — Built-in on-device text-to-speech powered by MLX. Downloads a \~250MB model once, then runs completely locally — no data leaves your phone. You can also use Apple's system voices or your server's TTS with voice selection.
-
-**🎤 On-Device Speech-to-Text** — Voice input with Apple's on-device speech recognition, your server's STT endpoint (fully supports live mic and voice calls), or an on-device Qwen3 ASR model for offline transcription.
-
-**📎 Rich Attachments** — Attach files, photos (library or camera), paste images directly into chat. Share Extension lets you share content from any app into Open Relay. Images are automatically downsampled before upload to stay within API limits.
-
-**📁 Folders & Organization** — Organize conversations into folders with drag-and-drop. Folders support full project workspace configuration — set a name, system prompt, default model, and attached knowledge bases. Pin chats. Search across everything. Bulk select, delete, and **Archive All Chats** in one tap.
-
-**💬 Channels** — Collaborative, topic-based chat rooms where multiple users and AI models interact, grouped by Direct Messages, Groups, and Channels.
-
-**🗂️ Archived & Shared Chats** — Browse all archived chats and restore them individually or all at once. Manage all shared conversations — copy share links or revoke access — from the chat list menu.
-
-**📊 Token Usage** — Tap the ⓘ info icon in the assistant action bar to see per-message token stats.
-
-**🔗 Multi-Server Support** — Save multiple Open WebUI server connections and switch between them instantly from Settings or the server connection screen.
-
-**🔐 Full Auth Support** — Username/password, LDAP, SSO, and auth proxy support (Authelia, Authentik, Keycloak, oauth2-proxy, etc.). Tokens stored in iOS Keychain. Custom headers on sign-in.
-
-**🎨 Deep Theming** — Full accent color picker with presets and a custom color wheel. Pure black OLED mode. Tinted surfaces. Live preview as you customize.
-
-**♿ Accessibility** — Independently adjust message text size, conversation title size, and UI element scaling (buttons, icons, spacing) with live preview and quick presets.
-
-**⚡ Quick Action Pills** — Configurable quick-toggle pills for web search, image generation, or any server tool. One tap to enable/disable without opening a menu.
-
-**🔔 Background Notifications** — Get notified when a generation finishes while you're in another app.
-
-**📝 Notes** — Built-in notes alongside your chats, with audio recording support.
-
-**🏠 Home Screen Widgets & Shortcuts** — Start a chat directly from a home screen widget or your iPhone's Action Button using Shortcuts integration.
-
-**📱 iPad Native Layout** — Full persistent sidebar, centered reading width, 4-column prompt grid, and terminal as a persistent panel. Optimized for both iPhone and iPad.
-
-**🌍 Landscape Mode** — Full landscape support on iPhone.
-
-### ⚙️ Additional Settings
-- **Default model picker** synced with your server — redesigned as a native bottom sheet with search and filter pills
-- **Send on Enter** toggle (Enter sends vs. newline; hardware keyboard on iPad always uses Enter-to-send)
-- **Streaming haptics** — feel each token as it arrives
-- **Temporary chats** — conversations not saved to the server for privacy
-- **TTS engine selection** with per-engine configuration and voice selection
-- **STT engine selection** with silence duration control and language selection
-- **Cloudflare protection** — automatically handles Cloudflare-protected endpoints
+Open Relay was the closest thing to what I needed — a well-built native iOS client for Open WebUI. But it needed branding, authentication, and UX adjustments to work with my infrastructure. Rather than maintaining a diverging fork that would constantly conflict with upstream, I built an overlay system that applies all changes non-destructively.
 
 ---
 
-## Requirements
+## What This Fork Adds
 
-- **iOS 18.0** or later
-- **Xcode 16.0** or later (Swift 6.0+)
-- A running **[Open WebUI](https://openwebui.com)** server instance accessible from your device
+No upstream files are modified directly. All changes are applied by Python scripts in [`tools/BrandOverride/`](tools/BrandOverride/) and reverted cleanly before pulling upstream updates. The overlay covers:
+
+| Layer | What changes |
+|-------|-------------|
+| **Branding** | App name, bundle IDs, icons, about screen, privacy policy, widget copy |
+| **Authentication** | Native Authentik login flow (replaces WebView), OAuth2 refresh tokens, simplified logout |
+| **Server config** | Pre-filled server URL, hidden connection UI, auto-connect on launch |
+| **UX polish** | Tighter animations, snappier scroll behaviour, custom font stack (Styrene B, Circular Std, Apercu Mono Pro) |
+| **CI/CD** | GitHub Actions workflows + Fastlane lanes for automated TestFlight builds |
 
 ---
 
-## Build & Run Locally
+## How the Overlay Works
 
-### 1. Clone the Repository
+```mermaid
+flowchart LR
+    subgraph upstream [Upstream]
+        A[Ichigo3766/Open-Relay]
+    end
 
-```bash
-git clone https://github.com/ichigo3766/Open-Relay.git
-cd Open-Relay
+    subgraph fork [This Fork]
+        B[sync.sh]
+        C[backup.sh]
+        D[override.sh]
+        E[BrandOverride configs]
+    end
+
+    subgraph output [Output]
+        F[ChatFort.ipa]
+        G[TestFlight]
+    end
+
+    A -->|"git fetch + reset"| B
+    B -->|"snapshot pristine state"| C
+    C --> D
+    E --> D
+    D -->|"apply branding + auth + UX"| F
+    F -->|"Fastlane + GitHub Actions"| G
 ```
 
-### 2. Open in Xcode
+The workflow:
 
-```bash
-open "Open UI.xcodeproj"
+1. **Sync** — `sync.sh` fetches the latest upstream, stashes fork-only files, hard-resets to `upstream/main`, then restores them. No merge conflicts, ever.
+2. **Backup** — `backup.sh` snapshots every file the override will touch into a versioned `pristine/` directory.
+3. **Override** — `override.sh` reads `brand_config.json` and eight modular config files in `configs/`, applies string replacements, copies assets, and injects the native login view. `--dry-run` previews everything first.
+4. **Restore** — `restore.sh` copies the pristine snapshots back, reverting the repo to exact upstream state.
+
+Every override is declarative JSON. The scripts are deterministic — same config, same output, every time.
+
+---
+
+## GitHub-Native Build Pipeline
+
+The entire build runs on GitHub Actions. No Xcode install, no Mac required. Push a commit or trigger the workflow from the GitHub UI on any device — the pipeline applies overrides, signs the app, and uploads to TestFlight automatically.
+
+```mermaid
+flowchart TD
+    subgraph trigger [Trigger]
+        T1[Manual dispatch]
+        T2[Scheduled bi-weekly]
+    end
+
+    subgraph ci [GitHub Actions — macOS runner]
+        S1[Checkout repo]
+        S2[Clone upstream Swift packages]
+        S3[Run override.py --apply]
+        S4[Validate + renew certificates]
+        S5[Fastlane build + sign]
+        S6[Upload to TestFlight]
+    end
+
+    subgraph infra [Infrastructure]
+        M[Match-Secrets repo]
+        ASC[App Store Connect API]
+    end
+
+    T1 --> S1
+    T2 --> S1
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    M -->|"signing certs + profiles"| S5
+    S5 --> S6
+    S6 -->|"API key auth"| ASC
 ```
 
-Xcode will automatically fetch all Swift Package dependencies on first open. This may take a minute.
+Three workflows handle the full lifecycle:
 
-### 3. Configure Signing
+| Workflow | Trigger | What it does |
+|----------|---------|-------------|
+| **Add Identifiers** | Manual | Registers bundle IDs (`com.chatfort.chatfort` + widget) with App Groups and push notification capabilities |
+| **Create Certificates** | Manual or called by build | Validates secrets, checks certificate expiry, creates or renews signing certificates and provisioning profiles via Fastlane Match |
+| **Build ChatFort** | Manual (TestFlight/Ad Hoc) or scheduled | Applies brand overrides, builds the IPA, signs with Match profiles, uploads to TestFlight, and archives build artifacts |
 
-- In Xcode, select the **Open UI** target in the project navigator
-- Go to **Signing & Capabilities**
-- Select your **Development Team**
-- Update the **Bundle Identifier** if needed (e.g., `com.yourname.openui`)
+The build workflow runs on a scheduled cron (every other Sunday) to keep the TestFlight build fresh within the 90-day expiry window. Certificate renewal is fully automated — if a cert is expiring or the Match repo is empty, the pipeline creates new ones without intervention.
 
-### 4. Build & Run
+Signing credentials are stored in a private [Match](https://docs.fastlane.tools/actions/match/) secrets repo and encrypted with `MATCH_PASSWORD`. App Store Connect authentication uses an API key (key ID, issuer ID, private key) — no Apple ID or 2FA prompts in CI.
 
-- Select an **iOS 18+ simulator** or a connected device
-- Press **⌘R** (or click the ▶️ Play button)
-- On first launch, enter your Open WebUI server URL and sign in
+The result: edit a config file from a phone, push to `main`, trigger the workflow from the GitHub mobile app, and a signed build lands in TestFlight within minutes.
+
+---
+
+## Project Structure (Fork Additions Only)
+
+```
+chatfort-ios-open-relay/
+├── tools/BrandOverride/
+│   ├── brand_config.json          # brand values, string replacements, file lists
+│   ├── configs/                   # modular overrides (auth, server, fonts, performance)
+│   │   ├── 01_server_prefill.json
+│   │   ├── 02_auth_native_login.json
+│   │   ├── 02b_auth_native_login_view.json
+│   │   ├── 03_auth_token_refresh.json
+│   │   ├── 04_simplify_logout.json
+│   │   ├── 05_remove_advanced_screen.json
+│   │   ├── 06_snappy_performance.json
+│   │   └── 07_custom_fonts.json
+│   ├── scripts/                   # backup, restore, override, sync (Python + shell)
+│   ├── Assets/                    # icon bundles, native login view, fonts
+│   ├── docs/                      # Authentik setup, auth flow, token refresh guides
+│   └── backups/                   # versioned pristine/override snapshots
+├── fastlane/
+│   ├── Fastfile                   # build, sign, upload lanes for ChatFort
+│   └── Matchfile                  # match signing via private secrets repo
+├── .github/workflows/             # CI: build, certificates, identifiers
+├── Gemfile                        # Fastlane dependency pin
+└── README.md                      # this file
+```
+
+Everything else in the repo is the unmodified upstream codebase (until `override.sh --apply` is run).
 
 ---
 
 ## Tech Stack
 
-- **SwiftUI** — 100% SwiftUI interface
-- **Swift 6** with strict concurrency
-- **MVVM** architecture
-- **SSE (Server-Sent Events)** for real-time streaming
-- **CallKit** for native voice call integration
-- **MLX Swift** for on-device ML inference (Marvis TTS + Qwen3 ASR)
-- **Core Data** for local persistence
+| Component | Role |
+|-----------|------|
+| [Open Relay](https://github.com/Ichigo3766/Open-Relay) | Upstream iOS client (SwiftUI, Swift 6, MVVM, SSE streaming, CallKit, MLX) |
+| [Open WebUI](https://openwebui.com) | Self-hosted AI chat backend — routes to Claude, GPT, Gemini, local models |
+| [Authentik](https://goauthentik.io) | Identity provider — OAuth2/OIDC, MFA, native Flow Executor API |
+| [Fastlane](https://fastlane.tools) | iOS build automation — signing, provisioning, TestFlight upload |
+| GitHub Actions | CI/CD — triggers override, builds IPA, deploys to TestFlight |
+| Python | Override scripts — deterministic, diffable, no manual edits |
 
 ---
 
 ## Acknowledgments
 
-Special thanks to Conduit by cogwheel — Cross-Platform Open WebUI mobile client and a real inspiration for this project.
+This project is a fork of [Open Relay](https://github.com/Ichigo3766/Open-Relay) by [Ichigo3766](https://github.com/Ichigo3766). The upstream app is an excellent native iOS client for Open WebUI — well-architected, actively maintained, and feature-rich. This fork exists only to adapt it to a specific self-hosted setup; all core functionality comes from upstream.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT — same as upstream. See [LICENSE](LICENSE).

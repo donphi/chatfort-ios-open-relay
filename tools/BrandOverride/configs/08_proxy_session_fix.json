@@ -1,0 +1,21 @@
+{
+  "name": "proxy_session_fix",
+  "description": "Detect Authentik proxy session expiry in background validation and trigger re-auth instead of silently showing an empty screen",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Features/Auth/ViewModels/AuthViewModel.swift",
+      "replacements": [
+        {
+          "find": "            } else {\n                // Transient error — keep the user in the app, they can still\n                // browse cached data. Socket reconnect will handle recovery.\n                logger.info(\"🔄 Background validation: transient error (\\(apiError.localizedDescription)), keeping optimistic session\")\n            }\n        }",
+          "replace": "            } else {\n                // ChatFort override: detect proxy auth session expiry. When Caddy's\n                // forward_auth redirects to the Authentik login page, URLSession follows\n                // the redirect and returns HTML — which fails JSON decoding. This is NOT\n                // a network error and should trigger re-authentication on proxy-protected servers.\n                let isLikelyProxyExpiry: Bool\n                switch apiError {\n                case .responseDecoding, .redirectDetected:\n                    isLikelyProxyExpiry = serverConfigStore.activeServer?.isAuthProxyProtected == true\n                default:\n                    isLikelyProxyExpiry = false\n                }\n                if isLikelyProxyExpiry {\n                    logger.warning(\"⚠️ Background validation: proxy session expired — triggering re-auth\")\n                    client.updateAuthToken(nil)\n                    currentUser = nil\n                    clearCachedUser()\n                    await ensureBackendConfig()\n                    phase = .authMethodSelection\n                    errorMessage = \"Your session has expired. Please sign in again.\"\n                } else {\n                    // True transient error — keep the user in the app\n                    logger.info(\"🔄 Background validation: transient error (\\(apiError.localizedDescription)), keeping optimistic session\")\n                }\n            }\n        }"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Features/Auth/ViewModels/AuthViewModel.swift"
+  ]
+}

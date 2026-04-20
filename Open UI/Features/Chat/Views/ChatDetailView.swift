@@ -939,7 +939,7 @@ struct ChatDetailView: View {
 
             if old == 0 {
                 // First message in a new chat — smooth ease-out.
-                withAnimation(.easeOut(duration: 0.3)) {
+                withAnimation(.easeOut(duration: 0.18)) {
                     scrollPosition.scrollTo(edge: .bottom)
                 }
             } else if keyboard.isVisible {
@@ -3361,21 +3361,30 @@ struct ShareSheetView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-// MARK: - ScrollView Horizontal Lock
+// MARK: - Chat Scroll Controller (KVO Bottom Pinner)
 
 /// A zero-size `UIViewRepresentable` that finds the enclosing `UIScrollView`
-/// and installs a KVO observer on `contentOffset` to continuously snap
-/// `contentOffset.x` back to 0. This is the nuclear option for preventing
-/// horizontal panning — no matter what triggers it (animated insertions,
-/// transient layout overflow, MarkdownView intrinsic size, etc.), the
-/// horizontal offset is immediately corrected on the very next frame.
+/// and uses KVO observers on `contentSize` and `contentOffset` to provide:
 ///
-/// Also sets `alwaysBounceHorizontal = false` and `isDirectionalLockEnabled = true`
-/// as static configuration, and uses a pan gesture recognizer delegate to
-/// prevent horizontal pan recognition entirely.
-private struct ScrollViewHorizontalLock: UIViewRepresentable {
+/// 1. **Deterministic bottom-pinning:** When `contentSize.height` grows and the
+///    user is within 80px of the bottom, `contentOffset.y` is adjusted by exactly
+///    the growth delta in the same layout pass — no animation, no async dispatch,
+///    no detect-then-correct loop.
+///
+/// 2. **`isScrolledUp` tracking:** Exposes a `Binding<Bool>` that is `true` when
+///    the user has scrolled more than 120px from the bottom, driving FAB visibility.
+///
+/// 3. **Horizontal lock:** Snaps `contentOffset.x` to 0 and blocks horizontal pan
+///    gestures (subsumes all of the old `ScrollViewHorizontalLock` functionality).
+///
+/// 4. **Container height:** Exposes the scroll view's visible height via a binding
+///    so the parent can use it for `minHeight` frame constraints.
+private struct ChatScrollController: UIViewRepresentable {
+    @Binding var isScrolledUp: Bool
+    @Binding var containerHeight: CGFloat
+
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(isScrolledUp: $isScrolledUp, containerHeight: $containerHeight)
     }
 
     func makeUIView(context: Context) -> UIView {
@@ -3389,7 +3398,6 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
-        // Re-attach if the scroll view was recreated
         if context.coordinator.observedScrollView == nil {
             DispatchQueue.main.async {
                 context.coordinator.attach(to: uiView)
@@ -3402,9 +3410,20 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        private var observation: NSKeyValueObservation?
+        private var sizeObservation: NSKeyValueObservation?
+        private var offsetObservation: NSKeyValueObservation?
+        private var boundsObservation: NSKeyValueObservation?
         weak var observedScrollView: UIScrollView?
         private var panBlocker: UIPanGestureRecognizer?
+        private var isAdjustingOffset = false
+        private var isScrolledUp: Binding<Bool>
+        private var containerHeight: Binding<CGFloat>
+
+        init(isScrolledUp: Binding<Bool>, containerHeight: Binding<CGFloat>) {
+            self.isScrolledUp = isScrolledUp
+            self.containerHeight = containerHeight
+            super.init()
+        }
 
         func attach(to view: UIView) {
             guard observedScrollView == nil else { return }
@@ -3413,21 +3432,66 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
                 if let scrollView = sv as? UIScrollView {
                     observedScrollView = scrollView
 
-                    // Static configuration
                     scrollView.alwaysBounceHorizontal = false
                     scrollView.showsHorizontalScrollIndicator = false
                     scrollView.isDirectionalLockEnabled = true
 
-                    // KVO: snap contentOffset.x to 0 on every change
-                    observation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] sv, change in
-                        guard self != nil, let offset = change.newValue else { return }
+                    // Publish initial container height
+                    let h = scrollView.bounds.height
+                    if h > 0 { containerHeight.wrappedValue = h }
+
+                    // KVO: contentSize — the core deterministic bottom-pinning fix.
+                    // When content grows and user is near bottom, adjust offset
+                    // synchronously in the same layout pass.
+                    sizeObservation = scrollView.observe(\.contentSize, options: [.new, .old]) { [weak self] sv, change in
+                        guard let self, !self.isAdjustingOffset,
+                              let newSize = change.newValue, let oldSize = change.oldValue else { return }
+                        let delta = newSize.height - oldSize.height
+                        guard delta > 1 else { return }
+
+                        let distFromBottom = oldSize.height - sv.contentOffset.y - sv.bounds.height
+                        guard distFromBottom <= 80 else { return }
+                        guard !self.isNestedScrollViewActive(sv) else { return }
+
+                        self.isAdjustingOffset = true
+                        UIView.performWithoutAnimation {
+                            sv.contentOffset = CGPoint(x: 0, y: sv.contentOffset.y + delta)
+                        }
+                        self.isAdjustingOffset = false
+                    }
+
+                    // KVO: contentOffset — track isScrolledUp + horizontal lock
+                    offsetObservation = scrollView.observe(\.contentOffset, options: [.new]) { [weak self] sv, change in
+                        guard let self, !self.isAdjustingOffset, let offset = change.newValue else { return }
+
+                        // Horizontal lock
                         if abs(offset.x) > 0.5 {
-                            // Use setContentOffset to avoid triggering another KVO notification loop
+                            self.isAdjustingOffset = true
                             sv.contentOffset = CGPoint(x: 0, y: offset.y)
+                            self.isAdjustingOffset = false
+                        }
+
+                        // isScrolledUp tracking
+                        let distFromBottom = max(0, sv.contentSize.height - offset.y - sv.bounds.height)
+                        let scrolledUp = distFromBottom > 120
+                        if scrolledUp != self.isScrolledUp.wrappedValue {
+                            DispatchQueue.main.async {
+                                self.isScrolledUp.wrappedValue = scrolledUp
+                            }
                         }
                     }
 
-                    // Add a pan gesture recognizer that blocks horizontal panning
+                    // KVO: bounds — track container height changes (rotation, keyboard)
+                    boundsObservation = scrollView.observe(\.bounds, options: [.new]) { [weak self] sv, change in
+                        guard let self, let newBounds = change.newValue else { return }
+                        let h = newBounds.height
+                        if abs(h - self.containerHeight.wrappedValue) > 1 {
+                            DispatchQueue.main.async {
+                                self.containerHeight.wrappedValue = h
+                            }
+                        }
+                    }
+
                     let blocker = UIPanGestureRecognizer(target: nil, action: nil)
                     blocker.delegate = self
                     blocker.cancelsTouchesInView = false
@@ -3441,8 +3505,12 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
         }
 
         func detach() {
-            observation?.invalidate()
-            observation = nil
+            sizeObservation?.invalidate()
+            sizeObservation = nil
+            offsetObservation?.invalidate()
+            offsetObservation = nil
+            boundsObservation?.invalidate()
+            boundsObservation = nil
             if let blocker = panBlocker, let sv = observedScrollView {
                 sv.removeGestureRecognizer(blocker)
             }
@@ -3450,20 +3518,27 @@ private struct ScrollViewHorizontalLock: UIViewRepresentable {
             observedScrollView = nil
         }
 
+        private func isNestedScrollViewActive(_ parent: UIScrollView) -> Bool {
+            func check(_ view: UIView) -> Bool {
+                for child in view.subviews {
+                    if let sv = child as? UIScrollView, sv !== parent,
+                       sv.isDragging || sv.isDecelerating { return true }
+                    if check(child) { return true }
+                }
+                return false
+            }
+            return check(parent)
+        }
+
         // MARK: UIGestureRecognizerDelegate
 
-        /// Allow our blocker to recognize simultaneously with all other gestures
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
             true
         }
 
-        /// Block any pan gesture that is primarily horizontal
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
             guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return true }
-            // Only block if it's our custom blocker AND the pan is horizontal
-            if pan === panBlocker {
-                return false // never let our blocker actually begin
-            }
+            if pan === panBlocker { return false }
             return true
         }
     }

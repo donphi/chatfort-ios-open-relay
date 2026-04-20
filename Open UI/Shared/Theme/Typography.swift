@@ -4,8 +4,8 @@ import SwiftUI
 
 /// Typography scale following the Conduit design system.
 ///
-/// Uses the SF system fonts with carefully chosen sizes, weights, and
-/// line heights that support Dynamic Type.
+/// Uses custom brand fonts (Styrene B, Circular Std, Apercu Mono Pro)
+/// with carefully chosen sizes, weights, and line heights that support Dynamic Type.
 ///
 /// ## Accessibility Scaling
 /// All fonts support context-aware scaling via `AccessibilityManager`.
@@ -13,43 +13,68 @@ import SwiftUI
 /// to get fonts that respect the user's accessibility preferences.
 enum AppTypography {
 
+    // MARK: - Custom Font Mapping
+
+    static func customFont(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
+        let name: String
+        switch design {
+        case .monospaced:
+            switch weight {
+            case .semibold, .bold, .heavy, .black: name = "ApercuMonoPro-Bold"
+            case .medium: name = "ApercuMonoPro-Medium"
+            default: name = "ApercuMonoPro-Regular"
+            }
+        case .rounded:
+            switch weight {
+            case .bold, .heavy, .black: name = "CircularStd-Bold"
+            case .medium, .semibold: name = "CircularStd-Medium"
+            default: name = "CircularStd-Book"
+            }
+        default:
+            switch weight {
+            case .heavy, .black: name = "StyreneB-Black"
+            case .bold, .semibold: name = "StyreneB-Bold"
+            case .medium: name = "StyreneB-Medium"
+            case .light, .thin, .ultraLight: name = "StyreneB-Light"
+            default: name = "StyreneB-Regular"
+            }
+        }
+        return .custom(name, size: size)
+    }
+
     // MARK: - Font Definitions (Base Sizes)
 
-    static let displayLargeFont: Font = .system(size: 48, weight: .bold, design: .default)
-    static let displayMediumFont: Font = .system(size: 36, weight: .bold, design: .default)
-    static let displaySmallFont: Font = .system(size: 32, weight: .bold, design: .default)
+    static let displayLargeFont: Font = customFont(size: 48, weight: .bold)
+    static let displayMediumFont: Font = customFont(size: 36, weight: .bold)
+    static let displaySmallFont: Font = customFont(size: 32, weight: .bold)
 
-    static let headlineLargeFont: Font = .system(size: 28, weight: .bold, design: .default)
-    static let headlineMediumFont: Font = .system(size: 24, weight: .semibold, design: .default)
-    static let headlineSmallFont: Font = .system(size: 20, weight: .semibold, design: .default)
+    static let headlineLargeFont: Font = customFont(size: 28, weight: .bold)
+    static let headlineMediumFont: Font = customFont(size: 24, weight: .semibold)
+    static let headlineSmallFont: Font = customFont(size: 20, weight: .semibold)
 
-    static let bodyLargeFont: Font = .system(size: 18, weight: .regular, design: .default)
-    static let bodyMediumFont: Font = .system(size: 16, weight: .regular, design: .default)
-    static let bodySmallFont: Font = .system(size: 14, weight: .regular, design: .default)
+    static let bodyLargeFont: Font = customFont(size: 18)
+    static let bodyMediumFont: Font = customFont(size: 16)
+    static let bodySmallFont: Font = customFont(size: 14)
 
-    static let labelLargeFont: Font = .system(size: 16, weight: .medium, design: .default)
-    static let labelMediumFont: Font = .system(size: 14, weight: .medium, design: .default)
-    static let labelSmallFont: Font = .system(size: 12, weight: .medium, design: .default)
+    static let labelLargeFont: Font = customFont(size: 16, weight: .medium)
+    static let labelMediumFont: Font = customFont(size: 14, weight: .medium)
+    static let labelSmallFont: Font = customFont(size: 12, weight: .medium)
 
-    static let captionFont: Font = .system(size: 12, weight: .medium, design: .default)
-    static let codeFont: Font = .system(size: 14, weight: .regular, design: .monospaced)
-    static let codeLargeFont: Font = .system(size: 16, weight: .regular, design: .monospaced)
+    static let captionFont: Font = customFont(size: 12, weight: .medium)
+    static let codeFont: Font = customFont(size: 14, design: .monospaced)
+    static let codeLargeFont: Font = customFont(size: 16, design: .monospaced)
 
     // MARK: - Scaled Font Factory
 
-    /// Returns a font scaled by the given factor.
-    /// Preserves weight and design while adjusting the point size.
     static func scaled(
         baseSize: CGFloat,
         weight: Font.Weight = .regular,
         design: Font.Design = .default,
         scale: CGFloat
     ) -> Font {
-        .system(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)
+        customFont(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)
     }
 
-    /// Returns a system font scaled by the accessibility manager's factor
-    /// for the given context.
     static func scaled(
         baseSize: CGFloat,
         weight: Font.Weight = .regular,
@@ -58,7 +83,7 @@ enum AppTypography {
         manager: AccessibilityManager
     ) -> Font {
         let scale = manager.scale(for: context)
-        return .system(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)
+        return customFont(size: round(baseSize * scale * 10) / 10, weight: weight, design: design)
     }
 }
 
@@ -228,7 +253,7 @@ struct ScaledFontModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         let scale = accessibilityScale.scale(for: context)
-        content.font(.system(
+        content.font(AppTypography.customFont(
             size: round(baseSize * scale * 10) / 10,
             weight: weight,
             design: design

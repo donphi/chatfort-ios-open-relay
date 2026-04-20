@@ -20,7 +20,7 @@ struct AppearanceSettingsView: View {
                 // Color Scheme
                 SettingsSection(
                     header: "Appearance",
-                    footer: "Choose how Open Relay looks. System follows your device settings."
+                    footer: "Choose how ChatFort looks. System follows your device settings."
                 ) {
                     colorSchemePicker
                 }

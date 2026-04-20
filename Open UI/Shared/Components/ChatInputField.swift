@@ -381,17 +381,13 @@ struct ChatInputField: View {
     @AppStorage("sendOnEnter") private var sendOnEnter = true
 
     /// Base font size for the chat input field.
-    private static let inputBaseFontSize: CGFloat = 14
+    private static let inputBaseFontSize: CGFloat = 17
 
     /// Rounded system font scaled by the user's accessibility content scale.
     private var scaledInputFont: UIFont {
         let scale = accessibilityScale.scale(for: .content)
         let size = round(Self.inputBaseFontSize * scale * 10) / 10
-        let base = UIFont.systemFont(ofSize: size, weight: .regular)
-        if let rounded = base.fontDescriptor.withDesign(.rounded) {
-            return UIFont(descriptor: rounded, size: size)
-        }
-        return base
+        return UIFont(name: "CircularStd-Book", size: size) ?? UIFont.systemFont(ofSize: size)
     }
 
     private var textField: some View {
@@ -402,7 +398,7 @@ struct ChatInputField: View {
             textColor: UIColor(theme.textPrimary),
             placeholderColor: UIColor(theme.textTertiary),
             tintColor: UIColor(theme.brandPrimary),
-            isEnabled: isEnabled,
+            isEnabled: true,
             onPasteAttachments: { pastedAttachments in
                 withAnimation(.easeOut(duration: 0.15)) {
                     attachments.append(contentsOf: pastedAttachments)

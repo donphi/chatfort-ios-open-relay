@@ -1,0 +1,73 @@
+{
+  "name": "snappy_performance",
+  "description": "Tighten animations and reduce delays for a snappier, more responsive chat UI on modern iPhones",
+  "version": "1.0",
+
+  "string_replacements": [
+    {
+      "file": "Open UI/Shared/Theme/DesignTokens.swift",
+      "replacements": [
+        {
+          "find": "    static let instant: Double = 0.1\n    static let fast: Double = 0.2\n    static let medium: Double = 0.3\n    static let slow: Double = 0.5\n    static let slower: Double = 0.8\n    static let messageAppear: Double = 0.35",
+          "replace": "    static let instant: Double = 0.05\n    static let fast: Double = 0.12\n    static let medium: Double = 0.18\n    static let slow: Double = 0.3\n    static let slower: Double = 0.5\n    static let messageAppear: Double = 0.2"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Theme/Animations.swift",
+      "replacements": [
+        {
+          "find": "    static let snappy: Animation = .spring(\n        response: 0.3,\n        dampingFraction: 0.7,\n        blendDuration: 0\n    )",
+          "replace": "    static let snappy: Animation = .spring(\n        response: 0.2,\n        dampingFraction: 0.85,\n        blendDuration: 0\n    )"
+        },
+        {
+          "find": "    static let gentle: Animation = .spring(\n        response: 0.5,\n        dampingFraction: 0.8,\n        blendDuration: 0.1\n    )",
+          "replace": "    static let gentle: Animation = .spring(\n        response: 0.3,\n        dampingFraction: 0.85,\n        blendDuration: 0\n    )"
+        },
+        {
+          "find": "    static let bouncy: Animation = .spring(\n        response: 0.4,\n        dampingFraction: 0.6,\n        blendDuration: 0\n    )",
+          "replace": "    static let bouncy: Animation = .spring(\n        response: 0.25,\n        dampingFraction: 0.7,\n        blendDuration: 0\n    )"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Features/Chat/Views/ChatDetailView.swift",
+      "replacements": [
+        {
+          "find": "DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {\n                    withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {\n                        scrollPosition.scrollTo(edge: .bottom)\n                    }\n                }\n            } else {\n                // Keyboard already hidden (follow-ups, etc.) — scroll now.\n                withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {\n                    scrollPosition.scrollTo(edge: .bottom)\n                }",
+          "replace": "DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {\n                    withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {\n                        scrollPosition.scrollTo(edge: .bottom)\n                    }\n                }\n            } else {\n                // Keyboard already hidden (follow-ups, etc.) — scroll now.\n                withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {\n                    scrollPosition.scrollTo(edge: .bottom)\n                }"
+        },
+        {
+          "find": "withAnimation(.easeOut(duration: 0.3)) {\n                    scrollPosition.scrollTo(edge: .bottom)\n                }",
+          "replace": "withAnimation(.easeOut(duration: 0.18)) {\n                    scrollPosition.scrollTo(edge: .bottom)\n                }"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChatInputField.swift",
+      "replacements": [
+        {
+          "find": "            isEnabled: isEnabled,\n            onPasteAttachments: { pastedAttachments in",
+          "replace": "            isEnabled: true,\n            onPasteAttachments: { pastedAttachments in"
+        }
+      ]
+    },
+    {
+      "file": "Open UI/Shared/Components/ChatMessageBubble.swift",
+      "replacements": [
+        {
+          "find": "                    .animation(\n                        .easeInOut(duration: 0.6)\n                            .repeatForever()\n                            .delay(Double(i) * 0.2),\n                        value: animate\n                    )",
+          "replace": "                    .animation(\n                        .easeInOut(duration: 0.45)\n                            .repeatForever()\n                            .delay(Double(i) * 0.15),\n                        value: animate\n                    )"
+        }
+      ]
+    }
+  ],
+
+  "files_to_backup": [
+    "Open UI/Shared/Theme/DesignTokens.swift",
+    "Open UI/Shared/Theme/Animations.swift",
+    "Open UI/Features/Chat/Views/ChatDetailView.swift",
+    "Open UI/Shared/Components/ChatMessageBubble.swift",
+    "Open UI/Shared/Components/ChatInputField.swift"
+  ]
+}

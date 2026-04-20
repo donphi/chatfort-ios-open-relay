@@ -71,12 +71,12 @@ enum TouchTarget {
 
 /// Consistent animation durations.
 enum AnimDuration {
-    static let instant: Double = 0.1
-    static let fast: Double = 0.2
-    static let medium: Double = 0.3
-    static let slow: Double = 0.5
-    static let slower: Double = 0.8
-    static let messageAppear: Double = 0.35
+    static let instant: Double = 0.05
+    static let fast: Double = 0.12
+    static let medium: Double = 0.18
+    static let slow: Double = 0.3
+    static let slower: Double = 0.5
+    static let messageAppear: Double = 0.2
 }
 
 // MARK: - Opacity Constants

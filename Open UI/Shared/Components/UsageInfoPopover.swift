@@ -38,7 +38,7 @@ struct UsageInfoPopover: View {
                     .foregroundStyle(theme.brandPrimary)
             }
             Text("Token Usage")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.custom("StyreneB-Bold", size: 15))
                 .foregroundStyle(theme.textPrimary)
             Spacer()
         }
@@ -77,7 +77,7 @@ struct UsageInfoPopover: View {
     /// Section header row (e.g. "Completion Tokens Details")
     private func sectionHeaderRow(_ row: UsageRow) -> some View {
         Text(row.label)
-            .font(.system(size: 10, weight: .bold))
+            .font(.custom("StyreneB-Bold", size: 10))
             .foregroundStyle(theme.textTertiary)
             .kerning(0.5)
             .textCase(.uppercase)
@@ -98,7 +98,7 @@ struct UsageInfoPopover: View {
             }
 
             Text(row.label)
-                .font(.system(size: row.indent == 0 ? 13.5 : 12.5))
+                .font(.custom("StyreneB-Regular", size: row.indent == 0 ? 13.5 : 12.5))
                 .foregroundStyle(row.indent == 0 ? theme.textSecondary : theme.textTertiary)
                 .lineLimit(1)
                 .padding(.leading, row.indent == 0 ? 16 : 5)
@@ -106,7 +106,7 @@ struct UsageInfoPopover: View {
             Spacer(minLength: 4)
 
             Text(row.formattedValue)
-                .font(.system(size: row.indent == 0 ? 13.5 : 12.5, weight: .semibold).monospacedDigit())
+                .font(.custom("StyreneB-Bold", size: row.indent == 0 ? 13.5 : 12.5).monospacedDigit())
                 .foregroundStyle(row.indent == 0 ? theme.textPrimary : theme.textSecondary)
                 .padding(.trailing, 16)
         }

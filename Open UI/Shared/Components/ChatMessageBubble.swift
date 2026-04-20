@@ -191,9 +191,9 @@ struct TypingIndicator: View {
                     .scaleEffect(animate ? 1.0 : 0.5)
                     .opacity(animate ? 1.0 : 0.3)
                     .animation(
-                        .easeInOut(duration: 0.6)
+                        .easeInOut(duration: 0.45)
                             .repeatForever()
-                            .delay(Double(i) * 0.2),
+                            .delay(Double(i) * 0.15),
                         value: animate
                     )
             }

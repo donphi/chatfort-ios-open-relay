@@ -12,22 +12,22 @@ enum MicroAnimation {
 
     /// A responsive spring for button presses and quick feedback.
     static let snappy: Animation = .spring(
-        response: 0.3,
-        dampingFraction: 0.7,
+        response: 0.2,
+        dampingFraction: 0.85,
         blendDuration: 0
     )
 
     /// A gentle spring for view transitions.
     static let gentle: Animation = .spring(
-        response: 0.5,
-        dampingFraction: 0.8,
-        blendDuration: 0.1
+        response: 0.3,
+        dampingFraction: 0.85,
+        blendDuration: 0
     )
 
     /// A bouncy spring for playful, attention-grabbing effects.
     static let bouncy: Animation = .spring(
-        response: 0.4,
-        dampingFraction: 0.6,
+        response: 0.25,
+        dampingFraction: 0.7,
         blendDuration: 0
     )
 

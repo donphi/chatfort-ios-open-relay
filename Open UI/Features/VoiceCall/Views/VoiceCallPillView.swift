@@ -15,7 +15,7 @@ struct VoiceCallPillView: View {
                     StateDotView(state: viewModel.callState)
 
                     Text(viewModel.formattedDuration)
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .font(.custom("ApercuMonoPro-Bold", size: 10))
                         .foregroundStyle(.white.opacity(0.85))
                         .contentTransition(.numericText())
                 }

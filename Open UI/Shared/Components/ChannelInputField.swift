@@ -49,16 +49,12 @@ struct ChannelInputField: View {
     // MARK: - Font
 
     /// Base font size matching ChatInputField.
-    private static let inputBaseFontSize: CGFloat = 14
+    private static let inputBaseFontSize: CGFloat = 17
 
     private var scaledInputFont: UIFont {
         let scale = accessibilityScale.scale(for: .content)
         let size = round(Self.inputBaseFontSize * scale * 10) / 10
-        let base = UIFont.systemFont(ofSize: size, weight: .regular)
-        if let rounded = base.fontDescriptor.withDesign(.rounded) {
-            return UIFont(descriptor: rounded, size: size)
-        }
-        return base
+        return UIFont(name: "CircularStd-Book", size: size) ?? UIFont.systemFont(ofSize: size)
     }
 
     // MARK: - Body

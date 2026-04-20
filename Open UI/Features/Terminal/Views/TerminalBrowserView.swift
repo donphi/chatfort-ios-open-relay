@@ -663,7 +663,7 @@ private struct TerminalTextField: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UITextField {
         let field = UITextField()
-        field.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+        field.font = UIFont(name: "ApercuMonoPro-Regular", size: 14) ?? .monospacedSystemFont(ofSize: 14, weight: .regular)
         field.textColor = textColor
         field.tintColor = textColor
         field.attributedPlaceholder = NSAttributedString(

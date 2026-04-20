@@ -19,8 +19,6 @@ struct ChannelDetailView: View {
     @State private var viewModel: ChannelViewModel
     @State private var scrollPosition = ScrollPosition()
     @State private var isScrolledUp = false
-    @State private var lastScrollOffset: CGFloat = 0
-    @State private var contentHeight: CGFloat = 0
     @State private var containerHeight: CGFloat = 0
     @State private var keyboard = KeyboardTracker()
     
@@ -606,26 +604,10 @@ struct ChannelDetailView: View {
             // this subtree and continues to animate correctly.
             .transaction { $0.animation = nil }
         }
+        .background(ChatScrollController(isScrolledUp: $isScrolledUp, containerHeight: $containerHeight))
         .scrollDismissesKeyboard(.interactively)
         .defaultScrollAnchor(.bottom)
         .scrollPosition($scrollPosition, anchor: .bottom)
-        .onScrollGeometryChange(for: CGPoint.self) { geo in
-            geo.contentOffset
-        } action: { _, newOffset in
-            let distFromBottom = max(0, contentHeight - newOffset.y - containerHeight)
-            if distFromBottom <= 120 {
-                if isScrolledUp { isScrolledUp = false }
-            } else if newOffset.y < lastScrollOffset - 40 {
-                if !isScrolledUp { isScrolledUp = true }
-            }
-            if abs(newOffset.y - lastScrollOffset) > 2 { lastScrollOffset = newOffset.y }
-        }
-        .onScrollGeometryChange(for: CGSize.self) { geo in
-            CGSize(width: geo.contentSize.height, height: geo.containerSize.height)
-        } action: { _, newSize in
-            if abs(newSize.width - contentHeight) > 1 { contentHeight = newSize.width }
-            if abs(newSize.height - containerHeight) > 1 { containerHeight = newSize.height }
-        }
     }
     
     // MARK: - Message Grouping
@@ -1001,7 +983,7 @@ struct ChannelDetailView: View {
                     let isOwn = reaction.userIds.contains(viewModel.currentUserId ?? "")
                     HStack(spacing: 2) {
                         Text(reaction.name.emojiFromShortcode)
-                            .font(.system(size: 13))
+                            .font(.custom("StyreneB-Regular", size: 13))
                         if reaction.count > 1 {
                             Text("\(reaction.count)")
                                 .scaledFont(size: 11, weight: .medium)
