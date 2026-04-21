@@ -372,11 +372,11 @@
   "icon_files": [
     {
       "source": "Assets/AppIcon-preview.png",
-      "target": "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
+      "target": "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07\u202fPM.png"
     },
     {
       "source": "Assets/AppIcon-preview.png",
-      "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
+      "target": "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07\u202fPM.png"
     }
   ],
 
@@ -411,7 +411,7 @@
     "PRIVACY.md",
     "fastlane/Fastfile",
     "fastlane/Matchfile",
-    "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png",
-    "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07 PM.png"
+    "Open UI/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07\u202fPM.png",
+    "OpenUIWidgets/Assets.xcassets/AppIconImage.imageset/Screenshot 2026-04-07 at 1.33.07\u202fPM.png"
   ]
 }
